@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAI - Dashboard PDV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0d1117;
+            color: #1e293b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR (Barra Lateral Esquerda) --- */
+        .sidebar {
+            width: 260px;
+            background-color: #11141a;
+            border-right: 1px solid #21262d;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 16px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 0 12px;
+            margin-bottom: 32px;
+        }
+
+        .sidebar-brand i.fa-store {
+            color: #e63946;
+            background: rgba(230, 57, 70, 0.15);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .menu-item a:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+        }
+
+        .menu-item.active a {
+            background-color: #e63946;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: color 0.2s;
+        }
+
+        .sidebar-footer a:hover {
+            color: #e63946;
+        }
+
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            background-color: #f8fafc;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* Topbar / Header interno */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .topbar h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px 10px 38px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 280px;
+            outline: none;
+            color: #334155;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .search-shortcut {
+            position: absolute;
+            right: 12px;
+            font-size: 11px;
+            color: #94a3b8;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .notifications {
+            position: relative;
+            font-size: 20px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #e63946;
+            color: white;
+            font-size: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            border: 2px solid #f8fafc;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #cbd5e1;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+
+        /* --- CARDS DE MÉTRICAS (GRID SUPERIOR) --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card-metric {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .metric-info p {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .metric-info h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .metric-growth {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .growth-up { color: #10b981; }
+
+        .metric-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        /* Cores customizadas dos ícones dos cards */
+        .icon-red { background-color: rgba(230, 57, 70, 0.1); color: #e63946; }
+        .icon-blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .icon-green { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .icon-purple { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+
+        /* --- SEÇÃO DE GRÁFICOS E ÚLTIMAS VENDAS (GRID INFERIOR) --- */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .panel-select {
+            padding: 6px 12px;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border-radius: 6px;
+            color: #475569;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Representação Simples de Gráfico de Linha via CSS */
+        .chart-placeholder {
+            height: 220px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-top: 20px;
+            position: relative;
+            border-bottom: 2px solid #e2e8f0;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 10px;
+        }
+
+        /* Efeito visual simulando a área preenchida do gráfico da imagem */
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to top, rgba(230, 57, 70, 0.15), rgba(230, 57, 70, 0));
+            clip-path: polygon(0% 70%, 15% 60%, 30% 35%, 50% 45%, 70% 30%, 85% 20%, 100% 10%, 100% 100%, 0% 100%);
+        }
+
+        .chart-days {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-left: 15px;
+        }
+
+        .chart-days span {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            width: 40px;
+            text-align: center;
+        }
+
+        /* Lista de Últimas Vendas */
+        .sales-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sale-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .sale-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .sale-product-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Círculo com iniciais ou ícone para os itens vendidos */
+        .sale-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .sale-time {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .sale-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .btn-view-all {
+            width: 100%;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-view-all:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Responsividade Básica */
+        @media (max-width: 1100px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <span>2. Dashboard</span>
+                <i class="fa-solid fa-store"></i>
+            </div>
+            
+            <ul class="menu-list">
+                <li class="menu-item active">
+                    <a href="#"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                </li>
+                <li class="menu-item">
+                    <a href="#"><i class="fa-solid fa-cart-shopping"></i> Vendas</a>
+                </li>
+                <li class="menu-item">
+                    <a href="#"><i class="fa-solid fa-box"></i> Produtos</a>
+                </li>
+                <li class="menu-item">
+                    <a href="#"><i class="fa-solid fa-users"></i> Clientes</a>
+                </li>
+                <li class="menu-item">
+                    <a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Relatórios</a>
+                </li>
+                <li class="menu-item">
+                    <a href="#"><i class="fa-solid fa-gear"></i> Configurações</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="topbar">
+            <h1>Dashboard</h1>
+            
+            <div class="topbar-right">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar (Ctrl + K)">
+                    <span class="search-shortcut">Ctrl + K</span>
+                </div>
+                
+                <div class="notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="badge">1</span>
+                </div>
+                
+                <div class="user-profile">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60" alt="Avatar Usuário">
+                    <div class="user-info">
+                        <span class="user-name">João Silva <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 2px;"></i></span>
+                        <span class="user-role">Operador</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="metrics-grid">
+            
+            <div class="card-metric">
+                <div class="metric-info">
+                    <p>Vendas hoje</p>
+                    <h3>R$ 12.450,00</h3>
+                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +12,5% vs ontem</span>
+                </div>
+                <div class="metric-icon-box icon-red">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+            </div>
+
+            <div class="card-metric">
+                <div class="metric-info">
+                    <p>Pedidos</p>
+                    <h3>128</h3>
+                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +8,2% vs ontem</span>
+                </div>
+                <div class="metric-icon-box icon-blue">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+            </div>
+
+            <div class="card-metric">
+                <div class="metric-info">
+                    <p>Itens vendidos</p>
+                    <h3>358</h3>
+                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +15,2% vs ontem</span>
+                </div>
+                <div class="metric-icon-box icon-green">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+            </div>
+
+            <div class="card-metric">
+                <div class="metric-info">
+                    <p>Clientes atendidos</p>
+                    <h3>23</h3>
+                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +5,1% vs ontem</span>
+                </div>
+                <div class="metric-icon-box icon-purple">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="details-grid">
+            
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h2>Vendas dos últimos 7 dias</h2>
+                    <select class="panel-select">
+                        <option>7 dias</option>
+                        <option>15 dias</option>
+                        <option>30 dias</option>
+                    </select>
+                </div>
+                
+                <div class="chart-placeholder"></div>
+                <div class="chart-days">
+                    <span>Qui</span>
+                    <span>Sex</span>
+                    <span>Sáb</span>
+                    <span>Dom</span>
+                    <span>Seg</span>
+                    <span>Ter</span>
+                    <span>Hoje</span>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h2>Últimas vendas</h2>
+                </div>
+                
+                <div class="sales-list">
+                    <div class="sale-item">
+                        <div class="sale-product-info">
+                            <div class="sale-avatar"><i class="fa-solid fa-shirt"></i></div>
+                            <div>
+                                <div class="product-name">João Silva</div>
+                                <div class="sale-time">10:45</div>
+                            </div>
+                        </div>
+                        <div class="sale-value">R$ 45,90</div>
+                    </div>
+
+                    <div class="sale-item">
+                        <div class="sale-product-info">
+                            <div class="sale-avatar"><i class="fa-solid fa-bag-shopping"></i></div>
+                            <div>
+                                <div class="product-name">Maria Souza</div>
+                                <div class="sale-time">10:15</div>
+                            </div>
+                        </div>
+                        <div class="sale-value">R$ 129,90</div>
+                    </div>
+
+                    <div class="sale-item">
+                        <div class="sale-product-info">
+                            <div class="sale-avatar"><i class="fa-solid fa-shoe-prints"></i></div>
+                            <div>
+                                <div class="product-name">Pedro Lima</div>
+                                <div class="sale-time">09:30</div>
+                            </div>
+                        </div>
+                        <div class="sale-value">R$ 45,00</div>
+                    </div>
+
+                    <div class="sale-item">
+                        <div class="sale-product-info">
+                            <div class="sale-avatar"><i class="fa-solid fa-gem"></i></div>
+                            <div>
+                                <div class="product-name">Ana Costa</div>
+                                <div class="sale-time">09:10</div>
+                            </div>
+                        </div>
+                        <div class="sale-value">R$ 199,90</div>
+                    </div>
+
+                    <div class="sale-item">
+                        <div class="sale-product-info">
+                            <div class="sale-avatar"><i class="fa-solid fa-hat-cowboy"></i></div>
+                            <div>
+                                <div class="product-name">Carlos Dias</div>
+                                <div class="sale-time">09:10</div>
+                            </div>
+                        </div>
+                        <div class="sale-value">R$ 75,50</div>
+                    </div>
+                </div>
+
+                <button class="btn-view-all">Ver todas</button>
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
