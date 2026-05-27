@@ -1,0 +1,423 @@
+/* Resets e Configurações Globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #0d111a;
+    color: #ffffff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Layout Container Principal */
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* --- BARRA LATERAL (SIDEBAR) --- */
+.sidebar {
+    width: 70px;
+    background-color: #111622;
+    border-right: 1px solid #1a2235;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo-icon {
+    width: 35px;
+    height: 35px;
+    background-color: #d32f2f;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon div {
+    width: 15px;
+    height: 2px;
+    background-color: #fff;
+    box-shadow: 0 5px 0 #fff, 0 -5px 0 #fff;
+}
+
+.nav-btn {
+    width: 45px;
+    height: 45px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: #515f79;
+    margin-bottom: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.nav-btn.active {
+    background-color: #e53935;
+    color: white;
+}
+
+/* Simulando ícones simples por CSS */
+.nav-btn i {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #707e94;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+/* Topbar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.title-search {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex: 1;
+}
+
+.topbar h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.search-container {
+    position: relative;
+    width: 50%;
+    max-width: 500px;
+}
+
+.search-container input {
+    width: 100%;
+    background-color: #111622;
+    border: 1px solid #1a2235;
+    border-radius: 8px;
+    padding: 12px 45px 12px 40px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.search-container input::placeholder {
+    color: #4e5d78;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4e5d78;
+}
+
+.search-container .shortcut {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #1a2235;
+    color: #707e94;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-customer {
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-customer .plus-sign {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.shortcut-light {
+    color: #ffb4b4;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+.btn-grid-menu {
+    background: none;
+    border: none;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    cursor: pointer;
+}
+
+.btn-grid-menu span {
+    background-color: #4e5d78;
+    border-radius: 1px;
+}
+
+/* Categorias */
+.categories-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.cat-btn {
+    background-color: #111622;
+    border: 1px solid #1a2235;
+    color: #a0aec0;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cat-btn.active {
+    background-color: #e53935;
+    color: #fff;
+    border-color: #e53935;
+}
+
+/* Grid de Produtos */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 12px;
+}
+
+.product-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    height: 165px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.product-img {
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 8px;
+}
+
+/* Placeholders simulando as cores dos produtos da foto */
+.img-agua { background-color: #bbdefb; border-radius: 4px; }
+.img-coca { background-color: #d32f2f; border-radius: 4px; }
+.img-suco { background-color: #fff59d; border-radius: 4px; }
+.img-pao { background-color: #ffe0b2; border-radius: 4px; }
+.img-leite { background-color: #e0e0e0; border-radius: 4px; }
+.img-amer { background-color: #37474f; border-radius: 4px; }
+.img-arroz { background-color: #fff9c4; border-radius: 4px; }
+.img-feijao { background-color: #bcaaa4; border-radius: 4px; }
+.img-detergente { background-color: #ce93d8; border-radius: 4px; }
+.img-sabonete { background-color: #e1bee7; border-radius: 4px; }
+.img-papel { background-color: #90caf9; border-radius: 4px; }
+.img-cafe { background-color: #8d6e63; border-radius: 4px; }
+.img-acucar { background-color: #cfd8dc; border-radius: 4px; }
+
+.product-name {
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.product-name strong {
+    font-weight: 700;
+}
+
+.product-price {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* --- CARRINHO LATERAL (DIREITO) --- */
+.cart-sidebar {
+    width: 340px;
+    background-color: #111622;
+    border-left: 1px solid #1a2235;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.cart-count {
+    font-size: 12px;
+    color: #4e5d78;
+}
+
+.cart-sub-count {
+    font-size: 12px;
+    color: #707e94;
+    margin-top: 4px;
+    margin-bottom: 20px;
+}
+
+.cart-items-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Item Individual no Carrinho */
+.cart-item {
+    background-color: #161f30;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cart-item-img {
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e2e8f0;
+    margin-bottom: 2px;
+}
+
+.item-qty {
+    font-size: 12px;
+    color: #707e94;
+}
+
+.item-total {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.clear-cart-btn {
+    background: none;
+    border: none;
+    color: #515f79;
+    font-size: 13px;
+    cursor: pointer;
+    margin: 15px auto;
+    text-align: center;
+}
+
+/* Rodapé do Carrinho */
+.cart-footer {
+    border-top: 1px dashed #1a2235;
+    padding-top: 20px;
+}
+
+.total-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.total-label {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.total-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.checkout-btn {
+    width: 100%;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+/* Pequeno efeito hover nos botões de destaque */
+.btn-customer:hover, .checkout-btn:hover {
+    background-color: #d32f2f;
+}
