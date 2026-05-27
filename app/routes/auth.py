@@ -17,7 +17,8 @@ def cadastro(nome: str, email: str, senha: str, db: Session = Depends(get_db)):
     novo = Usuario(
         nome=nome,
         email=email,
-        senha=hash_senha(senha)
+        senha=hash_senha(senha),
+        role="vendedor",
     )
 
     db.add(novo)
@@ -32,6 +33,9 @@ def login(email: str, senha: str, db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    if not user.ativo:
+        raise HTTPException(status_code=403, detail="Usuário desativado")
 
     if not verificar_senha(senha, user.senha):
         raise HTTPException(status_code=401, detail="Senha inválida")
