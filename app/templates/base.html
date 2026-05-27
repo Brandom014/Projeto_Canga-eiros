@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+
+        .info-section img {
+            max-width: 180px;  /* Define a largura máxima ideal para a logo */
+            width: 100%;       /* Garante que ela seja responsiva */
+            height: auto;      /* Mantém as proporções da imagem sem distorcer */
+            margin-bottom: 20px; /* Cria um espaçamento entre a logo e o texto abaixo */
+        }
         * {
             margin: 0;
             padding: 0;
@@ -17,156 +24,127 @@
             font-family: 'Inter', sans-serif;
         }
 
+      
         body {
-            background-color: #0d1117;
+            background: linear-gradient(135deg, rgba(168, 14, 26, 0.9) 0%, rgba(13, 18, 29, 0.95) 40%, #090c12 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 20px;
         }
 
-        /* Container Principal */
-        .login-container {
+        .container {
             width: 100%;
             max-width: 1000px;
-            background: linear-gradient(135deg, #4a0e17 0%, #1a0813 50%, #0d1117 100%);
-            border: 1px solid #21262d;
-            border-radius: 12px;
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            position: relative;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding: 20px;
         }
 
-        /* --- Lado Esquerdo (Boas-vindas) --- */
-        .welcome-side {
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        /* Lado Esquerdo - Info */
+        .info-section {
             color: #ffffff;
-            position: relative;
         }
 
         .logo-senai {
+            background-color: #ff1e27;
+            color: #fff;
+            font-weight: 900;
             font-size: 28px;
-            font-weight: 800;
             font-style: italic;
-            color: #ffffff;
-            background-color: #e63946;
             padding: 5px 15px;
             display: inline-block;
-            width: fit-content;
             letter-spacing: 1px;
-            border-radius: 4px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            border-radius: 2px;
         }
 
-        .welcome-side h2 {
+        .welcome-text {
             font-size: 16px;
-            font-weight: 400;
-            color: #cbd5e1;
-            margin-bottom: 8px;
+            color: #cccccc;
+            margin-bottom: 5px;
         }
 
-        .welcome-side h1 {
+        .title {
             font-size: 36px;
             font-weight: 700;
             line-height: 1.2;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
-        .welcome-side h1 span {
-            color: #e63946;
+        .title span {
+            color: #ff4d52;
         }
 
-        .welcome-side p {
-            font-size: 14px;
-            color: #94a3b8;
+        .subtitle {
+            font-size: 15px;
+            color: #aaaaaa;
             margin-bottom: 40px;
         }
 
-        /* Benefícios / Features */
         .features-list {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
+            list-style: none;
         }
 
         .feature-item {
             display: flex;
             align-items: center;
-            gap: 16px;
+            margin-bottom: 25px;
+            font-size: 16px;
+            font-weight: 500;
         }
 
         .feature-icon {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(230, 57, 70, 0.15);
+            background-color: rgba(255, 30, 39, 0.15);
+            color: #ff4d52;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #e63946;
+            margin-right: 15px;
             font-size: 16px;
         }
 
-        .feature-text {
-            font-size: 15px;
-            font-weight: 500;
-            color: #e2e8f0;
-        }
-
-        /* Detalhe de pontinhos decorativos */
-        .dots-pattern {
-            position: absolute;
-            bottom: 40px;
-            left: 60px;
-            opacity: 0.15;
-            display: grid;
-            grid-template-columns: repeat(5, 8px);
-            gap: 8px;
-        }
-        .dots-pattern span {
-            width: 4px;
-            height: 4px;
-            background-color: #fff;
-            border-radius: 50%;
-        }
-
-        /* --- Lado Direito (Card de Login) --- */
-        .form-side {
+        /* Lado Direito - Card de Login */
+        .login-card {
             background-color: #ffffff;
-            padding: 50px 45px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 420px;
+            justify-self: center;
         }
 
-        .form-header h2 {
-            font-size: 28px;
-            color: #1e293b;
-            font-weight: 600;
-            margin-bottom: 6px;
+        .card-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 5px;
         }
 
-        .form-header p {
+        .card-subtitle {
             font-size: 13px;
-            color: #64748b;
-            margin-bottom: 32px;
+            color: #777777;
+            margin-bottom: 30px;
         }
 
-        .input-group {
+        .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
-        .input-group label {
+        .form-group label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            color: #334155;
+            color: #333333;
             margin-bottom: 8px;
         }
 
@@ -176,55 +154,47 @@
             align-items: center;
         }
 
-        .input-wrapper input {
+        .form-control {
             width: 100%;
-            padding: 12px 16px;
-            background-color: #f1f5f9;
-            border: 1px solid #e2e8f0;
+            padding: 12px 15px;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
             border-radius: 6px;
             font-size: 14px;
-            color: #334155;
+            color: #333333;
             outline: none;
-            transition: all 0.2s;
+            transition: border-color 0.2s;
         }
 
-        .input-wrapper input:focus {
-            border-color: #cbd5e1;
-            background-color: #f8fafc;
+        .form-control:focus {
+            border-color: #ff1e27;
         }
 
-        /* Ícone de olho na senha */
-        .toggle-password {
+        .password-toggle {
             position: absolute;
-            right: 16px;
-            color: #64748b;
+            right: 15px;
+            color: #777777;
             cursor: pointer;
-            font-size: 16px;
         }
 
-        /* Opções Extras (Lembrar-me e Esqueci a senha) */
-        .form-options {
+        .form-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         .remember-me {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #334155;
-            cursor: pointer;
-        }
-
-        .remember-me input {
+            gap: 6px;
+            color: #555555;
             cursor: pointer;
         }
 
         .forgot-password {
-            color: #e63946;
+            color: #ff4d52;
             text-decoration: none;
             font-weight: 500;
         }
@@ -233,57 +203,50 @@
             text-decoration: underline;
         }
 
-        /* Botões */
         .btn-primary {
             width: 100%;
-            padding: 14px;
-            background-color: #e63946;
+            background-color: #ff1e27;
             color: #ffffff;
             border: none;
+            padding: 14px;
             border-radius: 6px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
-            margin-bottom: 16px;
+            margin-bottom: 15px;
         }
 
         .btn-primary:hover {
-            background-color: #d62837;
+            background-color: #e0121a;
         }
 
         .divider {
             text-align: center;
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .divider span {
+            color: #888888;
             font-size: 12px;
-            color: #94a3b8;
-            background-color: #ffffff;
-            padding: 0 10px;
+            margin-bottom: 15px;
             position: relative;
-            z-index: 1;
         }
 
-        .divider::before {
+        .divider::before, .divider::after {
             content: "";
             position: absolute;
             top: 50%;
-            left: 0;
-            width: 100%;
+            width: 40%;
             height: 1px;
-            background-color: #e2e8f0;
-            z-index: 0;
+            background-color: #e5e7eb;
         }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
 
         .btn-secondary {
             width: 100%;
+            background-color: #f3f4f6;
+            color: #333333;
+            border: 1px solid #e5e7eb;
             padding: 12px;
-            background-color: #f1f5f9;
-            color: #334155;
-            border: none;
             border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
@@ -293,118 +256,117 @@
             align-items: center;
             gap: 8px;
             transition: background-color 0.2s;
+            margin-bottom: 25px;
         }
 
         .btn-secondary:hover {
-            background-color: #e2e8f0;
+            background-color: #e5e7eb;
         }
 
-        /* Rodapé */
-        .form-footer {
+        .copyright {
             text-align: center;
             font-size: 11px;
-            color: #94a3b8;
-            margin-top: 24px;
+            color: #999999;
         }
 
-        /* --- Responsividade para telas menores --- */
+        /* Responsividade estável */
         @media (max-width: 768px) {
-            .login-container {
+            .container {
                 grid-template-columns: 1fr;
-                max-width: 450px;
+                gap: 30px;
             }
-            .welcome-side {
-                display: none; /* Oculta o lado esquerdo em celulares para focar no login */
+            .info-section {
+                text-align: center;
             }
-            .form-side {
-                padding: 40px 30px;
+            .logo-senai {
+                margin-bottom: 20px;
+            }
+            .feature-item {
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <div class="container">
         
-        <div class="welcome-side">
-            <div class="logo-senai">SENAI</div>
+        <div class="info-section">
+            <img src="IMG/senai_sao_paulo_logo.png" alt="SENAI" />
+            <p class="welcome-text">Bem-vindo(a) ao</p>
+            <h1 class="title">Sistema de<br><span>Ponto de Venda</span></h1>
+            <p class="subtitle">Faça login para continuar</p>
             
-            <h2>Bem-vindo(a) ao</h2>
-            <h1>Sistema de<br><span>Ponto de Venda</span></h1>
-            <p>Faça login para continuar</p>
-            
-            <div class="features-list">
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <div class="feature-text">Vendas mais rápidas</div>
-                </div>
-                <div class="feature-item">
+            <ul class="features-list">
+                <li class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                    Vendas mais rápidas
+                </li>
+                <li class="feature-item">
                     <div class="feature-icon"><i class="fa-solid fa-cubes"></i></div>
-                    <div class="feature-text">Gestão inteligente</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fa-solid fa-chart-bar"></i></div>
-                    <div class="feature-text">Relatórios em tempo real</div>
-                </div>
-            </div>
-
-            <div class="dots-pattern">
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-            </div>
+                    Gestão inteligente
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    Relatórios em tempo real
+                </li>
+            </ul>
         </div>
 
-        <div class="form-side">
-            <div class="form-content">
-                <div class="form-header">
-                    <h2>Entrar</h2>
-                    <p>Acesse sua conta para continuar</p>
+        <div class="login-card">
+            <h2 class="card-title">Entrar</h2>
+            <p class="card-subtitle">Acesse sua conta para continuar</p>
+            
+            <form action="#" method="POST" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
                 </div>
-
-                <form>
-                    <div class="input-group">
-                        <label for="usuario">Usuário</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="usuario" placeholder="Digite seu usuário">
-                        </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Digite seu senha" required>
+                        <i class="fa-regular fa-eye password-toggle" onclick="togglePassword()"></i>
                     </div>
-
-                    <div class="input-group">
-                        <label for="senha">Senha</label>
-                        <div class="input-wrapper">
-                            <input type="password" id="senha" placeholder="Digite seu senha">
-                            <i class="fa-regular fa-eye toggle-password"></i>
-                        </div>
-                    </div>
-
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="remember">
-                            Lembrar-me
-                        </label>
-                        <a href="#" class="forgot-password">Esqueceu a senha?</a>
-                    </div>
-
-                    <button type="submit" class="btn-primary">Entrar</button>
-                    
-                    <div class="divider">
-                        <span>ou</span>
-                    </div>
-
-                    <button type="button" class="btn-secondary">
-                        <i class="fa-solid fa-lock"></i> Entrar com código
-                    </button>
-                </form>
-            </div>
-
-            <div class="form-footer">
+                </div>
+                
+                <div class="form-actions">
+                    <label class="remember-me">
+                        <input type="checkbox"> Lembrar-me
+                    </label>
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary">Entrar</button>
+                
+                <div class="divider">ou</div>
+                
+                <button type="button" class="btn-secondary">
+                    <i class="fa-solid fa-lock"></i> Entrar com código
+                </button>
+            </form>
+            
+            <div class="copyright">
                 © 2024 SENAI - Todos os direitos reservados.
             </div>
         </div>
 
     </div>
 
+    <script>
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var toggleIcon = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fa-solid fa-eye-slash password-toggle';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fa-regular fa-eye password-toggle';
+            }
+        }
+    </script>
 </body>
 </html>
