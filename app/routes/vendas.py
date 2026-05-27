@@ -6,6 +6,7 @@ from app.models.produtos import Produto
 from app.models.vendas import Venda
 from app.models.itens_venda import ItemVenda
 from app.dependencies import get_current_user
+from app.models.movimentacoes import Movimentacao
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
@@ -36,10 +37,33 @@ def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db),
 
     produto.estoque -= quantidade
 
+    produto.estoque -= quantidade
+
+    movimentacao = Movimentacao(
+    produto_id=produto.id,
+    tipo="saida",
+    quantidade=quantidade
+    )
+
     db.add(item)
+    db.add(movimentacao)
     db.commit()
 
     return {
         "msg": "Venda realizada",
         "total": total
     }
+
+@router.get("/")
+def listar_vendas(db: Session = Depends(get_db)):
+
+    vendas = db.query(Venda).all()
+
+    return vendas
+
+@router.get("/itens")
+def listar_itens(db: Session = Depends(get_db)):
+
+    itens = db.query(ItemVenda).all()
+
+    return itens
