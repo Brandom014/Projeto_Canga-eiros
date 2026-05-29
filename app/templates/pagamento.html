@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Caixa - Pagamento</title>
+    <style>
+        :root {
+            --bg-main: #0c101b;
+            --bg-card: #151b2c;
+            --bg-input: #1f283e;
+            --primary-red: #de3b3b;
+            --primary-red-hover: #ff4d4d;
+            --text-white: #ffffff;
+            --text-muted: #7e8b9b;
+            --success-green: #2ecc71;
+            --border-color: #242f4c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-white);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Lateral Sidebar */
+        .sidebar {
+            width: 80px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 25px;
+        }
+
+        .sidebar-logo {
+            color: var(--primary-red);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-btn:hover {
+            color: var(--text-white);
+            background-color: var(--bg-input);
+        }
+
+        .sidebar-btn.active {
+            background-color: var(--primary-red);
+            color: var(--text-white);
+        }
+
+        /* Main Area */
+        .main-container {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .btn-back {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: var(--bg-input);
+            color: var(--text-white);
+        }
+
+        /* Content Layout */
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 25px;
+            flex: 1;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-count {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Resumo do Pedido */
+        .order-summary {
+            justify-content: space-between;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            max-height: 250px;
+            padding-right: 5px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--bg-input);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .item-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .item-price {
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        /* Totais */
+        .totals-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+        }
+
+        .total-row.muted {
+            color: var(--text-muted);
+        }
+
+        .discount-link {
+            color: var(--primary-red);
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            background: none;
+            border: none;
+            text-align: left;
+            width: fit-content;
+        }
+
+        .discount-link:hover {
+            text-decoration: underline;
+        }
+
+        .total-final {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .total-final .price {
+            color: var(--primary-red);
+        }
+
+        /* Formas de Pagamento Grid */
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .method-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .method-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .method-btn:hover {
+            background-color: var(--bg-input);
+            color: var(--text-white);
+        }
+
+        .method-btn.active {
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+            background-color: rgba(222, 59, 59, 0.05);
+        }
+
+        /* Painel de Dinâmica de Pagamento */
+        .dynamic-payment-panel {
+            background-color: rgba(21, 27, 44, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .payment-pane-content {
+            display: none;
+        }
+
+        .payment-pane-content.active {
+            display: block;
+        }
+
+        .pane-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .cash-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .input-box {
+            flex: 1;
+        }
+
+        .input-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 15px;
+            font-weight: 500;
+            color: var(--text-white);
+        }
+
+        .custom-input {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 15px 15px 45px;
+            color: var(--text-white);
+            font-size: 20px;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .custom-input:focus {
+            border-color: var(--primary-red);
+        }
+
+        .troco-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: right;
+        }
+
+        .troco-valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--success-green);
+            padding: 12px 0;
+        }
+
+        /* State views para cartões e pix */
+        .center-status {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+        }
+        
+        .pix-qr {
+            width: 100px;
+            height: 100px;
+            background: white;
+            margin: 10px auto;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Footer Action Button */
+        .action-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-confirm {
+            background-color: var(--primary-red);
+            color: var(--text-white);
+            border: none;
+            border-radius: 8px;
+            padding: 18px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .btn-confirm:hover {
+            background-color: var(--primary-red-hover);
+        }
+
+        /* Modal de Sucesso */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin: 0 auto 20px;
+        }
+
+        .btn-modal-close {
+            background-color: var(--bg-input);
+            color: var(--text-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 25px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">❖</div>
+        <button class="sidebar-btn">📋</button>
+        <button class="sidebar-btn active">💳</button>
+        <button class="sidebar-btn">📦</button>
+        <button class="sidebar-btn">👥</button>
+        <button class="sidebar-btn">⚙️</button>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="header">
+            <h1>Pagamento</h1>
+            <button class="btn-back" onclick="alert('Voltando ao carrinho...')">
+                <span>←</span> Voltar ao carrinho
+            </button>
+        </div>
+
+        <div class="checkout-grid">
+            
+            <div class="card order-summary">
+                <div>
+                    <div class="card-title">
+                        <span>Resumo do pedido</span>
+                        <span class="item-count">3 itens</span>
+                    </div>
+
+                    <div class="items-list">
+                        <div class="order-item">
+                            <div class="item-info">
+                                <div class="item-icon">🥤</div>
+                                <div>
+                                    <div class="item-name">Coca-Cola 350ml</div>
+                                    <div class="item-subtext">1 Unidade</div>
+                                </div>
+                            </div>
+                            <div class="item-price">R$ 4,50</div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="item-info">
+                                <div class="item-icon">🍞</div>
+                                <div>
+                                    <div class="item-name">Pão de Forma</div>
+                                    <div class="item-subtext">1 Unidade</div>
+                                </div>
+                            </div>
+                            <div class="item-price">R$ 5,50</div>
+                        </div>
+
+                        <div class="order-item">
+                            <div class="item-info">
+                                <div class="item-icon">🥛</div>
+                                <div>
+                                    <div class="item-name">Leite Integral 1L</div>
+                                    <div class="item-subtext">1 Unidade</div>
+                                </div>
+                            </div>
+                            <div class="item-price">R$ 6,20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="totals-section">
+                    <div class="total-row muted">
+                        <span>Subtotal</span>
+                        <span id="subtotal-val">R$ 16,20</span>
+                    </div>
+                    <div class="total-row muted">
+                        <span>Desconto</span>
+                        <span id="discount-val" style="color: var(--success-green)">R$ 0,00</span>
+                    </div>
+                    <button class="discount-link" onclick="aplicarDesconto()">Adicionar desconto</button>
+                    
+                    <div class="total-final">
+                        <span>Total</span>
+                        <span class="price" id="total-val">R$ 16,20</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="justify-content: space-between;">
+                <div>
+                    <div class="card-title">Selecione a forma de pagamento</div>
+                    
+                    <div class="payment-methods-grid">
+                        <button class="method-btn active" onclick="switchPaymentMethod('dinheiro', this)">
+                            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5 0.67 1.5 1.5-0.67 1.5-1.5 1.5z"/></svg>
+                            <span>Dinheiro</span>
+                        </button>
+                        
+                        <button class="method-btn" onclick="switchPaymentMethod('credito', this)">
+                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                            <span>Cartão de Crédito</span>
+                        </button>
+                        
+                        <button class="method-btn" onclick="switchPaymentMethod('debito', this)">
+                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                            <span>Cartão de Débito</span>
+                        </button>
+                        
+                        <button class="method-btn" onclick="switchPaymentMethod('pix', this)">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
+                            <span>PIX</span>
+                        </button>
+                    </div>
+
+                    <div class="dynamic-payment-panel">
+                        
+                        <div id="pane-dinheiro" class="payment-pane-content active">
+                            <div class="pane-title">Pagamento em dinheiro</div>
+                            <div class="cash-inputs">
+                                <div class="input-box">
+                                    <div class="input-label">Valor recebido</div>
+                                    <div class="input-wrapper">
+                                        <span class="currency-prefix">R$</span>
+                                        <input type="number" id="input-recebido" class="custom-input" value="20.00" step="0.01" min="0" oninput="calcularTroco()">
+                                    </div>
+                                </div>
+                                <div class="troco-box">
+                                    <div class="input-label">Troco</div>
+                                    <div class="troco-valor" id="troco-val">R$ 3,80</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pane-credito" class="payment-pane-content">
+                            <div class="center-status">
+                                <p>💳 Insira ou aproxime o Cartão de Crédito na maquininha...</p>
+                            </div>
+                        </div>
+
+                        <div id="pane-debito" class="payment-pane-content">
+                            <div class="center-status">
+                                <p>📟 Aguardando senha do Cartão de Débito na maquininha...</p>
+                            </div>
+                        </div>
+
+                        <div id="pane-pix" class="payment-pane-content">
+                            <div class="center-status" style="padding: 5px;">
+                                <p>Escaneie o QR Code abaixo para pagar via PIX:</p>
+                                <div class="pix-qr">[ QR CODE ]</div>
+                                <span style="font-size: 11px; color: var(--primary-red);">Expira em 05:00 minutos</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="action-container">
+                    <button class="btn-confirm" id="btn-finalizar" onclick="finalizarPagamento()">
+                        Confirmar pagamento (F5)
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal">
+            <div class="modal-icon">✓</div>
+            <h2>Pagamento Confirmado!</h2>
+            <p style="color: var(--text-muted); margin-top: 10px;">A venda foi processada com sucesso e a nota fiscal foi enviada para impressão.</p>
+            <button class="btn-modal-close" onclick="fecharModal()">Próxima Venda</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados de controle do estado global da tela
+        let totalAtual = 16.20;
+        let descontoAplicado = 0.00;
+
+        // 1. Função para gerenciar a troca das Abas de Pagamento
+        function switchPaymentMethod(method, element) {
+            // Remove a classe active de todos os botões de pagamento
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            // Adiciona active no clicado
+            element.classList.add('active');
+
+            // Esconde todos os painéis internos
+            document.querySelectorAll('.payment-pane-content').forEach(pane => pane.classList.remove('active'));
+            // Mostra o painel correto
+            document.getElementById(`pane-${method}`).classList.add('active');
+        }
+
+        // 2. Cálculo em tempo real do troco (Dinheiro)
+        function calcularTroco() {
+            const inputRecebido = document.getElementById('input-recebido');
+            const trocoDisplay = document.getElementById('troco-val');
+            
+            let valorRecebido = parseFloat(inputRecebido.value);
+            
+            if (isNaN(valorRecebido)) {
+                valorRecebido = 0;
+            }
+
+            let troco = valorRecebido - totalAtual;
+
+            if (troco < 0) {
+                trocoDisplay.innerText = "R$ 0,00";
+                trocoDisplay.style.color = "var(--text-muted)";
+            } else {
+                trocoDisplay.innerText = `R$ ${troco.toFixed(2).replace('.', ',')}`;
+                trocoDisplay.style.color = "var(--success-green)";
+            }
+        }
+
+        // 3. Sistema dinâmico para Adicionar Desconto
+        function aplicarDesconto() {
+            let promptDesconto = prompt("Digite o valor do desconto em R$:", descontoAplicado);
+            
+            if (promptDesconto !== null) {
+                let valorDesconto = parseFloat(promptDesconto.replace(',', '.'));
+                
+                if (!isNaN(valorDesconto) && valorDesconto >= 0 && valorDesconto <= 16.20) {
+                    descontoAplicado = valorDesconto;
+                    totalAtual = 16.20 - descontoAplicado;
+
+                    // Atualiza a tela
+                    document.getElementById('discount-val').innerText = `R$ ${descontoAplicado.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('total-val').innerText = `R$ ${totalAtual.toFixed(2).replace('.', ',')}`;
+                    
+                    // Recalcula o troco com base no novo total
+                    calcularTroco();
+                } else {
+                    alert("Valor de desconto inválido ou superior ao valor total.");
+                }
+            }
+        }
+
+        // 4. Modal de finalização e gatilho do botão
+        function finalizarPagamento() {
+            const modal = document.getElementById('success-modal');
+            modal.classList.add('active');
+        }
+
+        function fecharModal() {
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('active');
+            
+            // Reseta para valores padrão para simular o próximo cliente
+            totalAtual = 16.20;
+            descontoAplicado = 0.00;
+            document.getElementById('discount-val').innerText = "R$ 0,00";
+            document.getElementById('total-val').innerText = "R$ 16,20";
+            document.getElementById('input-recebido').value = "20.00";
+            calcularTroco();
+        }
+
+        // 5. Capturando o atalho F5 do Teclado para não atualizar e sim submeter
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'F5') {
+                event.preventDefault(); // Impede a página de recarregar
+                finalizarPagamento(); // Aciona a animação de sucesso
+            }
+        });
+    </script>
+</body>
+</html>
+
+```

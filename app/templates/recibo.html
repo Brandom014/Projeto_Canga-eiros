@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ponto de Venda - SENAI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b0f17;
+            --bg-card: #151c26;
+            --bg-sidebar: #11161e;
+            --primary-red: #e63946;
+            --primary-red-hover: #c92a3a;
+            --btn-dark: #1e2633;
+            --btn-dark-hover: #2b374a;
+            --text-muted: #94a3b8;
+            --text-light: #f8fafc;
+            --green-accent: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        /* Container Principal */
+        .dashboard-container {
+            display: flex;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            min-height: 85vh;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid #232d3f;
+        }
+
+        /* Barra Lateral */
+        .sidebar {
+            width: 70px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-right: 1px solid #1e2633;
+        }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .back-btn {
+            color: var(--text-muted);
+            font-size: 11px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Ajuste de tamanho para a fonte dos novos ícones */
+        .nav-icon {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 20px; /* Controla o tamanho do ícone de fonte */
+        }
+
+        .nav-icon:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+        }
+
+        .nav-icon.active {
+            background-color: var(--primary-red);
+            color: white;
+        }
+
+        /* Conteúdo do Painel */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .content-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: var(--green-accent);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Grid de Exibição */
+        .receipt-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            align-items: start;
+            flex: 1;
+        }
+
+        /* Estilização do Recibo (Cupom) */
+        .receipt-paper {
+            background-color: white;
+            color: #1e293b;
+            padding: 25px;
+            padding-bottom: 15px;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* Efeito de Serrilhado no fundo do cupom */
+        .receipt-paper::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 100%;
+            height: 100px;
+            background-image: 
+                linear-gradient(-45deg, var(--bg-card) 5px, transparent 0), 
+                linear-gradient(45deg, var(--bg-card) 5px, transparent 0);
+            background-position: left top;
+            background-repeat: repeat-x;
+            background-size: 10px 10px;
+        }
+
+        .receipt-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .senai-logo {
+            background-color: #ff0000;
+            color: white;
+            font-weight: 900;
+            font-style: italic;
+            padding: 4px 10px;
+            font-size: 20px;
+            letter-spacing: -1px;
+            border-radius: 2px;
+        }
+
+        .company-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .company-info p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .divider {
+            border-top: 1px dashed #cbd5e1;
+            margin: 15px 0;
+        }
+
+        .meta-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 6px;
+            font-size: 12px;
+            color: #334155;
+            margin-bottom: 15px;
+        }
+
+        .meta-info .right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Tabela de Itens */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .items-table th {
+            color: #64748b;
+            font-weight: 600;
+            padding-bottom: 8px;
+        }
+
+        .items-table td {
+            padding: 6px 0;
+            color: #334155;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .receipt-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .receipt-payment-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #334155;
+        }
+
+        .green-text {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        /* Coluna de Ações Direita */
+        .actions-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            justify-content: flex-start;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-red-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-dark);
+            border: 1px solid #2e3b4e;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--btn-dark-hover);
+        }
+
+        /* Card de Resumo do Painel */
+        .summary-card {
+            background-color: transparent;
+            border: 1px solid #232d3f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-total-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .summary-total-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .summary-text-small {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .receipt-paper, .receipt-paper * {
+                visibility: visible;
+            }
+            .receipt-paper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+            }
+            .receipt-paper::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-title">6. Recibo</div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <a href="#" class="back-btn" onclick="voltar()">
+                    <i class="bi bi-arrow-left" style="font-size: 16px;"></i>
+                    Voltar
+                </a>
+                <div class="nav-icon active">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="bi bi-person-square"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="bi bi-person-gear"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="bi bi-gear"></i>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="nav-icon">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h2>Recibo da Venda</h2>
+                <span class="badge-success">Venda concluída!</span>
+            </div>
+
+            <div class="receipt-layout">
+                <div class="receipt-paper" id="receipt-print-area">
+                    <div class="receipt-header">
+                        <div class="senai-logo">SENAI</div>
+                        <div class="company-info">
+                            <h3>Sistema de Ponto de Venda</h3>
+                            <p>CNPJ: 03.776.284/0001-09</p>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="meta-info">
+                        <div class="bold">Venda #1026</div>
+                        <div class="right">12/05/2024 - 11:30:45</div>
+                        <div>12/05/2024 - 11:30:45</div>
+                        <div class="right">Operador: <span class="bold">João Silva</span></div>
+                    </div>
+
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Produto</th>
+                                <th class="text-center" style="width: 15%;">Qtd.</th>
+                                <th class="text-right" style="width: 17%;">Unitário</th>
+                                <th class="text-right" style="width: 18%;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Coca-Cola 350ml</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">R$ 4,50</td>
+                                <td class="text-right bold">R$ 4,50</td>
+                            </tr>
+                            <tr>
+                                <td>Pão de Forma</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">R$ 5,50</td>
+                                <td class="text-right bold">R$ 5,50</td>
+                            </tr>
+                            <tr>
+                                <td>Leite Integral 1L</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">R$ 6,20</td>
+                                <td class="text-right bold">R$ 6,20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="divider"></div>
+
+                    <div class="receipt-total-row">
+                        <span class="bold">TOTAL</span>
+                        <span class="bold" style="font-size: 18px;">R$ 16,20</span>
+                    </div>
+
+                    <div class="receipt-payment-row">
+                        <span>Pagamento: Dinheiro</span>
+                        <span>Troco: <span class="green-text">R$ 3,80</span></span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="receipt-footer">
+                        Obrigado pela preferência! Volte sempre.
+                    </div>
+                </div>
+
+                <div class="actions-column">
+                    <button class="btn btn-primary" onclick="imprimirRecibo()">
+                        <i class="bi bi-printer"></i>
+                        Imprimir recibo
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="enviarEmail()">
+                        <i class="bi bi-envelope"></i>
+                        Enviar por e-mail
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="novaVenda()">
+                        <i class="bi bi-plus-square"></i>
+                        Nova venda
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="verRelatorio()">
+                        <i class="bi bi-bar-chart-line"></i>
+                        Ver relatório
+                    </button>
+
+                    <div class="summary-card">
+                        <div class="summary-row">
+                            <span class="summary-total-label">TOTAL</span>
+                            <span class="summary-total-value">R$ 16,20</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-text-small">Pagamento: Dinheiro</span>
+                            <span class="summary-text-small">Troco: <span class="green-text">R$ 3,80</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function imprimirRecibo() {
+            window.print();
+        }
+
+        function enviarEmail() {
+            const email = prompt("Digite o e-mail do cliente:");
+            if (email) {
+                alert(`Recibo enviado com sucesso para: ${email}`);
+            }
+        }
+
+        function novaVenda() {
+            alert("Redirecionando para a tela de Nova Venda...");
+        }
+
+        function verRelatorio() {
+            alert("Carregando relatórios de fechamento de caixa...");
+        }
+
+        function voltar() {
+            alert("Voltando para o menu anterior.");
+        }
+    </script>
+</body>
+</html>

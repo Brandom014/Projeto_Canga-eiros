@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto de Venda</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/pdv.css".>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="top-icons">
+                <div class="logo-icon"><div></div></div>
+                <button class="nav-btn active"><i class="icon-home"></i></button>
+                <button class="nav-btn"><i class="icon-box"></i></button>
+                <button class="nav-btn"><i class="icon-users"></i></button>
+                <button class="nav-btn"><i class="icon-user"></i></button>
+                <button class="nav-btn"><i class="icon-config"></i></button>
+            </div>
+            <button class="logout-btn">Sair</button>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="topbar">
+                <div class="title-search">
+                    <h1>Ponto de Venda</h1>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Buscar produto (cód. ou nome)">
+                        <span class="shortcut">F2</span>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn-customer"><span class="plus-sign">+</span> Cliente <span class="shortcut-light">(F3)</span></button>
+                    <button class="btn-grid-menu">
+                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="products-section">
+                <nav class="categories-nav">
+                    <button class="cat-btn active">Todos</button>
+                    <button class="cat-btn">Bebidas</button>
+                    <button class="cat-btn">Alimentos</button>
+                    <button class="cat-btn">Higiene</button>
+                    <button class="cat-btn">Limpeza</button>
+                    <button class="cat-btn">Outros</button>
+                </nav>
+
+                <div class="products-grid">
+                    <div class="product-card">
+                        <div class="product-img img-agua"></div>
+                        <p class="product-name">Água Mineral 500ml</p>
+                        <p class="product-price">R$ 3,00</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-coca"></div>
+                        <p class="product-name">Coca-Cola <strong>350ml</strong></p>
+                        <p class="product-price">R$ 4,50</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-suco"></div>
+                        <p class="product-name">Suco de Laranja 1L</p>
+                        <p class="product-price">R$ 8,90</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-pao"></div>
+                        <p class="product-name">Pão de Forma</p>
+                        <p class="product-price">R$ 5,50</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-leite"></div>
+                        <p class="product-name">Leite Integral 1L</p>
+                        <p class="product-price">R$ 6,20</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-amer"></div>
+                        <p class="product-name">Amer 51g</p>
+                        <p class="product-price">R$ 6,20</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-arroz"></div>
+                        <p class="product-name">Arroz 5kg</p>
+                        <p class="product-price">R$ 23,90</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-feijao"></div>
+                        <p class="product-name">Feijão 1kg</p>
+                        <p class="product-price">R$ 7,80</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-detergente"></div>
+                        <p class="product-name">Detergente 500ml</p>
+                        <p class="product-price">R$ 2,90</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-sabonete"></div>
+                        <p class="product-name">Sabonete 90g</p>
+                        <p class="product-price">R$ 1,50</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-papel"></div>
+                        <p class="product-name">Papel Higiênico 4un</p>
+                        <p class="product-price">R$ 4,90</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-cafe"></div>
+                        <p class="product-name">Café Solúvel 50g</p>
+                        <p class="product-price">R$ 12,80</p>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img img-acucar"></div>
+                        <p class="product-name">Açúcar 1kg</p>
+                        <p class="product-price">R$ 4,20</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="cart-sidebar">
+            <div class="cart-header">
+                <h2>Carrinho</h2>
+                <span class="cart-count">3 itens</span>
+            </div>
+            
+            <p class="cart-sub-count">3 itens</p>
+
+            <div class="cart-items-list">
+                <div class="cart-item">
+                    <div class="cart-item-img img-coca"></div>
+                    <div class="cart-item-details">
+                        <p class="item-title">Coca-Cola 350ml</p>
+                        <p class="item-qty">1x R$ 4,50</p>
+                    </div>
+                    <span class="item-total">R$ 4,50</span>
+                </div>
+
+                <div class="cart-item">
+                    <div class="cart-item-img img-pao"></div>
+                    <div class="cart-item-details">
+                        <p class="item-title">Pão de Forma</p>
+                        <p class="item-qty">1x R$ 5,50</p>
+                    </div>
+                    <span class="item-total">R$ 5,50</span>
+                </div>
+
+                <div class="cart-item">
+                    <div class="cart-item-img img-leite"></div>
+                    <div class="cart-item-details">
+                        <p class="item-title">Leite Integral 1L</p>
+                        <p class="item-qty">1x R$ 6,20</p>
+                    </div>
+                    <span class="item-total">R$ 6,20</span>
+                </div>
+            </div>
+
+            <button class="clear-cart-btn">Limpar carrinho</button>
+
+            <div class="cart-footer">
+                <div class="total-container">
+                    <span class="total-label">Total</span>
+                    <span class="total-value">R$ 16,20</span>
+                </div>
+                <button class="checkout-btn">Ir para pagamento (F4)</button>
+            </div>
+        </aside>
+
+    </div>
+
+</body>
+</html>

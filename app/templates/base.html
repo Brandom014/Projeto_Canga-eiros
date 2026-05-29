@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAI - Sistema de Ponto de Venda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+      
+        body {
+            background: linear-gradient(135deg, rgba(168, 14, 26, 0.9) 0%, rgba(13, 18, 29, 0.95) 40%, #090c12 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Lado Esquerdo - Info */
+        .info-section {
+            color: #ffffff;
+        }
+
+        .info-section img {
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.5));
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            color: #cccccc;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .title span {
+            color: #ff4d52;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #aaaaaa;
+            margin-bottom: 40px;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .feature-icon {
+            background-color: rgba(255, 30, 39, 0.15);
+            color: #ff4d52;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Lado Direito - Card de Login */
+        .login-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 420px;
+            justify-self: center;
+        }
+
+        .card-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #777777;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #ff1e27;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            color: #777777;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #555555;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #ff4d52;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: #ff1e27;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            background-color: #e0121a;
+        }
+
+        .divider {
+            text-align: center;
+            color: #888888;
+            font-size: 12px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background-color: #e5e7eb;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .btn-secondary {
+            width: 100%;
+            background-color: #f3f4f6;
+            color: #333333;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            margin-bottom: 25px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .copyright {
+            text-align: center;
+            font-size: 11px;
+            color: #999999;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .info-section {
+                text-align: center;
+            }
+            .feature-item {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="info-section">
+            <img src="IMG/senai_sao_paulo_logo.png" alt="SENAI" />
+            <p class="welcome-text">Bem-vindo(a) ao</p>
+            <h1 class="title">Sistema de<br><span>Ponto de Venda</span></h1>
+            <p class="subtitle">Faça login para continuar</p>
+            
+            <ul class="features-list">
+                <li class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                    Vendas mais rápidas
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-cubes"></i></div>
+                    Gestão inteligente
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    Relatórios em tempo real
+                </li>
+            </ul>
+        </div>
+
+        <div class="login-card">
+            <h2 class="card-title">Entrar</h2>
+            <p class="card-subtitle">Acesse sua conta para continuar</p>
+            
+            <form action="#" method="POST" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+                        <i class="fa-regular fa-eye password-toggle" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <label class="remember-me">
+                        <input type="checkbox"> Lembrar-me
+                    </label>
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary">Entrar</button>
+                
+                <div class="divider">ou</div>
+                
+                <button type="button" class="btn-secondary">
+                    <i class="fa-solid fa-lock"></i> Entrar com código
+                </button>
+            </form>
+            
+            <div class="copyright">
+                &copy; 2026 SENAI - Todos os direitos reservados.
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fa-solid fa-eye-slash password-toggle';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fa-regular fa-eye password-toggle';
+            }
+        }
+    </script>
+</body>
+</html>
