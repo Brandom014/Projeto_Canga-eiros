@@ -51,6 +51,7 @@ def login(
         )
 
     token = criar_token({
+        "id": user.id,
         "sub": user.email,
         "role": user.role
     })
@@ -64,6 +65,20 @@ def login(
         key="access_token",
         value=token,
         httponly=True
+    )
+
+    return response
+
+@router.get("/logout")
+def logout():
+
+    response = RedirectResponse(
+        url="/auth/login",
+        status_code=302
+    )
+
+    response.delete_cookie(
+        key="access_token"
     )
 
     return response
