@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -7,39 +9,57 @@ from app.auth import hash_senha, verificar_senha, criar_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/cadastro")
-def cadastro(nome: str, email: str, senha: str, db: Session = Depends(get_db)):
+templates = Jinja2Templates(directory="app/templates")
 
-    user = db.query(Usuario).filter(Usuario.email == email).first()
-    if user:
-        raise HTTPException(status_code=400, detail="Email já existe")
 
-    novo = Usuario(
-        nome=nome,
-        email=email,
-        senha=hash_senha(senha),
-        role="vendedor",
+@router.get("/login", response_class=HTMLResponse)
+def tela_login(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request}
     )
 
-    db.add(novo)
-    db.commit()
-
-    return {"msg": "Usuário criado"}
 
 @router.post("/login")
-def login(email: str, senha: str, db: Session = Depends(get_db)):
+def login(
+    email: str = Form(...),
+    senha: str = Form(...),
+    db: Session = Depends(get_db)
+):
 
-    user = db.query(Usuario).filter(Usuario.email == email).first()
+    user = db.query(Usuario).filter(
+        Usuario.email == email
+    ).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    
-    if not user.ativo:
-        raise HTTPException(status_code=403, detail="Usuário desativado")
+        raise HTTPException(
+            status_code=404,
+            detail="Usuário não encontrado"
+        )
 
     if not verificar_senha(senha, user.senha):
-        raise HTTPException(status_code=401, detail="Senha inválida")
+        raise HTTPException(
+            status_code=401,
+            detail="Senha inválida"
+        )
 
-    token = criar_token({"sub": user.email})
+    # CRIA TOKEN
+    token = criar_token({
+        "sub": user.email,
+        "perfil": user.perfil
+    })
 
-    return {"access_token": token, "token_type": "bearer"}
+    # REDIRECIONA
+    response = RedirectResponse(
+        url="/dashboard",
+        status_code=302
+    )
+
+    # SALVA TOKEN NO COOKIE
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True
+    )
+
+    return response

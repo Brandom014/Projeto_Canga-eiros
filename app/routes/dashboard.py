@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -9,8 +11,11 @@ from app.models.itens_venda import ItemVenda
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-@router.get("/")
-def dashboard(db: Session = Depends(get_db)):
+templates = Jinja2Templates(directory="app/templates")
+
+
+@router.get("/", response_class=HTMLResponse)
+def dashboard(request: Request, db: Session = Depends(get_db)):
 
     produtos = db.query(Produto).count()
     vendas = db.query(Venda).all()
@@ -26,10 +31,12 @@ def dashboard(db: Session = Depends(get_db)):
     itens = db.query(ItemVenda).all()
 
     produto_mais_vendido = None
+
     if itens:
         contagem = {}
 
         for item in itens:
+
             if item.produto_id in contagem:
                 contagem[item.produto_id] += item.quantidade
             else:
@@ -37,10 +44,14 @@ def dashboard(db: Session = Depends(get_db)):
 
         produto_mais_vendido = max(contagem, key=contagem.get)
 
-    return {
-        "total_produtos": produtos,
-        "total_vendas": total_vendas,
-        "faturamento_total": faturamento,
-        "faturamento_hoje": faturamento_hoje,
-        "produto_mais_vendido_id": produto_mais_vendido
-    }
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "total_produtos": produtos,
+            "total_vendas": total_vendas,
+            "faturamento_total": faturamento,
+            "faturamento_hoje": faturamento_hoje,
+            "produto_mais_vendido_id": produto_mais_vendido
+        }
+    )

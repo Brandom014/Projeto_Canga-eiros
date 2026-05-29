@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from app.database import get_db
 from app.models.produtos import Produto
 from app.models.vendas import Venda
@@ -9,6 +10,8 @@ from app.dependencies import get_current_user
 from app.models.movimentacoes import Movimentacao
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
+
+templates = Jinja2Templates(directory="app/templates")
 
 @router.post("/")
 def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -54,12 +57,15 @@ def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db),
         "total": total
     }
 
-@router.get("/")
-def listar_vendas(db: Session = Depends(get_db)):
+@router.get("/", response_class=HTMLResponse)
+def pagina_vendas(request: Request):
 
-    vendas = db.query(Venda).all()
-
-    return vendas
+    return templates.TemplateResponse(
+        "vendas.html",
+        {
+            "request": request
+        }
+    )
 
 @router.get("/itens")
 def listar_itens(db: Session = Depends(get_db)):

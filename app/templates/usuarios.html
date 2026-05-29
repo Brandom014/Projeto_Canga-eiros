@@ -1,0 +1,57 @@
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for usuario in usuarios %}
+
+        <tr>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.nome }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.perfil }}</td>
+
+            <td>
+                {% if usuario.ativo %}
+                    Ativo
+                {% else %}
+                    Desativado
+                {% endif %}
+            </td>
+
+            <td>
+
+                {% if usuario.ativo %}
+
+                <form action="/usuarios/desativar/{{ usuario.id }}" method="post">
+                    <button type="submit">
+                        Desativar
+                    </button>
+                </form>
+
+                {% else %}
+
+                <form action="/usuarios/ativar/{{ usuario.id }}" method="post">
+                    <button type="submit">
+                        Ativar
+                    </button>
+                </form>
+
+                {% endif %}
+
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+</table>
