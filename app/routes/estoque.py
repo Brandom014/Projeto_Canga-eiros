@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -9,9 +11,21 @@ router = APIRouter(
     tags=["Estoque"]
 )
 
-@router.get("/movimentacoes")
-def listar_movimentacoes(
+templates = Jinja2Templates(directory="app/templates")
+
+# Página HTML do estoque
+@router.get("/", response_class=HTMLResponse)
+def pagina_estoque(
+    request: Request,
     db: Session = Depends(get_db)
 ):
 
-    return db.query(Movimentacao).all()
+    movimentacoes = db.query(Movimentacao).all()
+
+    return templates.TemplateResponse(
+        "estoque.html",
+        {
+            "request": request,
+            "movimentacoes": movimentacoes
+        }
+    )

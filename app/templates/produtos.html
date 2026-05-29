@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - PDV SENAI</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
+        }
+
+        body{
+            background:#f1f5f9;
+            display:flex;
+            min-height:100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar{
+            width:260px;
+            background:#111827;
+            padding:25px 18px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        }
+
+        .logo{
+            color:#fff;
+            font-size:22px;
+            font-weight:700;
+            margin-bottom:40px;
+        }
+
+        .menu{
+            list-style:none;
+        }
+
+        .menu li{
+            margin-bottom:10px;
+        }
+
+        .menu a{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            text-decoration:none;
+            color:#94a3b8;
+            padding:14px;
+            border-radius:10px;
+            transition:0.2s;
+            font-weight:500;
+        }
+
+        .menu a:hover{
+            background:#1e293b;
+            color:#fff;
+        }
+
+        .menu .active{
+            background:#dc2626;
+            color:#fff;
+        }
+
+        .logout{
+            text-decoration:none;
+            color:#94a3b8;
+            padding:14px;
+            display:flex;
+            gap:12px;
+            border-radius:10px;
+        }
+
+        .logout:hover{
+            background:#1e293b;
+            color:#fff;
+        }
+
+        /* MAIN */
+
+        .main{
+            flex:1;
+            padding:35px;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .topbar h1{
+            font-size:30px;
+            color:#0f172a;
+        }
+
+        .btn-add{
+            background:#dc2626;
+            color:#fff;
+            border:none;
+            padding:12px 18px;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:600;
+            transition:0.2s;
+        }
+
+        .btn-add:hover{
+            background:#b91c1c;
+        }
+
+        /* SEARCH */
+
+        .search-box{
+            margin-bottom:25px;
+            position:relative;
+        }
+
+        .search-box input{
+            width:100%;
+            padding:14px 20px 14px 45px;
+            border:1px solid #cbd5e1;
+            border-radius:12px;
+            font-size:15px;
+            outline:none;
+        }
+
+        .search-box i{
+            position:absolute;
+            left:15px;
+            top:15px;
+            color:#64748b;
+        }
+
+        /* PRODUTOS */
+
+        .products-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+            gap:22px;
+        }
+
+        .product-card{
+            background:#fff;
+            border-radius:16px;
+            overflow:hidden;
+            border:1px solid #e2e8f0;
+            transition:0.2s;
+        }
+
+        .product-card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 10px 20px rgba(0,0,0,0.08);
+        }
+
+        .product-image{
+            height:180px;
+            background:#e2e8f0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:55px;
+            color:#64748b;
+        }
+
+        .product-info{
+            padding:18px;
+        }
+
+        .product-category{
+            font-size:12px;
+            color:#64748b;
+            margin-bottom:6px;
+        }
+
+        .product-name{
+            font-size:18px;
+            font-weight:700;
+            color:#0f172a;
+            margin-bottom:10px;
+        }
+
+        .product-price{
+            color:#dc2626;
+            font-size:22px;
+            font-weight:700;
+            margin-bottom:12px;
+        }
+
+        .product-stock{
+            font-size:13px;
+            color:#16a34a;
+            margin-bottom:18px;
+        }
+
+        .product-actions{
+            display:flex;
+            gap:10px;
+        }
+
+        .btn-edit,
+        .btn-delete{
+            flex:1;
+            border:none;
+            padding:10px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
+            transition:0.2s;
+        }
+
+        .btn-edit{
+            background:#2563eb;
+            color:#fff;
+        }
+
+        .btn-edit:hover{
+            background:#1d4ed8;
+        }
+
+        .btn-delete{
+            background:#ef4444;
+            color:#fff;
+        }
+
+        .btn-delete:hover{
+            background:#dc2626;
+        }
+
+        @media(max-width:768px){
+
+            body{
+                flex-direction:column;
+            }
+
+            .sidebar{
+                width:100%;
+            }
+
+            .main{
+                padding:20px;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div>
+
+            <div class="logo">
+                PDV SENAI
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/vendas">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        Vendas
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/produtos" class="active">
+                        <i class="fa-solid fa-box"></i>
+                        Produtos
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/estoque">
+                        <i class="fa-solid fa-warehouse"></i>
+                        Estoque
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/configuracoes">
+                        <i class="fa-solid fa-gear"></i>
+                        Configurações
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Sair
+        </a>
+
+    </aside>
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>Produtos</h1>
+
+            <button class="btn-add">
+                <i class="fa-solid fa-plus"></i>
+                Novo Produto
+            </button>
+
+        </div>
+
+        <!-- PESQUISA -->
+
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Buscar produto...">
+        </div>
+
+        <!-- PRODUTOS -->
+
+        <div class="products-grid">
+
+            <div class="product-card">
+
+                <div class="product-image">
+                    <i class="fa-solid fa-bottle-water"></i>
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Bebidas
+                    </p>
+
+                    <h2 class="product-name">
+                        Água Mineral
+                    </h2>
+
+                    <p class="product-price">
+                        R$ 3,00
+                    </p>
+
+                    <p class="product-stock">
+                        Estoque: 150 unidades
+                    </p>
+
+                    <div class="product-actions">
+
+                        <button class="btn-edit">
+                            Editar
+                        </button>
+
+                        <button class="btn-delete">
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="product-card">
+
+                <div class="product-image">
+                    <i class="fa-solid fa-burger"></i>
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Alimentos
+                    </p>
+
+                    <h2 class="product-name">
+                        Hambúrguer
+                    </h2>
+
+                    <p class="product-price">
+                        R$ 18,90
+                    </p>
+
+                    <p class="product-stock">
+                        Estoque: 42 unidades
+                    </p>
+
+                    <div class="product-actions">
+
+                        <button class="btn-edit">
+                            Editar
+                        </button>
+
+                        <button class="btn-delete">
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="product-card">
+
+                <div class="product-image">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Roupas
+                    </p>
+
+                    <h2 class="product-name">
+                        Camiseta
+                    </h2>
+
+                    <p class="product-price">
+                        R$ 49,90
+                    </p>
+
+                    <p class="product-stock">
+                        Estoque: 85 unidades
+                    </p>
+
+                    <div class="product-actions">
+
+                        <button class="btn-edit">
+                            Editar
+                        </button>
+
+                        <button class="btn-delete">
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="product-card">
+
+                <div class="product-image">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Eletrônicos
+                    </p>
+
+                    <h2 class="product-name">
+                        Smartphone
+                    </h2>
+
+                    <p class="product-price">
+                        R$ 1.899,90
+                    </p>
+
+                    <p class="product-stock">
+                        Estoque: 12 unidades
+                    </p>
+
+                    <div class="product-actions">
+
+                        <button class="btn-edit">
+                            Editar
+                        </button>
+
+                        <button class="btn-delete">
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

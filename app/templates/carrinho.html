@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAI - Carrinho de Compras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0d1117;
+            color: #1e293b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR LATERAL ESQUERDA (Tema Escuro) --- */
+        .sidebar {
+            width: 80px;
+            background-color: #11141a;
+            border-right: 1px solid #21262d;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+        }
+
+        .sidebar-brand {
+            color: #ffffff;
+            font-size: 20px;
+            background-color: #e63946;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .menu-item a {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .menu-item a:hover, .menu-item.active a {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.active a {
+            background-color: #e63946;
+            color: #ffffff;
+        }
+
+        .sidebar-footer a {
+            color: #64748b;
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .sidebar-footer a:hover {
+            color: #e63946;
+        }
+
+        /* --- CONTEÚDO PRINCIPAL (Tema Claro) --- */
+        .main-content {
+            flex: 1;
+            background-color: #f8fafc;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+        }
+
+        /* Topbar / Cabeçalho */
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .cart-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .btn-back {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* Layout em duas colunas (Tabela | Resumo) */
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        /* --- LISTA DE PRODUTOS (ESTILO TABELA) --- */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .products-table th.text-center { text-align: center; }
+        .products-table th.text-right { text-align: right; }
+
+        .products-table td {
+            padding: 20px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .product-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-weight: 500;
+        }
+
+        .product-img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+        }
+
+        /* Seletor de Quantidade (- 1 +) */
+        .qty-selector {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .qty-btn:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .qty-input {
+            width: 36px;
+            text-align: center;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            outline: none;
+        }
+
+        .price-cell {
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .total-cell {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .btn-delete:hover {
+            color: #dc2626;
+        }
+
+        /* Botão Limpar Carrinho Inferior */
+        .bottom-actions {
+            margin-top: 32px;
+        }
+
+        .btn-clear {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-clear:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+            border-color: #fca5a5;
+        }
+
+
+        /* --- CARD DE RESUMO (DIREITA) --- */
+        .summary-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+        }
+
+        .summary-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .item-count {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .summary-label {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        /* Campo de Desconto */
+        .discount-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .discount-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .discount-input-wrapper span {
+            position: absolute;
+            left: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .discount-input {
+            width: 100px;
+            padding: 6px 10px 6px 32px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            color: #334155;
+            background-color: #f8fafc;
+        }
+
+        .btn-add-discount {
+            background: none;
+            border: none;
+            color: #e63946;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: right;
+            display: block;
+            width: 100%;
+            margin-bottom: 24px;
+            text-decoration: none;
+        }
+        .btn-add-discount:hover { text-decoration: underline; }
+
+        /* Linha do Total */
+        .total-row {
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 16px;
+            margin-bottom: 24px;
+        }
+
+        .total-row .summary-label {
+            font-size: 16px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .total-row .summary-value {
+            font-size: 20px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Botão de Checkout */
+        .btn-checkout {
+            width: 100%;
+            background-color: #e63946;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn-checkout:hover {
+            background-color: #d62837;
+        }
+
+        /* Ajustes Responsivos */
+        @media (max-width: 992px) {
+            .cart-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+            <ul class="menu-list" style="margin-top: 32px;">
+                <li class="menu-item"><a href="#"><i class="fa-solid fa-chart-pie"></i></a></li>
+                <li class="menu-item active"><a href="#"><i class="fa-solid fa-desktop"></i></a></li>
+                <li class="menu-item"><a href="#"><i class="fa-solid fa-box"></i></a></li>
+                <li class="menu-item"><a href="#"><i class="fa-solid fa-users"></i></a></li>
+                <li class="menu-item"><a href="#"><i class="fa-solid fa-gear"></i></a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div>
+            <div class="cart-header">
+                <h1>Carrinho de Compras</h1>
+                <a href="#" class="btn-back"><i class="fa-solid fa-plus"></i> Voltar para produtos</a>
+            </div>
+
+            <div class="cart-layout">
+                
+                <div>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 45%;">Produto</th>
+                                <th class="text-center" style="width: 20%;">Quantidade</th>
+                                <th class="text-right" style="width: 15%;">Valor Unitário</th>
+                                <th class="text-right" style="width: 15%;">Total</th>
+                                <th style="width: 5%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="product-info-cell">
+                                        <img class="product-img" src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100&auto=format&fit=crop&q=60" alt="Coca-Cola">
+                                        <span>Coca-Cola 350ml</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="qty-selector">
+                                        <button class="qty-btn"><i class="fa-solid fa-minus"></i></button>
+                                        <input type="text" class="qty-input" value="1">
+                                        <button class="qty-btn"><i class="fa-solid fa-plus"></i></button>
+                                    </div>
+                                </td>
+                                <td class="text-right price-cell">R$ 4,50</td>
+                                <td class="text-right total-cell">R$ 4,50</td>
+                                <td class="text-center">
+                                    <button class="btn-delete"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="product-info-cell">
+                                        <img class="product-img" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60" alt="Pão de Forma">
+                                        <span>Pão de Forma</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="qty-selector">
+                                        <button class="qty-btn"><i class="fa-solid fa-minus"></i></button>
+                                        <input type="text" class="qty-input" value="1">
+                                        <button class="qty-btn"><i class="fa-solid fa-plus"></i></button>
+                                    </div>
+                                </td>
+                                <td class="text-right price-cell">R$ 5,50</td>
+                                <td class="text-right total-cell">R$ 5,50</td>
+                                <td class="text-center">
+                                    <button class="btn-delete"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="product-info-cell">
+                                        <img class="product-img" src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=100&auto=format&fit=crop&q=60" alt="Leite Integral">
+                                        <span>Leite Integral 1L</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="qty-selector">
+                                        <button class="qty-btn"><i class="fa-solid fa-minus"></i></button>
+                                        <input type="text" class="qty-input" value="1">
+                                        <button class="qty-btn"><i class="fa-solid fa-plus"></i></button>
+                                    </div>
+                                </td>
+                                <td class="text-right price-cell">R$ 6,20</td>
+                                <td class="text-right total-cell">R$ 6,20</td>
+                                <td class="text-center">
+                                    <button class="btn-delete"><i class="fa-regular fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="bottom-actions">
+                        <button class="btn-clear"><i class="fa-regular fa-trash-can"></i> Limpar carrinho</button>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <h2>Resumo</h2>
+                        <span class="item-count">3 Itens</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value">R$ 16,20</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Desconto</span>
+                        <div class="discount-container">
+                            <div class="discount-input-wrapper">
+                                <span>R$</span>
+                                <input type="text" class="discount-input" value="0,00">
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn-add-discount">Adicionar desconto</a>
+
+                    <div class="summary-row total-row">
+                        <span class="summary-label">Total</span>
+                        <span class="summary-value">R$ 16,20</span>
+                    </div>
+
+                    <button class="btn-checkout">Ir para pagamento (F4)</button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

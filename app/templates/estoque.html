@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAI - Gerenciamento de Estoque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #090d14;
+            --bg-sidebar: #0e131f;
+            --bg-card: #141a29;
+            --bg-input: #1b2336;
+            --text-primary: #f0f6fc;
+            --text-secondary: #7d8590;
+            --accent-red: #ff4d4d;
+            --accent-green: #2ea043;
+            --accent-blue: #388bfd;
+            --accent-orange: #f0883e;
+            --border-color: #212631;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR RETRÁTIL/COMPACTA --- */
+        aside {
+            width: 70px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-right: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            color: var(--accent-red);
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active a {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 77, 77, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            flex: 1;
+            padding: 24px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header informativo */
+        .page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Container interno cinza */
+        .content-box {
+            background-color: rgba(20, 26, 41, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Barra de Ações Superior */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-bar h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .action-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .search-input {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 12px 10px 36px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            width: 220px;
+        }
+
+        .btn-action {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .btn-action.primary {
+            background-color: var(--accent-red);
+            border: none;
+            color: white;
+        }
+
+        /* --- CARDS DE CONTADORES --- */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-title {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .metric-value-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .metric-icon {
+            font-size: 1.2rem;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Cores temáticas dos cards */
+        .card-total .metric-icon, .card-total .metric-value { color: var(--accent-blue); }
+        .card-disponivel .metric-icon, .card-disponivel .metric-value { color: var(--accent-green); }
+        .card-baixo .metric-icon, .card-baixo .metric-value { color: var(--accent-orange); }
+        .card-sem .metric-icon, .card-sem .metric-value { color: var(--accent-red); }
+
+        /* --- TABELA DE PRODUTOS --- */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .product-icon {
+            width: 24px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .status-badge.ok {
+            background-color: rgba(46, 160, 67, 0.15);
+            color: #47c963;
+            border: 1px solid rgba(46, 160, 67, 0.3);
+        }
+
+        .status-badge.baixo {
+            background-color: rgba(240, 136, 62, 0.15);
+            color: #ff983d;
+            border: 1px solid rgba(240, 136, 62, 0.3);
+        }
+
+        .status-badge.sem {
+            background-color: rgba(255, 77, 77, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+
+        /* --- PAGINAÇÃO --- */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pagination-pages {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-btn {
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            min-width: 32px;
+            height: 32px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .page-btn.active {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        .page-btn:hover:not(.active) {
+            background-color: var(--bg-input);
+            border-color: var(--border-color);
+        }
+
+        .page-arrow {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div class="logo-container">
+                <i class="fa-solid fa-cube"></i>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-chart-pie"></i></a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                <li class="nav-item active"><a href="#"><i class="fa-solid fa-box-archive"></i></a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-user-gear"></i></a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-chart-line"></i></a></li>
+                <li class="nav-item"><a href="#"><i class="fa-solid fa-gear"></i></a></li>
+            </ul>
+        </div>
+        <div>
+            <button class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <main>
+        <div class="page-header">
+            <h1>7. Estoque</h1>
+            <p>Gerencie e acompanhe os produtos em estoque</p>
+        </div>
+
+        <section class="content-box">
+            
+            <div class="action-bar">
+                <h2>Estoque</h2>
+                <div class="action-controls">
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" placeholder="Buscar produto...">
+                    </div>
+                    <button class="btn-action"><i class="fa-solid fa-filter"></i> Filtrar</button>
+                    <button class="btn-action primary"><i class="fa-solid fa-plus"></i> Novo produto</button>
+                </div>
+            </div>
+
+            <div class="cards-grid">
+                <div class="metric-card card-total">
+                    <span class="metric-title">Total de produtos</span>
+                    <div class="metric-value-container">
+                        <i class="fa-solid fa-boxes-stacked metric-icon"></i>
+                        <span class="metric-value">152</span>
+                    </div>
+                </div>
+                <div class="metric-card card-disponivel">
+                    <span class="metric-title">Em estoque</span>
+                    <div class="metric-value-container">
+                        <i class="fa-solid fa-box metric-icon"></i>
+                        <span class="metric-value">138</span>
+                    </div>
+                </div>
+                <div class="metric-card card-baixo">
+                    <span class="metric-title">Estoque baixo</span>
+                    <div class="metric-value-container">
+                        <i class="fa-solid fa-triangle-exclamation metric-icon"></i>
+                        <span class="metric-value">8</span>
+                    </div>
+                </div>
+                <div class="metric-card card-sem">
+                    <span class="metric-title">Sem estoque</span>
+                    <div class="metric-value-container">
+                        <i class="fa-solid fa-circle-xmark metric-icon"></i>
+                        <span class="metric-value">6</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Código</th>
+                            <th>Categoria</th>
+                            <th>Estoque</th>
+                            <th>Mínimo</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <div>1-5 de 152</div>
+                <div class="pagination-pages">
+                    <button class="page-btn page-arrow"><i class="fa-solid fa-angle-left"></i><i class="fa-solid fa-angle-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span style="color: var(--text-secondary); margin: 0 4px;">...</span>
+                    <button class="page-btn">31</button>
+                    <button class="page-btn page-arrow"><i class="fa-solid fa-angle-right"></i></button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Array contendo exatamente os itens presentes na imagem
+        const produtosEstoque = [
+            {
+                nome: "Água Mineral 500ml",
+                icone: "💧", 
+                codigo: "001",
+                categoria: "Bebidas",
+                estoque: 50,
+                minimo: 10,
+                status: "OK",
+                valor: "R$ 3,00"
+            },
+            {
+                nome: "Coca-Cola 350ml",
+                icone: "🥤",
+                codigo: "002",
+                categoria: "Bebidas",
+                estoque: 35,
+                minimo: 10,
+                status: "OK",
+                valor: "R$ 4,50"
+            },
+            {
+                nome: "Suco de Laranja 1L",
+                icone: "🧃",
+                codigo: "003",
+                categoria: "Bebidas",
+                estoque: 15,
+                minimo: 5,
+                status: "BAIXO",
+                valor: "R$ 8,90"
+            },
+            {
+                nome: "Pão de Forma",
+                icone: "🍞",
+                codigo: "004",
+                categoria: "Alimentos",
+                estoque: 8,
+                minimo: 10,
+                status: "BAIXO",
+                valor: "R$ 5,50"
+            },
+            {
+                nome: "Leite Integral 1L",
+                icone: "🥛",
+                codigo: "005",
+                categoria: "Alimentos",
+                estoque: 0,
+                minimo: 5,
+                status: "SEM",
+                valor: "R$ 6,20"
+            }
+        ];
+
+        const tableBody = document.getElementById('inventory-table');
+
+        // Mapeamento e renderização dos elementos na tabela
+        produtosEstoque.forEach(item => {
+            const tr = document.createElement('tr');
+            
+            // Tratamento das classes dos badges com base no status
+            let badgeClass = 'status-badge ';
+            if(item.status === 'OK') badgeClass += 'ok';
+            if(item.status === 'BAIXO') badgeClass += 'baixo';
+            if(item.status === 'SEM') badgeClass += 'sem';
+
+            tr.innerHTML = `
+                <td>
+                    <div class="product-cell">
+                        <span style="font-size: 1.3rem;">${item.icone}</span>
+                        <span>${item.nome}</span>
+                    </div>
+                </td>
+                <td style="color: var(--text-secondary);">${item.codigo}</td>
+                <td>${item.categoria}</td>
+                <td>${item.estoque}</td>
+                <td>${item.minimo}</td>
+                <td><span class="${badgeClass}">${item.status}</span></td>
+                <td style="font-weight: 500;">${item.valor}</td>
+            `;
+            
+            tableBody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>
+
+```
