@@ -1,57 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Usuários</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.title{
+font-size:32px;
+font-weight:700;
+}
+
+.form-card{
+background:#111827;
+padding:25px;
+border-radius:18px;
+margin-bottom:30px;
+border:1px solid #1e293b;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+}
+
+.input{
+background:#1e293b;
+border:none;
+padding:14px;
+border-radius:10px;
+color:white;
+outline:none;
+}
+
+.select{
+background:#1e293b;
+border:none;
+padding:14px;
+border-radius:10px;
+color:white;
+outline:none;
+}
+
+.btn{
+background:#dc2626;
+border:none;
+padding:14px;
+border-radius:10px;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
+}
+
+.btn:hover{
+background:#b91c1c;
+}
+
+.table-card{
+background:#111827;
+border-radius:18px;
+overflow:hidden;
+border:1px solid #1e293b;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#1e293b;
+padding:18px;
+text-align:left;
+font-size:14px;
+color:#94a3b8;
+}
+
+td{
+padding:18px;
+border-top:1px solid #1e293b;
+}
+
+.role{
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:600;
+display:inline-block;
+}
+
+.admin{
+background:#7f1d1d;
+color:#fecaca;
+}
+
+.vendedor{
+background:#172554;
+color:#bfdbfe;
+}
+
+.ativo{
+color:#22c55e;
+font-weight:600;
+}
+
+.inativo{
+color:#ef4444;
+font-weight:600;
+}
+
+.action-btn{
+border:none;
+padding:10px 14px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+color:white;
+}
+
+.btn-disable{
+background:#dc2626;
+}
+
+.btn-enable{
+background:#16a34a;
+}
+
+.actions{
+display:flex;
+gap:10px;
+}
+
+@media(max-width:900px){
+
+.form-grid{
+grid-template-columns:1fr;
+}
+
+table{
+display:block;
+overflow-x:auto;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="topbar">
+<h1 class="title">
+Gerenciar Usuários
+</h1>
+</div>
+
+<!-- FORM -->
+
+<div class="form-card">
+
+<form action="/usuarios/criar" method="POST">
+
+<div class="form-grid">
+
+<input
+type="text"
+name="nome"
+placeholder="Nome"
+class="input"
+required
+>
+
+<input
+type="email"
+name="email"
+placeholder="Email"
+class="input"
+required
+>
+
+<input
+type="password"
+name="senha"
+placeholder="Senha"
+class="input"
+required
+>
+
+<select name="role" class="select">
+
+<option value="vendedor">
+Vendedor
+</option>
+
+<option value="admin">
+Administrador
+</option>
+
+</select>
+
+<button type="submit" class="btn">
+Cadastrar Usuário
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<!-- TABELA -->
+
+<div class="table-card">
+
 <table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Perfil</th>
-            <th>Status</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
 
-    <tbody>
+<thead>
 
-        {% for usuario in usuarios %}
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Email</th>
+<th>Função</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
 
-        <tr>
-            <td>{{ usuario.id }}</td>
-            <td>{{ usuario.nome }}</td>
-            <td>{{ usuario.email }}</td>
-            <td>{{ usuario.perfil }}</td>
+</thead>
 
-            <td>
-                {% if usuario.ativo %}
-                    Ativo
-                {% else %}
-                    Desativado
-                {% endif %}
-            </td>
+<tbody>
 
-            <td>
+{% for usuario in usuarios %}
 
-                {% if usuario.ativo %}
+<tr>
 
-                <form action="/usuarios/desativar/{{ usuario.id }}" method="post">
-                    <button type="submit">
-                        Desativar
-                    </button>
-                </form>
+<td>
+{{ usuario.id }}
+</td>
 
-                {% else %}
+<td>
+{{ usuario.nome }}
+</td>
 
-                <form action="/usuarios/ativar/{{ usuario.id }}" method="post">
-                    <button type="submit">
-                        Ativar
-                    </button>
-                </form>
+<td>
+{{ usuario.email }}
+</td>
 
-                {% endif %}
+<td>
 
-            </td>
-        </tr>
+{% if usuario.role == "admin" %}
 
-        {% endfor %}
+<span class="role admin">
+Administrador
+</span>
 
-    </tbody>
+{% else %}
+
+<span class="role vendedor">
+Vendedor
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+{% if usuario.ativo %}
+
+<span class="ativo">
+Ativo
+</span>
+
+{% else %}
+
+<span class="inativo">
+Inativo
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+<div class="actions">
+
+{% if usuario.ativo %}
+
+<form action="/usuarios/desativar/{{ usuario.id }}" method="POST">
+
+<button class="action-btn btn-disable">
+Desativar
+</button>
+
+</form>
+
+{% else %}
+
+<form action="/usuarios/ativar/{{ usuario.id }}" method="POST">
+
+<button class="action-btn btn-enable">
+Ativar
+</button>
+
+</form>
+
+{% endif %}
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
 </table>
+
+</div>
+
+</div>
+
+</body>
+</html>

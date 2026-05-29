@@ -2,31 +2,51 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+
 from app.database import get_db
 from app.models.produtos import Produto
 from app.models.vendas import Venda
 from app.models.itens_venda import ItemVenda
-from app.dependencies import get_current_user
 from app.models.movimentacoes import Movimentacao
+from app.dependencies import get_current_user
 
-router = APIRouter(prefix="/vendas", tags=["Vendas"])
+router = APIRouter(
+    prefix="/vendas",
+    tags=["Vendas"]
+)
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(
+    directory="app/templates"
+)
+
 
 @router.post("/")
-def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
-
-    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+def criar_venda(
+    produto_id: int,
+    quantidade: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    produto = db.query(Produto).filter(
+        Produto.id == produto_id
+    ).first()
 
     if not produto:
-        raise HTTPException(status_code=404, detail="Produto não existe")
+        raise HTTPException(
+            status_code=404,
+            detail="Produto não existe"
+        )
 
     if produto.estoque < quantidade:
-        raise HTTPException(status_code=400, detail="Estoque insuficiente")
+        raise HTTPException(
+            status_code=400,
+            detail="Estoque insuficiente"
+        )
 
     total = produto.preco * quantidade
 
     venda = Venda(total=total)
+
     db.add(venda)
     db.commit()
     db.refresh(venda)
@@ -40,16 +60,15 @@ def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db),
 
     produto.estoque -= quantidade
 
-    produto.estoque -= quantidade
-
     movimentacao = Movimentacao(
-    produto_id=produto.id,
-    tipo="saida",
-    quantidade=quantidade
+        produto_id=produto.id,
+        tipo="saida",
+        quantidade=quantidade
     )
 
     db.add(item)
     db.add(movimentacao)
+
     db.commit()
 
     return {
@@ -57,19 +76,17 @@ def criar_venda(produto_id: int, quantidade: int, db: Session = Depends(get_db),
         "total": total
     }
 
+
 @router.get("/", response_class=HTMLResponse)
 def pagina_vendas(request: Request):
-
     return templates.TemplateResponse(
         "vendas.html",
-        {
-            "request": request
-        }
+        {"request": request}
     )
 
+
 @router.get("/itens")
-def listar_itens(db: Session = Depends(get_db)):
-
-    itens = db.query(ItemVenda).all()
-
-    return itens
+def listar_itens(
+    db: Session = Depends(get_db)
+):
+    return db.query(ItemVenda).all()
