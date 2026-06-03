@@ -7,6 +7,7 @@ from app.database import Base, engine
 
 from app.routes import (
     produtos,
+    categorias,
     auth,
     vendas,
     estoque,
@@ -36,6 +37,7 @@ app.include_router(vendas.router)
 app.include_router(estoque.router)
 app.include_router(dashboard.router)
 app.include_router(usuarios.router)
+app.include_router(categorias.router)
 
 
 @app.get("/", response_class=HTMLResponse)

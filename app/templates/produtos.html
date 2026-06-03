@@ -1,510 +1,524 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos - PDV SENAI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Gerenciamento de Produtos</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Inter',sans-serif;
-        }
+<link rel="stylesheet" href="/static/css/produtos.css">
 
-        body{
-            background:#f1f5f9;
-            display:flex;
-            min-height:100vh;
-        }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* SIDEBAR */
-
-        .sidebar{
-            width:260px;
-            background:#111827;
-            padding:25px 18px;
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
-        }
-
-        .logo{
-            color:#fff;
-            font-size:22px;
-            font-weight:700;
-            margin-bottom:40px;
-        }
-
-        .menu{
-            list-style:none;
-        }
-
-        .menu li{
-            margin-bottom:10px;
-        }
-
-        .menu a{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            text-decoration:none;
-            color:#94a3b8;
-            padding:14px;
-            border-radius:10px;
-            transition:0.2s;
-            font-weight:500;
-        }
-
-        .menu a:hover{
-            background:#1e293b;
-            color:#fff;
-        }
-
-        .menu .active{
-            background:#dc2626;
-            color:#fff;
-        }
-
-        .logout{
-            text-decoration:none;
-            color:#94a3b8;
-            padding:14px;
-            display:flex;
-            gap:12px;
-            border-radius:10px;
-        }
-
-        .logout:hover{
-            background:#1e293b;
-            color:#fff;
-        }
-
-        /* MAIN */
-
-        .main{
-            flex:1;
-            padding:35px;
-        }
-
-        .topbar{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:30px;
-        }
-
-        .topbar h1{
-            font-size:30px;
-            color:#0f172a;
-        }
-
-        .btn-add{
-            background:#dc2626;
-            color:#fff;
-            border:none;
-            padding:12px 18px;
-            border-radius:10px;
-            cursor:pointer;
-            font-weight:600;
-            transition:0.2s;
-        }
-
-        .btn-add:hover{
-            background:#b91c1c;
-        }
-
-        /* SEARCH */
-
-        .search-box{
-            margin-bottom:25px;
-            position:relative;
-        }
-
-        .search-box input{
-            width:100%;
-            padding:14px 20px 14px 45px;
-            border:1px solid #cbd5e1;
-            border-radius:12px;
-            font-size:15px;
-            outline:none;
-        }
-
-        .search-box i{
-            position:absolute;
-            left:15px;
-            top:15px;
-            color:#64748b;
-        }
-
-        /* PRODUTOS */
-
-        .products-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-            gap:22px;
-        }
-
-        .product-card{
-            background:#fff;
-            border-radius:16px;
-            overflow:hidden;
-            border:1px solid #e2e8f0;
-            transition:0.2s;
-        }
-
-        .product-card:hover{
-            transform:translateY(-4px);
-            box-shadow:0 10px 20px rgba(0,0,0,0.08);
-        }
-
-        .product-image{
-            height:180px;
-            background:#e2e8f0;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:55px;
-            color:#64748b;
-        }
-
-        .product-info{
-            padding:18px;
-        }
-
-        .product-category{
-            font-size:12px;
-            color:#64748b;
-            margin-bottom:6px;
-        }
-
-        .product-name{
-            font-size:18px;
-            font-weight:700;
-            color:#0f172a;
-            margin-bottom:10px;
-        }
-
-        .product-price{
-            color:#dc2626;
-            font-size:22px;
-            font-weight:700;
-            margin-bottom:12px;
-        }
-
-        .product-stock{
-            font-size:13px;
-            color:#16a34a;
-            margin-bottom:18px;
-        }
-
-        .product-actions{
-            display:flex;
-            gap:10px;
-        }
-
-        .btn-edit,
-        .btn-delete{
-            flex:1;
-            border:none;
-            padding:10px;
-            border-radius:8px;
-            cursor:pointer;
-            font-weight:600;
-            transition:0.2s;
-        }
-
-        .btn-edit{
-            background:#2563eb;
-            color:#fff;
-        }
-
-        .btn-edit:hover{
-            background:#1d4ed8;
-        }
-
-        .btn-delete{
-            background:#ef4444;
-            color:#fff;
-        }
-
-        .btn-delete:hover{
-            background:#dc2626;
-        }
-
-        @media(max-width:768px){
-
-            body{
-                flex-direction:column;
-            }
-
-            .sidebar{
-                width:100%;
-            }
-
-            .main{
-                padding:20px;
-            }
-
-        }
-
-    </style>
 </head>
+
 <body>
 
-    <!-- SIDEBAR -->
+<div id="toast-container"></div>
 
-    <aside class="sidebar">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
 
-        <div>
+<div>
 
-            <div class="logo">
-                PDV SENAI
-            </div>
+<div class="sidebar-brand">
 
-            <ul class="menu">
+<div class="brand-left">
 
-                <li>
-                    <a href="/dashboard">
-                        <i class="fa-solid fa-chart-line"></i>
-                        Dashboard
-                    </a>
-                </li>
+<div class="brand-icon">
+<i class="fa-solid fa-box"></i>
+</div>
 
-                <li>
-                    <a href="/vendas">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        Vendas
-                    </a>
-                </li>
+<span class="logo-text">
+PDV SYSTEM
+</span>
 
-                <li>
-                    <a href="/produtos" class="active">
-                        <i class="fa-solid fa-box"></i>
-                        Produtos
-                    </a>
-                </li>
+</div>
 
-                <li>
-                    <a href="/estoque">
-                        <i class="fa-solid fa-warehouse"></i>
-                        Estoque
-                    </a>
-                </li>
+<i
+class="fa-solid fa-bars toggle-btn"
+onclick="toggleSidebar()">
+</i>
 
-                <li>
-                    <a href="/configuracoes">
-                        <i class="fa-solid fa-gear"></i>
-                        Configurações
-                    </a>
-                </li>
+</div>
 
-            </ul>
+<ul class="menu-list">
 
-        </div>
+<li class="menu-item">
+<a href="/dashboard">
+<i class="fa-solid fa-chart-pie"></i>
+<span>Dashboard</span>
+</a>
+</li>
 
-        <a href="/logout" class="logout">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            Sair
-        </a>
+<li class="menu-item">
+<a href="/vendas">
+<i class="fa-solid fa-cart-shopping"></i>
+<span>Vendas</span>
+</a>
+</li>
 
-    </aside>
+<li class="menu-item active">
+<a href="/produtos">
+<i class="fa-solid fa-box"></i>
+<span>Produtos</span>
+</a>
+</li>
 
-    <!-- MAIN -->
+<li class="menu-item">
+<a href="/estoque">
+<i class="fa-solid fa-warehouse"></i>
+<span>Estoque</span>
+</a>
+</li>
 
-    <main class="main">
+<li class="menu-item">
+<a href="/usuarios">
+<i class="fa-solid fa-users"></i>
+<span>Usuários</span>
+</a>
+</li>
 
-        <div class="topbar">
+</ul>
 
-            <h1>Produtos</h1>
+</div>
 
-            <button class="btn-add">
-                <i class="fa-solid fa-plus"></i>
-                Novo Produto
-            </button>
+<div class="sidebar-footer">
 
-        </div>
+<a href="/auth/logout">
 
-        <!-- PESQUISA -->
+<i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Buscar produto...">
-        </div>
+<span>
+Sair
+</span>
 
-        <!-- PRODUTOS -->
+</a>
 
-        <div class="products-grid">
+</div>
 
-            <div class="product-card">
+</aside>
 
-                <div class="product-image">
-                    <i class="fa-solid fa-bottle-water"></i>
-                </div>
+<!-- MAIN -->
+<main class="main-content">
 
-                <div class="product-info">
+<div class="container">
 
-                    <p class="product-category">
-                        Bebidas
-                    </p>
+<div class="topbar">
 
-                    <h2 class="product-name">
-                        Água Mineral
-                    </h2>
+<h1 class="title">
+Gerenciamento de Produtos
+</h1>
 
-                    <p class="product-price">
-                        R$ 3,00
-                    </p>
+</div>
 
-                    <p class="product-stock">
-                        Estoque: 150 unidades
-                    </p>
+<!-- CONTROLES -->
+<div class="controls-bar">
 
-                    <div class="product-actions">
+<div class="search-box">
 
-                        <button class="btn-edit">
-                            Editar
-                        </button>
+<div class="search-icon">
+<i class="fa-solid fa-magnifying-glass"></i>
+</div>
 
-                        <button class="btn-delete">
-                            Excluir
-                        </button>
+<input
+type="text"
+id="searchInput"
+placeholder="Buscar produto..."
+onkeyup="filtrarProdutos()">
 
-                    </div>
+</div>
 
-                </div>
+<button
+class="new-user-btn"
+onclick="abrirModalCategoria()">
 
-            </div>
+<i class="fa-solid fa-plus"></i>
+Categoria
 
-            <div class="product-card">
+</button>
 
-                <div class="product-image">
-                    <i class="fa-solid fa-burger"></i>
-                </div>
+<button
+class="new-user-btn primary"
+onclick="abrirModalCriar()">
 
-                <div class="product-info">
+<i class="fa-solid fa-plus"></i>
+Produto
 
-                    <p class="product-category">
-                        Alimentos
-                    </p>
+</button>
 
-                    <h2 class="product-name">
-                        Hambúrguer
-                    </h2>
+</div>
 
-                    <p class="product-price">
-                        R$ 18,90
-                    </p>
+<!-- STATS -->
+<div class="stats-grid">
 
-                    <p class="product-stock">
-                        Estoque: 42 unidades
-                    </p>
+<div class="stat-card">
 
-                    <div class="product-actions">
+<div class="stat-title">
+Total Produtos
+</div>
 
-                        <button class="btn-edit">
-                            Editar
-                        </button>
+<div class="stat-value">
+{{ produtos|length }}
+</div>
 
-                        <button class="btn-delete">
-                            Excluir
-                        </button>
+</div>
 
-                    </div>
+<div class="stat-card">
 
-                </div>
+<div class="stat-title">
+Itens em Estoque
+</div>
 
-            </div>
+<div class="stat-value">
+{{ total_estoque }}
+</div>
 
-            <div class="product-card">
+</div>
 
-                <div class="product-image">
-                    <i class="fa-solid fa-shirt"></i>
-                </div>
+<div class="stat-card">
 
-                <div class="product-info">
+<div class="stat-title">
+Estoque Baixo
+</div>
 
-                    <p class="product-category">
-                        Roupas
-                    </p>
+<div class="stat-value">
+{{ produtos_baixo }}
+</div>
 
-                    <h2 class="product-name">
-                        Camiseta
-                    </h2>
+</div>
 
-                    <p class="product-price">
-                        R$ 49,90
-                    </p>
+<div class="stat-card">
 
-                    <p class="product-stock">
-                        Estoque: 85 unidades
-                    </p>
+<div class="stat-title">
+Sem Estoque
+</div>
 
-                    <div class="product-actions">
+<div class="stat-value">
+{{ produtos_sem }}
+</div>
 
-                        <button class="btn-edit">
-                            Editar
-                        </button>
+</div>
 
-                        <button class="btn-delete">
-                            Excluir
-                        </button>
+</div>
 
-                    </div>
+<!-- PRODUTOS -->
 
-                </div>
+<div class="products-grid">
 
-            </div>
+{% for produto in produtos %}
 
-            <div class="product-card">
+<div class="product-card">
 
-                <div class="product-image">
-                    <i class="fa-solid fa-mobile-screen"></i>
-                </div>
+<div class="product-image">
 
-                <div class="product-info">
+{% if produto.imagem %}
 
-                    <p class="product-category">
-                        Eletrônicos
-                    </p>
+<img src="{{ produto.imagem }}">
 
-                    <h2 class="product-name">
-                        Smartphone
-                    </h2>
+{% else %}
 
-                    <p class="product-price">
-                        R$ 1.899,90
-                    </p>
+<i class="fa-solid fa-box"></i>
 
-                    <p class="product-stock">
-                        Estoque: 12 unidades
-                    </p>
+{% endif %}
 
-                    <div class="product-actions">
+</div>
 
-                        <button class="btn-edit">
-                            Editar
-                        </button>
+<div class="product-body">
 
-                        <button class="btn-delete">
-                            Excluir
-                        </button>
+<div class="product-name">
+{{ produto.nome }}
+</div>
 
-                    </div>
+<div class="product-category">
+{{ produto.categoria.nome if produto.categoria else "Sem categoria" }}
+</div>
 
-                </div>
+<div class="product-price">
+R$ {{ "%.2f"|format(produto.preco) }}
+</div>
 
-            </div>
+{% if produto.estoque > 10 %}
 
-        </div>
+<div class="stock-badge ok">
+Em estoque
+</div>
 
-    </main>
+{% elif produto.estoque > 0 %}
+
+<div class="stock-badge low">
+Estoque baixo
+</div>
+
+{% else %}
+
+<div class="stock-badge out">
+Sem estoque
+</div>
+
+{% endif %}
+
+<div class="product-stock">
+Quantidade: {{ produto.estoque }}
+</div>
+
+<div class="product-actions">
+
+<button
+class="action-btn btn-enable"
+onclick="abrirModalEditar(
+'{{ produto.id }}',
+'{{ produto.nome }}',
+'{{ produto.categoria_id }}',
+'{{ produto.preco }}',
+'{{ produto.estoque }}'
+)">
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<form
+action="/produtos/excluir/{{ produto.id }}"
+method="POST"
+style="flex:1">
+<button
+type="submit"
+class="action-btn btn-disable"
+style="width:100%">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</main>
+
+<!-- MODAL PRODUTO -->
+
+<div id="modal" class="modal hidden">
+
+<div class="modal-content">
+
+<h2 id="modalTitle">
+Novo Produto
+</h2>
+
+<form
+id="modalForm"
+method="POST"
+action="/produtos/criar"
+enctype="multipart/form-data">
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Nome do Produto</label>
+
+<input
+type="text"
+name="nome"
+id="nome"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Categoria</label>
+
+<select
+name="categoria_id"
+id="categoria"
+required>
+
+{% for categoria in categorias %}
+
+<option value="{{ categoria.id }}">
+{{ categoria.nome }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Preço</label>
+
+<input
+type="number"
+step="0.01"
+name="preco"
+id="preco"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Quantidade em Estoque</label>
+
+<input
+type="number"
+name="estoque"
+id="estoque"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Imagem do Produto</label>
+
+<input
+type="file"
+name="imagem"
+accept="image/*">
+
+</div>
+
+</div>
+
+<button
+type="submit"
+class="btn-save">
+
+Salvar Produto
+
+</button>
+
+</form>
+
+<button
+class="btn-cancel"
+onclick="fecharModal()">
+
+Fechar
+
+</button>
+
+</div>
+
+</div>
+
+<!-- MODAL CATEGORIA -->
+
+<div id="modalCategoria" class="modal hidden">
+
+<div class="modal-content">
+
+<h2>
+Nova Categoria
+</h2>
+
+<form
+method="POST"
+action="/categorias/criar">
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Nome</label>
+
+<input
+type="text"
+name="nome"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Descrição</label>
+
+<input
+type="text"
+name="descricao">
+
+</div>
+
+</div>
+
+<button
+type="submit"
+class="btn-save">
+
+Salvar Categoria
+
+</button>
+
+</form>
+
+<button
+class="btn-cancel"
+onclick="fecharCategoria()">
+
+Fechar
+
+</button>
+
+</div>
+
+</div>
+
+{% if request.query_params.get("sucesso") == "categoria" %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+if(typeof mostrarToast === "function"){
+mostrarToast(
+"Categoria criada com sucesso!"
+);
+}
+
+});
+</script>
+
+{% endif %}
+
+{% if request.query_params.get("sucesso") == "produto" %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+if(typeof mostrarToast === "function"){
+mostrarToast(
+"Produto criado com sucesso!"
+);
+}
+
+});
+</script>
+
+{% endif %}
+
+<script src="/static/js/produtos.js"></script>
 
 </body>
 </html>

@@ -12,11 +12,12 @@ router = APIRouter(
     tags=["Auth"]
 )
 
-templates = Jinja2Templates(
-    directory="app/templates"
-)
+templates = Jinja2Templates(directory="app/templates")
 
 
+# =========================
+# TELA DE LOGIN
+# =========================
 @router.get("/login", response_class=HTMLResponse)
 def tela_login(request: Request):
     return templates.TemplateResponse(
@@ -24,6 +25,10 @@ def tela_login(request: Request):
         {"request": request}
     )
 
+
+# =========================
+# LOGIN
+# =========================
 
 @router.post("/login")
 def login(
@@ -41,10 +46,14 @@ def login(
             detail="Usuário não encontrado"
         )
 
-    if not verificar_senha(
-        senha,
-        user.senha
-    ):
+    # 🔴 ISSO AQUI FALTAVA
+    if not user.ativo:
+        raise HTTPException(
+            status_code=403,
+            detail="Usuário desativado"
+        )
+
+    if not verificar_senha(senha, user.senha):
         raise HTTPException(
             status_code=401,
             detail="Senha inválida"
@@ -58,7 +67,7 @@ def login(
 
     response = RedirectResponse(
         url="/dashboard",
-        status_code=302
+        status_code=303
     )
 
     response.set_cookie(
@@ -69,16 +78,15 @@ def login(
 
     return response
 
+# =========================
+# LOGOUT
+# =========================
 @router.get("/logout")
 def logout():
-
     response = RedirectResponse(
         url="/auth/login",
-        status_code=302
+        status_code=303
     )
 
-    response.delete_cookie(
-        key="access_token"
-    )
-
+    response.delete_cookie("access_token", httponly=True)
     return response
