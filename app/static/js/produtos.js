@@ -69,26 +69,96 @@ function fecharCategoria() {
 
 function filtrarProdutos() {
 
-    let filtro =
+    const busca =
         document.getElementById("searchInput")
         .value
         .toLowerCase();
 
-    let linhas =
-        document.querySelectorAll("tbody tr");
+    const categoria =
+        document.getElementById("categoriaFilter")
+        .value
+        .toLowerCase();
+
+    const status =
+        document.getElementById("statusFilter")
+        .value
+        .toLowerCase();
+
+    const linhas =
+        document.querySelectorAll(
+            ".products-table tbody tr[data-nome]"
+        );
+
+    let totalVisiveis = 0;
 
     linhas.forEach(linha => {
 
-        let texto =
-            linha.textContent.toLowerCase();
+        const nome =
+            linha.dataset.nome || "";
 
-        if (texto.includes(filtro)) {
-            linha.style.display = "";
-        } else {
-            linha.style.display = "none";
+        const cat =
+            linha.dataset.categoria || "";
+
+        const stat =
+            linha.dataset.status || "";
+
+        const matchBusca =
+            nome.includes(busca);
+
+        const matchCategoria =
+            categoria === "" ||
+            cat.includes(categoria);
+
+        const matchStatus =
+            status === "" ||
+            stat.includes(status);
+
+        const mostrar =
+            matchBusca &&
+            matchCategoria &&
+            matchStatus;
+
+        linha.style.display =
+            mostrar ? "" : "none";
+
+        if (mostrar) {
+            totalVisiveis++;
         }
 
     });
+
+    const contador =
+        document.getElementById("contadorProdutos");
+
+    if (contador) {
+        contador.innerText =
+            `${totalVisiveis} produto${totalVisiveis !== 1 ? "s" : ""} encontrado${totalVisiveis !== 1 ? "s" : ""}`;
+    }
+
+    const semResultados =
+        document.getElementById("semResultados");
+
+    if (semResultados) {
+        semResultados.style.display =
+            totalVisiveis === 0 ? "" : "none";
+    }
+}
+
+function limparFiltros() {
+
+    document.getElementById(
+        "searchInput"
+    ).value = "";
+
+    document.getElementById(
+        "categoriaFilter"
+    ).selectedIndex = 0;
+
+    document.getElementById(
+        "statusFilter"
+    ).selectedIndex = 0;
+
+    filtrarProdutos();
 }
 
 // =========================

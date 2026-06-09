@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -10,5 +10,7 @@ class Produto(Base):
     preco = Column(Float, nullable=False)
     estoque = Column(Integer, default=0)
     imagem = Column(String, nullable=True)
+    ativo = Column(Boolean, default=True)
     categoria_id = Column(Integer, ForeignKey("categorias.id"))
     categoria = relationship("Categoria")
+    

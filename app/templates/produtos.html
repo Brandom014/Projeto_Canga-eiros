@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,7 +13,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="/static/css/produtos.css">
+<link rel="stylesheet" href="/static/css/produtos.css?v=10">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,7 +24,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 
 <div id="toast-container"></div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
 <div>
@@ -106,42 +106,32 @@ Sair
 
 </aside>
 
-<!-- MAIN -->
 <main class="main-content">
 
 <div class="container">
 
 <div class="topbar">
 
+<div>
+
 <h1 class="title">
 Gerenciamento de Produtos
 </h1>
 
-</div>
-
-<!-- CONTROLES -->
-<div class="controls-bar">
-
-<div class="search-box">
-
-<div class="search-icon">
-<i class="fa-solid fa-magnifying-glass"></i>
-</div>
-
-<input
-type="text"
-id="searchInput"
-placeholder="Buscar produto..."
-onkeyup="filtrarProdutos()">
+<p class="subtitle">
+Controle completo dos produtos cadastrados
+</p>
 
 </div>
+
+<div class="top-buttons">
 
 <button
 class="new-user-btn"
 onclick="abrirModalCategoria()">
 
-<i class="fa-solid fa-plus"></i>
-Categoria
+<i class="fa-solid fa-layer-group"></i>
+Nova Categoria
 
 </button>
 
@@ -150,13 +140,14 @@ class="new-user-btn primary"
 onclick="abrirModalCriar()">
 
 <i class="fa-solid fa-plus"></i>
-Produto
+Novo Produto
 
 </button>
 
 </div>
 
-<!-- STATS -->
+</div>
+
 <div class="stats-grid">
 
 <div class="stat-card">
@@ -167,6 +158,18 @@ Total Produtos
 
 <div class="stat-value">
 {{ produtos|length }}
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-title">
+Categorias
+</div>
+
+<div class="stat-value">
+{{ categorias|length }}
 </div>
 
 </div>
@@ -195,118 +198,246 @@ Estoque Baixo
 
 </div>
 
-<div class="stat-card">
+</div>
 
-<div class="stat-title">
+<div class="filters-container">
+
+<div class="filter-search">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+<input
+type="text"
+id="searchInput"
+placeholder="Buscar produto..."
+onkeyup="filtrarProdutos()">
+
+</div>
+
+<select id="categoriaFilter" onchange="filtrarProdutos()">
+
+<option value="">
+Todas Categorias
+</option>
+
+{% for categoria in categorias %}
+
+<option value="{{ categoria.nome|lower }}">
+{{ categoria.nome }}
+</option>
+
+{% endfor %}
+
+</select>
+
+<select id="statusFilter" onchange="filtrarProdutos()">
+
+<option value="">
+Todos Status
+</option>
+
+<option value="estoque">
+Em Estoque
+</option>
+
+<option value="baixo">
+Estoque Baixo
+</option>
+
+<option value="sem">
 Sem Estoque
+</option>
+
+</select>
+
+<button
+type="button"
+class="clear-filter"
+onclick="limparFiltros()">
+
+<i class="fa-solid fa-rotate-left"></i>
+
+Limpar
+
+</button>
+
 </div>
 
-<div class="stat-value">
-{{ produtos_sem }}
-</div>
+<div class="table-container">
+
+<div class="table-top">
+
+<h2>
+Lista de Produtos
+</h2>
+
+<span id="contadorProdutos">
+{{ produtos|length }} produtos encontrados
+</span>
 
 </div>
 
-</div>
+<table class="products-table">
 
-<!-- PRODUTOS -->
+<thead>
 
-<div class="products-grid">
+<tr>
+
+<th>Produto</th>
+<th>Categoria</th>
+<th>Preço</th>
+<th>Estoque</th>
+<th>Status</th>
+<th>Ações</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr id="semResultados" style="display:none;">
+    <td colspan="6" style="text-align:center;padding:40px;">
+        <i class="fa-solid fa-box-open" style="font-size:40px;color:#94a3b8;"></i>
+        <br><br>
+        <strong>Nenhum produto encontrado</strong>
+        <br>
+        <span style="color:#64748b;">
+            Tente alterar os filtros ou pesquisar outro produto.
+        </span>
+    </td>
+</tr>
 
 {% for produto in produtos %}
 
-<div class="product-card">
+<tr
+data-nome="{{ produto.nome|lower }}"
+data-categoria="{{ produto.categoria.nome|lower if produto.categoria else '' }}"
+data-status="{% if produto.estoque > 10 %}estoque{% elif produto.estoque > 0 %}baixo{% else %}sem{% endif %}">
 
-<div class="product-image">
+<td>
+
+<div class="product-cell">
 
 {% if produto.imagem %}
 
-<img src="{{ produto.imagem }}">
+<img
+src="{{ produto.imagem }}"
+class="table-image">
 
 {% else %}
+
+<div class="no-image">
 
 <i class="fa-solid fa-box"></i>
 
-{% endif %}
-
 </div>
 
-<div class="product-body">
+{% endif %}
 
-<div class="product-name">
+<div>
+
+<div class="product-title">
 {{ produto.nome }}
 </div>
 
-<div class="product-category">
-{{ produto.categoria.nome if produto.categoria else "Sem categoria" }}
+<div class="product-id">
+#{{ produto.id }}
 </div>
 
-<div class="product-price">
-R$ {{ "%.2f"|format(produto.preco) }}
 </div>
+
+</div>
+
+</td>
+
+<td>
+
+{{ produto.categoria.nome if produto.categoria else "Sem categoria" }}
+
+</td>
+
+<td>
+
+R$ {{ "%.2f"|format(produto.preco) }}
+
+</td>
+
+<td>
+
+{{ produto.estoque }}
+
+</td>
+
+<td>
 
 {% if produto.estoque > 10 %}
 
-<div class="stock-badge ok">
+<span class="status active">
 Em estoque
-</div>
+</span>
 
 {% elif produto.estoque > 0 %}
 
-<div class="stock-badge low">
-Estoque baixo
-</div>
+<span class="status warning">
+Baixo
+</span>
 
 {% else %}
 
-<div class="stock-badge out">
+<span class="status inactive">
 Sem estoque
-</div>
+</span>
 
 {% endif %}
 
-<div class="product-stock">
-Quantidade: {{ produto.estoque }}
-</div>
+</td>
 
-<div class="product-actions">
+<td>
+
+<div class="table-actions">
 
 <button
-class="action-btn btn-enable"
-onclick="abrirModalEditar(
-'{{ produto.id }}',
-'{{ produto.nome }}',
-'{{ produto.categoria_id }}',
-'{{ produto.preco }}',
-'{{ produto.estoque }}'
-)">
+    class="edit-btn"
+    onclick="abrirModalEditar(
+    '{{ produto.id }}',
+    '{{ produto.nome }}',
+    '{{ produto.categoria_id }}',
+    '{{ produto.preco }}',
+    '{{ produto.estoque }}'
+    )">
 
-<i class="fa-solid fa-pen"></i>
+    <i class="fa-solid fa-pen"></i>
 
 </button>
 
 <form
-action="/produtos/excluir/{{ produto.id }}"
-method="POST"
-style="flex:1">
-<button
-type="submit"
-class="action-btn btn-disable"
-style="width:100%">
+    action="/produtos/excluir/{{ produto.id }}"
+    method="POST">
 
-<i class="fa-solid fa-trash"></i>
+    <button
+        type="submit"
+        class="delete-btn">
 
-</button>
+        <i class="fa-solid fa-trash"></i>
+
+    </button>
 
 </form>
 
 </div>
 
-</div>
+</td>
 
-</div>
+</tr>
 
 {% endfor %}
+
+</tbody>
+
+
+
+</table>
 
 </div>
 
@@ -509,7 +640,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 if(typeof mostrarToast === "function"){
 mostrarToast(
-"Produto criado com sucesso!"
+"Produto salvo com sucesso!"
 );
 }
 
@@ -518,7 +649,7 @@ mostrarToast(
 
 {% endif %}
 
-<script src="/static/js/produtos.js"></script>
+<script src="/static/js/produtos.js?v=99"></script>
 
 </body>
 </html>
