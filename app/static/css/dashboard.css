@@ -556,6 +556,27 @@ body {
     background-color: #f8fafc;
 }
 
+.toast{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #dc2626;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+    transform: translateX(120%);
+    transition: .4s;
+    z-index: 9999;
+}
+
+.toast.show{
+    transform: translateX(0);
+}
+
 /* =========================
    RESPONSIVO
 ========================= */

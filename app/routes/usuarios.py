@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.usuarios import Usuario
-from app.dependencies import get_current_admin
+from app.dependencies import get_current_admin, get_current_user
 from app.auth import hash_senha
 
 router = APIRouter(
@@ -37,8 +37,15 @@ templates = Jinja2Templates(
 def pagina_usuarios(
     request: Request,
     db: Session = Depends(get_db),
-    admin=Depends(get_current_admin)
+    current_user=Depends(get_current_user)
 ):
+
+    if current_user.role != "admin":
+        return RedirectResponse(
+            url="/dashboard?erro=acesso_negado",
+            status_code=303
+        )
+
     usuarios = db.query(Usuario).all()
 
     total_usuarios = len(usuarios)

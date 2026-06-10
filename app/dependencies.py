@@ -65,7 +65,7 @@ def get_current_admin(
     if current_user.role != "admin":
         raise HTTPException(
             status_code=403,
-            detail="Acesso negado"
+            detail="Apenas administradores podem acessar esta página."
         )
 
     return current_user
