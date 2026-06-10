@@ -14,24 +14,29 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="app/templates")
 
-
 # =========================
 # TELA DE LOGIN
 # =========================
 @router.get("/login", response_class=HTMLResponse)
 def tela_login(request: Request):
+
+    erro = request.query_params.get("erro")
+
     return templates.TemplateResponse(
         "login.html",
-        {"request": request}
+        {
+            "request": request,
+            "erro": erro
+        }
     )
 
 
 # =========================
 # LOGIN
 # =========================
-
 @router.post("/login")
 def login(
+    request: Request,
     email: str = Form(...),
     senha: str = Form(...),
     db: Session = Depends(get_db)
@@ -41,22 +46,30 @@ def login(
     ).first()
 
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="Usuário não encontrado"
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "erro": "Usuário não encontrado"
+            }
         )
 
-    # 🔴 ISSO AQUI FALTAVA
     if not user.ativo:
-        raise HTTPException(
-            status_code=403,
-            detail="Usuário desativado"
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "erro": "Usuário desativado. Entre em contato com um administrador."
+            }
         )
 
     if not verificar_senha(senha, user.senha):
-        raise HTTPException(
-            status_code=401,
-            detail="Senha inválida"
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "erro": "Senha inválida"
+            }
         )
 
     token = criar_token({

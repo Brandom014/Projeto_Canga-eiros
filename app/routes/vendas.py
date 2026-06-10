@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies import get_current_user
+
 from app.models.produtos import Produto
 from app.models.vendas import Venda
 from app.models.itens_venda import ItemVenda
 from app.models.movimentacoes import Movimentacao
-from app.dependencies import get_current_user
+from app.models.categoria import Categoria
 
 router = APIRouter(
     prefix="/vendas",
@@ -19,22 +21,58 @@ templates = Jinja2Templates(
     directory="app/templates"
 )
 
+# =========================
+# TELA PDV
+# =========================
 
-@router.post("/")
-def criar_venda(
+@router.get("/", response_class=HTMLResponse)
+def pagina_vendas(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    produtos = (
+        db.query(Produto)
+        .filter(Produto.ativo == True)
+        .all()
+    )
+
+    categorias = (
+        db.query(Categoria)
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        "vendas.html",
+        {
+            "request": request,
+            "produtos": produtos,
+            "categorias": categorias
+        }
+    )
+
+# =========================
+# FINALIZAR VENDA
+# =========================
+
+@router.post("/finalizar")
+def finalizar_venda(
     produto_id: int,
     quantidade: int,
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
-    produto = db.query(Produto).filter(
-        Produto.id == produto_id
-    ).first()
+
+    produto = (
+        db.query(Produto)
+        .filter(Produto.id == produto_id)
+        .first()
+    )
 
     if not produto:
         raise HTTPException(
             status_code=404,
-            detail="Produto não existe"
+            detail="Produto não encontrado"
         )
 
     if produto.estoque < quantidade:
@@ -45,7 +83,9 @@ def criar_venda(
 
     total = produto.preco * quantidade
 
-    venda = Venda(total=total)
+    venda = Venda(
+        total=total
+    )
 
     db.add(venda)
     db.commit()
@@ -55,7 +95,7 @@ def criar_venda(
         venda_id=venda.id,
         produto_id=produto.id,
         quantidade=quantidade,
-        subtotal=total
+        preco=produto.preco
     )
 
     produto.estoque -= quantidade
@@ -72,21 +112,39 @@ def criar_venda(
     db.commit()
 
     return {
-        "msg": "Venda realizada",
+        "success": True,
+        "venda_id": venda.id,
         "total": total
     }
 
+# =========================
+# PRODUTOS
+# =========================
 
-@router.get("/", response_class=HTMLResponse)
-def pagina_vendas(request: Request):
-    return templates.TemplateResponse(
-        "vendas.html",
-        {"request": request}
-    )
-
-
-@router.get("/itens")
-def listar_itens(
+@router.get("/produtos")
+def listar_produtos(
     db: Session = Depends(get_db)
 ):
-    return db.query(ItemVenda).all()
+
+    produtos = (
+        db.query(Produto)
+        .filter(Produto.ativo == True)
+        .all()
+    )
+
+    return produtos
+
+# =========================
+# HISTÓRICO
+# =========================
+
+@router.get("/historico")
+def historico_vendas(
+    db: Session = Depends(get_db)
+):
+
+    return (
+        db.query(Venda)
+        .order_by(Venda.id.desc())
+        .all()
+    )

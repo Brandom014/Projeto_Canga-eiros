@@ -14,21 +14,20 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 24px 16px;
-    transition: width 0.3s ease;
+    transition: all 0.3s ease;
     overflow: hidden;
+    position: relative;
 }
 
 .sidebar.collapsed {
     width: 90px;
 }
 
-/* TOP */
 .sidebar-top {
     display: flex;
     flex-direction: column;
 }
 
-/* BRAND */
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -38,6 +37,22 @@
     font-weight: 700;
     padding: 0 12px;
     margin-bottom: 35px;
+}
+
+.logo-text {
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .logo-text {
+    opacity: 0;
+    display: none;
+}
+
+.sidebar-icons {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
 .sidebar-brand i.fa-store {
@@ -50,90 +65,112 @@
     text-align: center;
 }
 
-.logo-text {
-    white-space: nowrap;
-    transition: 0.2s;
-}
-
-/* TOGGLE BUTTON */
 .toggle-btn {
     cursor: pointer;
     color: #94a3b8;
-    font-size: 18px;
-    padding: 6px;
-    border-radius: 8px;
     transition: 0.2s;
+    font-size: 18px;
 }
 
 .toggle-btn:hover {
-    background: #1f2937;
-    color: #fff;
+    color: #e63946;
 }
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
+
 .menu-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 0;
 }
 
 .menu-item a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    color: #cbd5e1;
+    gap: 14px;
+    color: #94a3b8;
     text-decoration: none;
-    transition: 0.2s;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.menu-item a i {
+    min-width: 20px;
+    font-size: 16px;
+    text-align: center;
 }
 
 .menu-item a:hover {
-    background: #1f2937;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transform: translateX(3px);
 }
 
 .menu-item.active a {
-    background: #dc2626;
-    color: white;
+    background-color: #e63946;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(230, 57, 70, 0.25);
 }
 
-/* FOOTER */
-.sidebar-footer a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #cbd5e1;
-    text-decoration: none;
-    padding: 10px;
-    border-radius: 10px;
+.sidebar.collapsed .menu-item a {
+    justify-content: center;
+    padding: 14px;
 }
 
-.sidebar-footer a:hover {
-    background: #1f2937;
-    color: white;
-}
-
-/* =========================
-   COLLAPSED MODE (SÓ ÍCONES)
-========================= */
-
-.sidebar.collapsed .logo-text,
-.sidebar.collapsed .menu-item span,
-.sidebar.collapsed .sidebar-footer span {
+.sidebar.collapsed .menu-item a span {
     display: none;
 }
 
-.sidebar.collapsed .menu-item a,
+.sidebar.collapsed .menu-item a:hover {
+    transform: none;
+}
+
+/* =========================
+   FOOTER SIDEBAR
+========================= */
+
+.sidebar-footer {
+    margin-top: 30px;
+}
+
+.sidebar-footer a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sidebar-footer a i {
+    min-width: 20px;
+    text-align: center;
+}
+
+.sidebar-footer a:hover {
+    background-color: rgba(230, 57, 70, 0.08);
+    color: #e63946;
+}
+
 .sidebar.collapsed .sidebar-footer a {
     justify-content: center;
 }
 
-.sidebar.collapsed .menu-item a i,
-.sidebar.collapsed .sidebar-footer a i {
-    margin: 0;
+.sidebar.collapsed .sidebar-footer span {
+    display: none;
 }
 
 /* =========================
@@ -142,8 +179,9 @@
 
 .main-content {
     flex: 1;
-    padding: 30px;
-    overflow: auto;
+    background-color: #f8fafc;
+    padding: 32px;
+    overflow-y: auto;
 }
 
 /* =========================
@@ -308,21 +346,20 @@ overflow:hidden;
     flex-direction: column;
     justify-content: space-between;
     padding: 24px 16px;
-    transition: width 0.3s ease;
+    transition: all 0.3s ease;
     overflow: hidden;
+    position: relative;
 }
 
 .sidebar.collapsed {
     width: 90px;
 }
 
-/* TOP ORGANIZADO */
 .sidebar-top {
     display: flex;
     flex-direction: column;
 }
 
-/* BRAND */
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -334,14 +371,22 @@ overflow:hidden;
     margin-bottom: 35px;
 }
 
-/* ÍCONE + TEXTO */
+.logo-text {
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .logo-text {
+    opacity: 0;
+    display: none;
+}
+
 .sidebar-icons {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
-/* LOGO */
 .sidebar-brand i.fa-store {
     color: #e63946;
     background: rgba(230, 57, 70, 0.15);
@@ -352,20 +397,6 @@ overflow:hidden;
     text-align: center;
 }
 
-/* TEXTO DO LOGO */
-.logo-text {
-    white-space: nowrap;
-    transition: opacity 0.2s ease;
-}
-
-/* COLLAPSE MAIS LIMPO (SEM "SUMIR BRUSCO") */
-.sidebar.collapsed .logo-text {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-}
-
-/* BOTÃO TOGGLE */
 .toggle-btn {
     cursor: pointer;
     color: #94a3b8;
@@ -377,63 +408,112 @@ overflow:hidden;
     color: #e63946;
 }
 
-/* MENU MELHOR ORGANIZADO (IMPORTANTE) */
+/* =========================
+   MENU
+========================= */
+
 .menu-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 0;
 }
 
-/* LINKS */
 .menu-item a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    color: #cbd5e1;
+    gap: 14px;
+    color: #94a3b8;
     text-decoration: none;
-    transition: 0.2s;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-/* HOVER */
+.menu-item a i {
+    min-width: 20px;
+    font-size: 16px;
+    text-align: center;
+}
+
 .menu-item a:hover {
-    background: #1f2937;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transform: translateX(3px);
 }
 
-/* ATIVO */
 .menu-item.active a {
-    background: #dc2626;
-    color: white;
+    background-color: #e63946;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(230, 57, 70, 0.25);
 }
 
-/* FOOTER */
-.sidebar-footer a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #cbd5e1;
-    text-decoration: none;
-    padding: 10px;
-    border-radius: 10px;
+.sidebar.collapsed .menu-item a {
+    justify-content: center;
+    padding: 14px;
 }
 
-.sidebar-footer a:hover {
-    background: #1f2937;
-    color: white;
+.sidebar.collapsed .menu-item a span {
+    display: none;
+}
+
+.sidebar.collapsed .menu-item a:hover {
+    transform: none;
 }
 
 /* =========================
-   MAIN
+   FOOTER SIDEBAR
 ========================= */
 
-.main-content{
-flex:1;
-padding:30px;
-overflow:auto;
+.sidebar-footer {
+    margin-top: 30px;
+}
+
+.sidebar-footer a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sidebar-footer a i {
+    min-width: 20px;
+    text-align: center;
+}
+
+.sidebar-footer a:hover {
+    background-color: rgba(230, 57, 70, 0.08);
+    color: #e63946;
+}
+
+.sidebar.collapsed .sidebar-footer a {
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-footer span {
+    display: none;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.main-content {
+    flex: 1;
+    background-color: #f8fafc;
+    padding: 32px;
+    overflow-y: auto;
 }
 
 .title{

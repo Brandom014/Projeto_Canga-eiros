@@ -10,12 +10,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="/static/css/produtos.css?v=10">
-
 <link rel="stylesheet"
+
+
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
@@ -24,85 +23,93 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 
 <div id="toast-container"></div>
 
+     <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
-<div>
+    <div>
 
-<div class="sidebar-brand">
+        <div class="sidebar-brand">
 
-<div class="brand-left">
+            <div style="display: flex; align-items: center; gap: 12px;">
 
-<div class="brand-icon">
-<i class="fa-solid fa-box"></i>
-</div>
+                <i class="fa-solid fa-store"></i>
 
-<span class="logo-text">
-PDV SYSTEM
-</span>
+                <span class="logo-text"></span>
 
-</div>
+            </div>
 
-<i
-class="fa-solid fa-bars toggle-btn"
-onclick="toggleSidebar()">
-</i>
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
 
-</div>
+        </div>
 
-<ul class="menu-list">
+        <ul class="menu-list">
 
-<li class="menu-item">
-<a href="/dashboard">
-<i class="fa-solid fa-chart-pie"></i>
-<span>Dashboard</span>
-</a>
-</li>
+            <li class="menu-item">
+                <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-<li class="menu-item">
-<a href="/vendas">
-<i class="fa-solid fa-cart-shopping"></i>
-<span>Vendas</span>
-</a>
-</li>
+            <li class="menu-item">
+                <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Vendas</span>
+                </a>
+            </li>
 
-<li class="menu-item active">
-<a href="/produtos">
-<i class="fa-solid fa-box"></i>
-<span>Produtos</span>
-</a>
-</li>
+            <li class="menu-item active">
+                <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
 
-<li class="menu-item">
-<a href="/estoque">
-<i class="fa-solid fa-warehouse"></i>
-<span>Estoque</span>
-</a>
-</li>
+            <li class="menu-item">
+                <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Estoque</span>
+                </a>
+            </li>
 
-<li class="menu-item">
-<a href="/usuarios">
-<i class="fa-solid fa-users"></i>
-<span>Usuários</span>
-</a>
-</li>
+            <li class="menu-item">
+                <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Movimentações</span>
+                </a>
+            </li>
 
-</ul>
+            <li class="menu-item">
+                <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Relatorio de vendas</span>
+                </a>
+            </li>
 
-</div>
+            <li class="menu-item">
+                <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gerenciar Usuários</span>
+                </a>
+            </li>
 
-<div class="sidebar-footer">
+            <li class="menu-item">
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
 
-<a href="/auth/logout">
+        </ul>
 
-<i class="fa-solid fa-arrow-right-from-bracket"></i>
+    </div>
 
-<span>
-Sair
-</span>
-
-</a>
-
-</div>
+    <div class="sidebar-footer">
+        <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+    </div>
 
 </aside>
 

@@ -14,6 +14,11 @@
 
 <link rel="stylesheet" href="/static/css/usuarios.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet"
+
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
 
 <body>
@@ -21,38 +26,90 @@
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
-<div>
+    <div>
 
-<div class="sidebar-brand">
-<div class="brand-left">
-<div class="brand-icon">
-<i class="fa-solid fa-store"></i>
-</div>
-<span class="logo-text"></span>
-</div>
+        <div class="sidebar-brand">
 
-<i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
-</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
 
-<ul class="menu-list">
+                <i class="fa-solid fa-store"></i>
 
-<li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
-<li class="menu-item"><a href="/vendas"><i class="fa-solid fa-cart-shopping"></i><span>Vendas</span></a></li>
-<li class="menu-item"><a href="/produtos"><i class="fa-solid fa-box"></i><span>Produtos</span></a></li>
-<li class="menu-item"><a href="/estoque"><i class="fa-solid fa-warehouse"></i><span>Estoque</span></a></li>
-<li class="menu-item active"><a href="/usuarios"><i class="fa-solid fa-users"></i><span>Usuários</span></a></li>
-<li class="menu-item"><a href="/configuracoes"><i class="fa-solid fa-gear"></i><span>Configurações</span></a></li>
+                <span class="logo-text"></span>
 
-</ul>
+            </div>
 
-</div>
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
 
-<div class="sidebar-footer">
-<a href="/auth/logout">
-<i class="fa-solid fa-arrow-right-from-bracket"></i>
-<span>Sair</span>
-</a>
-</div>
+        </div>
+
+        <ul class="menu-list">
+
+            <li class="menu-item">
+                <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Estoque</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Movimentações</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Relatorio de vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item active">
+                <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gerenciar Usuários</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+    </div>
 
 </aside>
 
