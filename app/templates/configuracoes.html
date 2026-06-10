@@ -5,295 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Configurações</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/static/css/configuracoes.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
-
-:root{
-    --bg:#f4f5f7;
-    --card:#ffffff;
-    --text:#111827;
-    --border:#d1d5db;
-}
-
-body.dark{
-    --bg:#111827;
-    --card:#1f2937;
-    --text:#ffffff;
-    --border:#374151;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    transition:.3s;
-}
-
-/* Layout */
-
-.container{
-    display:flex;
-    min-height:100vh;
-}
-
-/* Sidebar */
-
-.sidebar{
-    width:260px;
-    background:#050B18;
-    color:white;
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-}
-
-.top{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:40px;
-}
-
-.logo-box{
-    width:40px;
-    height:40px;
-    border-radius:12px;
-    background:#2b1620;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    color:#ff4d5a;
-}
-
-.top h2{
-    flex:1;
-    font-size:22px;
-    font-weight:700;
-}
-
-.menu-btn{
-    background:none;
-    border:none;
-    color:#94a3b8;
-    font-size:20px;
-    cursor:pointer;
-}
-
-nav{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-
-.menu-item{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    text-decoration:none;
-    color:#9ca3af;
-    padding:16px;
-    border-radius:14px;
-    transition:.3s;
-}
-
-.menu-item:hover{
-    background:#111827;
-    color:#fff;
-}
-
-.menu-item.active{
-    background:#ef4444;
-    color:#fff;
-    font-weight:600;
-}
-
-.logout{
-    margin-top:auto;
-}
-
-/* Conteúdo */
-
-.content{
-    flex:1;
-    padding:30px;
-}
-
-.settings-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:30px;
-}
-
-.settings-card h1{
-    margin-bottom:10px;
-}
-
-.settings-card p{
-    margin-bottom:25px;
-}
-
-/* Temas */
-
-.theme-options{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-}
-
-.theme-card{
-    width:200px;
-    border:2px solid var(--border);
-    border-radius:15px;
-    padding:12px;
-    cursor:pointer;
-    transition:.3s;
-}
-
-.theme-card:hover{
-    transform:translateY(-4px);
-}
-
-.theme-card.active{
-    border-color:#ef4444;
-}
-
-.preview{
-    height:110px;
-    border-radius:10px;
-    overflow:hidden;
-    margin-bottom:12px;
-}
-
-/* Sistema */
-
-.system-preview{
-    display:flex;
-}
-
-.system-preview .left{
-    width:35%;
-    background:#0f172a;
-}
-
-.system-preview .right{
-    flex:1;
-    background:#f8fafc;
-}
-
-/* Claro */
-
-.light-preview{
-    background:#f8fafc;
-    border:1px solid #ddd;
-}
-
-/* Escuro */
-
-.dark-preview{
-    background:#0f172a;
-}
-
-.theme-name{
-    text-align:center;
-    font-weight:600;
-}
-
-@media(max-width:768px){
-
-    .container{
-        flex-direction:column;
-    }
-
-    .sidebar{
-        width:100%;
-    }
-
-    .theme-card{
-        width:100%;
-    }
-}
-
-</style>
 </head>
 <body>
 
 <div class="container">
 
+    
     <!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
 
-    <aside class="sidebar">
+    <div>
 
-        <div class="top">
+        <div class="sidebar-brand">
 
-            <div class="logo-box">
+            <div style="display: flex; align-items: center; gap: 12px;">
+
                 <i class="fa-solid fa-store"></i>
+
+                <span class="logo-text"></span>
+
             </div>
 
-            <h2>Dashboard</h2>
-
-            <button class="menu-btn">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
 
         </div>
 
-        <nav>
+        <ul class="menu-list">
 
-            <a href="#" class="menu-item active">
-                <i class="fa-solid fa-chart-pie"></i>
-                Dashboard
-            </a>
+            <li class="menu-item">
+                <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-cart-shopping"></i>
-                Vendas
-            </a>
+            <li class="menu-item">
+                <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Vendas</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-box"></i>
-                Produtos
-            </a>
+            <li class="menu-item">
+                <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-file-invoice"></i>
-                Estoque
-            </a>
+            <li class="menu-item">
+                <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Estoque</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-users"></i>
-                Gerenciar Usuários
-            </a>
+            <li class="menu-item">
+                <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Movimentações</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-tags"></i>
-                Categorias
-            </a>
+            <li class="menu-item">
+                <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Relatorio de vendas</span>
+                </a>
+            </li>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-gear"></i>
-                Configurações
-            </a>
+            <li class="menu-item">
+                <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gerenciar Usuários</span>
+                </a>
+            </li>
 
-        </nav>
+            <li class="menu-item active">
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
 
-        <div class="logout">
+        </ul>
 
-            <a href="#" class="menu-item">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                Sair
-            </a>
+    </div>
 
-        </div>
+    <div class="sidebar-footer">
+        <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+    </div>
 
-    </aside>
+</aside>
 
     <!-- CONTEÚDO -->
 
@@ -335,42 +147,7 @@ nav{
 
 </div>
 
-<script>
-
-function applyTheme(theme){
-
-    document.body.classList.remove('dark');
-
-    document.querySelectorAll('.theme-card')
-    .forEach(card => card.classList.remove('active'));
-
-    if(theme === 'dark'){
-        document.body.classList.add('dark');
-        document.getElementById('dark').classList.add('active');
-    }
-    else if(theme === 'light'){
-        document.getElementById('light').classList.add('active');
-    }
-    else{
-
-        document.getElementById('system').classList.add('active');
-
-        if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-            document.body.classList.add('dark');
-        }
-    }
-}
-
-function setTheme(theme){
-    localStorage.setItem('theme', theme);
-    applyTheme(theme);
-}
-
-applyTheme(
-    localStorage.getItem('theme') || 'system'
-);
-
-</script>
+<script src="/static/js/configuracoes.js"></script>
 
 </body>
 </html>
