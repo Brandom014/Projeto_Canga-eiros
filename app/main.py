@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.database import Base, engine
 
@@ -47,3 +48,20 @@ def home(request: Request):
         "base.html",
         {"request": request}
     )
+
+@app.exception_handler(404)
+def not_found(request: Request, exc):
+    return templates.TemplateResponse("404.html", {
+        "request": request
+    }, status_code=404)
+
+@app.exception_handler(StarletteHTTPException)
+def http_exception_handler(request: Request, exc: StarletteHTTPException):
+
+    if exc.status_code == 401:
+        return RedirectResponse(url="/auth/login")
+
+    if exc.status_code == 403:
+        return RedirectResponse(url="/auth/login")
+
+    return RedirectResponse(url="/404")

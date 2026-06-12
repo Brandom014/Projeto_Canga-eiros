@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configurações</title>
+
+<link rel="stylesheet" href="/static/css/configuracoes.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    
+    <!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div>
+
+        <div class="sidebar-brand">
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+
+                <i class="fa-solid fa-store"></i>
+
+                <span class="logo-text"></span>
+
+            </div>
+
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+
+        </div>
+
+        <ul class="menu-list">
+
+            <li class="menu-item">
+                <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Estoque</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Movimentações</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Relatorio de vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gerenciar Usuários</span>
+                </a>
+            </li>
+
+            <li class="menu-item active">
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+    </div>
+
+</aside>
+
+    <!-- CONTEÚDO -->
+
+    <main class="content">
+
+        <div class="settings-card">
+
+            <h1>Temas</h1>
+
+            <p>
+                Personalize a aparência do seu portal.
+            </p>
+
+            <div class="theme-options">
+
+                <div class="theme-card" id="system" onclick="setTheme('system')">
+                    <div class="preview system-preview">
+                        <div class="left"></div>
+                        <div class="right"></div>
+                    </div>
+                    <div class="theme-name">Sistema</div>
+                </div>
+
+                <div class="theme-card" id="light" onclick="setTheme('light')">
+                    <div class="preview light-preview"></div>
+                    <div class="theme-name">Claro</div>
+                </div>
+
+                <div class="theme-card" id="dark" onclick="setTheme('dark')">
+                    <div class="preview dark-preview"></div>
+                    <div class="theme-name">Escuro</div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="/static/js/configuracoes.js"></script>
+
+</body>
+</html>

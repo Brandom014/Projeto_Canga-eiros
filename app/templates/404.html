@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Página não encontrada</title>
+
+<style>
+:root{
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --text:#111827;
+    --border:#d1d5db;
+    --primary:#ef4444;
+}
+
+body.dark{
+    --bg:#111827;
+    --card:#1f2937;
+    --text:#ffffff;
+    --border:#374151;
+}
+
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    transition:.3s;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    width:380px;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+h1{
+    font-size:60px;
+    margin:0;
+    color:var(--primary);
+}
+
+p{
+    margin:10px 0 20px;
+    font-size:16px;
+}
+
+button{
+    background:var(--primary);
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>404</h1>
+    <p>❌ Essa página não existe</p>
+
+    <button onclick="voltar()">Voltar</button>
+</div>
+
+<script>
+function voltar(){
+    window.history.back();
+}
+
+// aplica tema salvo do sistema
+(function(){
+    const theme = localStorage.getItem("theme");
+    if(theme === "dark"){
+        document.body.classList.add("dark");
+    }
+})();
+</script>
+
+</body>
+</html>
