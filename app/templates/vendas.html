@@ -160,44 +160,38 @@
     {% for produto in produtos %}
 
     <div
-        class="card product-card"
+    class="card product-card"
+    data-id="{{ produto.id }}"
+    data-categoria="{{ produto.categoria_id }}"
+    data-nome="{{ produto.nome|lower }}"
+    data-preco="{{ produto.preco }}"
+>
+
+<img
+    src="/static/img/camisa.jpg"
+    alt="Produto">
+
+    <h4>{{ produto.nome }}</h4>
+
+    <small>
+        Estoque: {{ produto.estoque }}
+    </small>
+
+    <p>
+        R$ {{ "%.2f"|format(produto.preco) }}
+    </p>
+
+    <button
+        type="button"
+        class="add-product"
         data-id="{{ produto.id }}"
-        data-categoria="{{ produto.categoria_id }}"
-        data-nome="{{ produto.nome|lower }}"
+        data-nome="{{ produto.nome }}"
         data-preco="{{ produto.preco }}"
     >
+        <i class="fa-solid fa-plus"></i>
+    </button>
 
-        {% if produto.imagem %}
-        <img
-            src="/uploads/{{ produto.imagem }}"
-            alt="{{ produto.nome }}">
-        {% else %}
-        <img
-            src="/static/img/sem-imagem.png"
-            alt="Sem imagem">
-        {% endif %}
-
-        <h4>{{ produto.nome }}</h4>
-
-        <small>
-            Estoque: {{ produto.estoque }}
-        </small>
-
-        <p>
-            R$ {{ "%.2f"|format(produto.preco) }}
-        </p>
-
-        <button
-            type="button"
-            class="add-product"
-            data-id="{{ produto.id }}"
-            data-nome="{{ produto.nome }}"
-            data-preco="{{ produto.preco }}"
-        >
-            <i class="fa-solid fa-plus"></i>
-        </button>
-
-    </div>
+</div>
 
     {% endfor %}
 
