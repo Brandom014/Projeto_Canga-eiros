@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-
+from app.schemas.venda import VendaRequest
 from app.database import get_db
 from app.dependencies import get_current_user
 
@@ -57,34 +57,52 @@ def pagina_vendas(
 
 @router.post("/finalizar")
 def finalizar_venda(
-    produto_id: int,
-    quantidade: int,
+    dados: VendaRequest,
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
 
-    produto = (
-        db.query(Produto)
-        .filter(Produto.id == produto_id)
-        .first()
-    )
-
-    if not produto:
-        raise HTTPException(
-            status_code=404,
-            detail="Produto não encontrado"
-        )
-
-    if produto.estoque < quantidade:
+    if not dados.itens:
         raise HTTPException(
             status_code=400,
-            detail="Estoque insuficiente"
+            detail="Carrinho vazio"
         )
 
-    total = produto.preco * quantidade
+    total_venda = 0
+    produtos_processados = []
 
+    # Valida todos os produtos e calcula o total
+    for item in dados.itens:
+
+        produto = (
+            db.query(Produto)
+            .filter(Produto.id == item.produto_id)
+            .first()
+        )
+
+        if not produto:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Produto {item.produto_id} não encontrado"
+            )
+
+        if produto.estoque < item.quantidade:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Estoque insuficiente para {produto.nome}"
+            )
+
+        subtotal = produto.preco * item.quantidade
+        total_venda += subtotal
+
+        produtos_processados.append({
+            "produto": produto,
+            "quantidade": item.quantidade
+        })
+
+    # Cria a venda
     venda = Venda(
-        total=total,
+        total=total_venda,
         usuario_id=user.id
     )
 
@@ -92,31 +110,40 @@ def finalizar_venda(
     db.commit()
     db.refresh(venda)
 
-    item = ItemVenda(
-        venda_id=venda.id,
-        produto_id=produto.id,
-        quantidade=quantidade,
-        preco=produto.preco
-    )
+    # Cria os itens da venda e baixa estoque
+    for item in produtos_processados:
 
-    produto.estoque -= quantidade
+        produto = item["produto"]
+        quantidade = item["quantidade"]
 
-    movimentacao = Movimentacao(
-        produto_id=produto.id,
-        tipo="saida",
-        quantidade=quantidade
-    )
+        item_venda = ItemVenda(
+            venda_id=venda.id,
+            produto_id=produto.id,
+            quantidade=quantidade,
+            preco=produto.preco
+        )
 
-    db.add(item)
-    db.add(movimentacao)
+        db.add(item_venda)
+
+        produto.estoque -= quantidade
+
+        movimentacao = Movimentacao(
+            produto_id=produto.id,
+            tipo="saida",
+            quantidade=quantidade
+        )
+
+        db.add(movimentacao)
 
     db.commit()
 
     return {
         "success": True,
         "venda_id": venda.id,
-        "total": total
+        "total": total_venda,
+        "itens": len(produtos_processados)
     }
+
 
 # =========================
 # PRODUTOS

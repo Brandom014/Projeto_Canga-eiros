@@ -1,51 +1,57 @@
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+}
+
 // =========================
 // CARRINHO
 // =========================
 
 let carrinho = [];
+let formaPagamento = null;
 
 // =========================
 // ADICIONAR PRODUTO
 // =========================
 
-function adicionarCarrinho(
-    id,
-    nome,
-    preco
-) {
+document
+.querySelectorAll(".add-product")
+.forEach(btn => {
 
-    const itemExistente =
-        carrinho.find(
-            item => item.id === id
-        );
+    btn.addEventListener("click", () => {
 
-    if (itemExistente) {
+        const id = parseInt(btn.dataset.id);
+        const nome = btn.dataset.nome;
+        const preco = parseFloat(btn.dataset.preco);
 
-        itemExistente.quantidade++;
+        const itemExistente =
+            carrinho.find(
+                item => item.id === id
+            );
 
-    } else {
+        if (itemExistente) {
+            itemExistente.quantidade++;
+        } else {
 
-        carrinho.push({
-            id: id,
-            nome: nome,
-            preco: preco,
-            quantidade: 1
-        });
+            carrinho.push({
+                id,
+                nome,
+                preco,
+                quantidade: 1
+            });
 
-    }
+        }
 
-    renderizarCarrinho();
+        renderizarCarrinho();
 
-}
+    });
+
+});
 
 // =========================
 // ALTERAR QTD
 // =========================
 
-function alterarQuantidade(
-    id,
-    valor
-) {
+function alterarQuantidade(id, valor) {
 
     const item =
         carrinho.find(
@@ -66,131 +72,143 @@ function alterarQuantidade(
     }
 
     renderizarCarrinho();
-
 }
 
 // =========================
-// RENDERIZAR
+// RENDERIZAR CARRINHO
 // =========================
 
 function renderizarCarrinho() {
 
     const container =
-        document.getElementById(
-            "cartItems"
-        );
+        document.getElementById("cartItems");
+
+    const subtotalEl =
+        document.getElementById("subtotal");
 
     const totalEl =
-        document.getElementById(
-            "cartTotal"
-        );
+        document.getElementById("total");
 
-    const countEl =
-        document.getElementById(
-            "cartCount"
-        );
-
-    if (
-        !container ||
-        !totalEl ||
-        !countEl
-    ) return;
+    if (!container) return;
 
     if (carrinho.length === 0) {
 
         container.innerHTML = `
-            <div class="cart-empty">
-                🛒
-                <p>Nenhum produto adicionado</p>
+            <div class="empty-cart">
+                Nenhum produto adicionado
             </div>
         `;
 
-        totalEl.innerText =
-            "R$ 0,00";
-
-        countEl.innerText =
-            "0 itens";
+        subtotalEl.innerText = "R$ 0,00";
+        totalEl.innerText = "R$ 0,00";
 
         return;
-
     }
 
     let html = "";
-
-    let total = 0;
-
-    let quantidadeTotal = 0;
+    let subtotal = 0;
 
     carrinho.forEach(item => {
 
-        const subtotal =
+        const valor =
             item.preco *
             item.quantidade;
 
-        total += subtotal;
-
-        quantidadeTotal +=
-            item.quantidade;
+        subtotal += valor;
 
         html += `
-        <div class="cart-item">
+            <div class="cart-item">
 
-            <div class="cart-item-top">
-
-                <div class="cart-item-name">
-                    ${item.nome}
+                <div class="cart-info">
+                    <h4>${item.nome}</h4>
+                    <small>
+                        R$ ${item.preco.toFixed(2)}
+                    </small>
                 </div>
 
-                <div class="cart-item-price">
-                    R$ ${subtotal.toFixed(2)}
+                <div class="qty-controls">
+
+                    <button
+                        onclick="alterarQuantidade(${item.id}, -1)">
+                        -
+                    </button>
+
+                    <span>
+                        ${item.quantidade}
+                    </span>
+
+                    <button
+                        onclick="alterarQuantidade(${item.id}, 1)">
+                        +
+                    </button>
+
                 </div>
 
-            </div>
-
-            <div class="cart-qty">
-
-                <button
-                    onclick="
-                        alterarQuantidade(
-                            ${item.id},
-                            -1
-                        )
-                    "
-                >
-                    -
-                </button>
-
-                <span>
-                    ${item.quantidade}
-                </span>
-
-                <button
-                    onclick="
-                        alterarQuantidade(
-                            ${item.id},
-                            1
-                        )
-                    "
-                >
-                    +
-                </button>
+                <strong>
+                    R$ ${valor.toFixed(2)}
+                </strong>
 
             </div>
-
-        </div>
         `;
-
     });
 
-    container.innerHTML = html;
+    const total = subtotal;
+
+    subtotalEl.innerText =
+        `R$ ${subtotal.toFixed(2)}`;
 
     totalEl.innerText =
         `R$ ${total.toFixed(2)}`;
+// =========================
+// LIMPAR
+// =========================
 
-    countEl.innerText =
-        `${quantidadeTotal} itens`;
+const clearCart =
+    document.getElementById("clearCart");
+
+if (clearCart) {
+
+    clearCart.addEventListener(
+        "click",
+        () => {
+
+            carrinho = [];
+
+            renderizarCarrinho();
+
+        }
+    );
 
 }
+
+// =========================
+// PAGAMENTO
+// =========================
+
+document
+.querySelectorAll(".payment-btn")
+.forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+        document
+            .querySelectorAll(".payment-btn")
+            .forEach(b => {
+
+                b.classList.remove(
+                    "active"
+                );
+
+            });
+
+        btn.classList.add("active");
+
+        formaPagamento =
+            btn.dataset.payment;
+
+    });
+
+});
 
 // =========================
 // BUSCA
@@ -199,6 +217,11 @@ function renderizarCarrinho() {
 const searchInput =
     document.getElementById(
         "searchInput"
+    );
+
+const categoriaFilter =
+    document.getElementById(
+        "categoriaFilter"
     );
 
 if (searchInput) {
@@ -210,75 +233,46 @@ if (searchInput) {
 
 }
 
-// =========================
-// CATEGORIA
-// =========================
+if (categoriaFilter) {
 
-const categoriaSelect =
-    document.getElementById(
-        "categoriaSelect"
-    );
-
-if (categoriaSelect) {
-
-    categoriaSelect.addEventListener(
+    categoriaFilter.addEventListener(
         "change",
         filtrarProdutos
     );
 
 }
 
-// =========================
-// FILTRO
-// =========================
-
 function filtrarProdutos() {
 
     const busca =
-        searchInput
-            .value
-            .toLowerCase();
+        searchInput.value.toLowerCase();
 
     const categoria =
-        categoriaSelect.value;
+        categoriaFilter.value;
 
-    const cards =
-        document.querySelectorAll(
-            ".produto-card"
-        );
+    document
+        .querySelectorAll(".product-card")
+        .forEach(card => {
 
-    cards.forEach(card => {
+            const nome =
+                card.dataset.nome;
 
-        const nome =
-            card.dataset.nome
-                .toLowerCase();
+            const categoriaProduto =
+                card.dataset.categoria;
 
-        const categoriaProduto =
-            card.dataset.categoria;
+            const nomeOk =
+                nome.includes(busca);
 
-        const buscaOk =
-            nome.includes(busca);
-
-        const categoriaOk =
-            categoria === "" ||
-            categoriaProduto === categoria;
-
-        if (
-            buscaOk &&
-            categoriaOk
-        ) {
+            const categoriaOk =
+                categoria === "" ||
+                categoriaProduto === categoria;
 
             card.style.display =
-                "block";
+                nomeOk && categoriaOk
+                    ? ""
+                    : "none";
 
-        } else {
-
-            card.style.display =
-                "none";
-
-        }
-
-    });
+        });
 
 }
 
@@ -288,7 +282,7 @@ function filtrarProdutos() {
 
 const btnFinalizar =
     document.getElementById(
-        "btnFinalizar"
+        "finalizarVenda"
     );
 
 if (btnFinalizar) {
@@ -300,71 +294,79 @@ if (btnFinalizar) {
 
 }
 
-function finalizarVenda() {
+async function finalizarVenda() {
 
-    if (
-        carrinho.length === 0
-    ) {
+    if (carrinho.length === 0) {
 
-        return;
-
-    }
-
-    let total = 0;
-
-    carrinho.forEach(item => {
-
-        total +=
-            item.preco *
-            item.quantidade;
-
-    });
-
-    document.getElementById(
-        "vendaTotal"
-    ).innerText =
-        `Total: R$ ${total.toFixed(2)}`;
-
-    document
-        .getElementById(
-            "modalSucesso"
-        )
-        .classList.add(
-            "show"
+        alert(
+            "Carrinho vazio!"
         );
 
-    carrinho = [];
+        return;
+    }
 
-    renderizarCarrinho();
+    try {
 
-}
+        const response =
+            await fetch(
+                "/vendas/finalizar",
+                {
+                    method: "POST",
 
-// =========================
-// FECHAR MODAL
-// =========================
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
 
-window.addEventListener(
-    "click",
-    function(e) {
+                    body: JSON.stringify({
 
-        const modal =
-            document.getElementById(
-                "modalSucesso"
+                        itens: carrinho.map(
+                            item => ({
+                                produto_id:
+                                    item.id,
+
+                                quantidade:
+                                    item.quantidade
+                            })
+                        )
+
+                    })
+                }
             );
 
-        if (
-            modal &&
-            e.target === modal
-        ) {
+        const dados =
+            await response.json();
 
-            modal.classList.remove(
-                "show"
+        if (!response.ok) {
+
+            alert(
+                dados.detail ||
+                "Erro ao finalizar venda"
             );
 
+            return;
         }
 
+        alert(
+            `Venda #${dados.venda_id} realizada com sucesso!`
+        );
+
+        carrinho = [];
+
+        renderizarCarrinho();
+
+        location.reload();
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert(
+            "Erro ao conectar com o servidor."
+        );
     }
-);
+
+}
 
 // =========================
 // LOAD
@@ -372,9 +374,7 @@ window.addEventListener(
 
 window.addEventListener(
     "load",
-    () => {
-
-        renderizarCarrinho();
-
-    }
+    renderizarCarrinho
 );
+
+}
