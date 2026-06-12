@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimentações</title>
+
+    <link rel="stylesheet" href="/static/css/movimentacoes.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+
+         <!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div>
+
+        <div class="sidebar-brand">
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+
+                <i class="fa-solid fa-store"></i>
+
+                <span class="logo-text"></span>
+
+            </div>
+
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+
+        </div>
+
+        <ul class="menu-list">
+
+            <li class="menu-item">
+                <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Estoque</span>
+                </a>
+            </li>
+
+            <li class="menu-item active">
+                <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Movimentações</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Relatorio de vendas</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gerenciar Usuários</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+    </div>
+
+</aside>
+
+    <!-- CONTEÚDO -->
+    <main class="main">
+
+        <div class="header">
+            <h1>Controle de Movimentações</h1>
+            <p>Histórico completo de entradas e saídas do sistema</p>
+        </div>
+
+        <!-- CARDS -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>Entradas</h3>
+                <span id="totalEntradas">0</span>
+            </div>
+
+            <div class="card">
+                <h3>Saídas</h3>
+                <span id="totalSaidas">0</span>
+            </div>
+
+            <div class="card">
+                <h3>Hoje</h3>
+                <span id="movHoje">0</span>
+            </div>
+
+            <div class="card">
+                <h3>Valor Movimentado</h3>
+                <span id="valorMov">R$ 0,00</span>
+            </div>
+
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filtros">
+
+            <input
+                type="text"
+                id="busca"
+                placeholder="Buscar produto..."
+            >
+
+            <select id="tipo">
+                <option value="">Todos os tipos</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Saída">Saída</option>
+            </select>
+
+            <input type="date" id="data">
+
+        </div>
+
+        <!-- TABELA -->
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Valor</th>
+                        <th>Usuário</th>
+                        <th>Data</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaMovimentacoes">
+
+                    <!-- JS PREENCHE AQUI -->
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+<script src="/static/js/movimentacoes.js"></script>
+
+</body>
+</html>

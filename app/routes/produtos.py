@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.produtos import Produto
 from app.models.categoria import Categoria
+from app.models.movimentacoes import Movimentacao
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
@@ -104,6 +105,19 @@ async def criar_produto(
     )
 
     db.add(produto)
+    db.commit()
+    db.refresh(produto)
+
+    movimentacao = Movimentacao(
+    produto_id=produto.id,
+    usuario_id=1,  # depois pegamos o usuário logado
+    tipo="Entrada",
+    quantidade=estoque,
+    valor=preco,
+    observacao="Cadastro de produto"
+)
+
+    db.add(movimentacao)
     db.commit()
 
     return RedirectResponse(
