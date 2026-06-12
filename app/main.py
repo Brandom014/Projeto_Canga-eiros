@@ -14,7 +14,8 @@ from app.routes import (
     estoque,
     dashboard,
     usuarios,
-    movimentacoes
+    movimentacoes,
+    relatorio
 )
 
 Base.metadata.create_all(bind=engine)
@@ -41,7 +42,7 @@ app.include_router(dashboard.router)
 app.include_router(usuarios.router)
 app.include_router(categorias.router)
 app.include_router(movimentacoes.router)
-
+app.include_router(relatorio.router)
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(

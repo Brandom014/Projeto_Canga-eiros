@@ -84,7 +84,8 @@ def finalizar_venda(
     total = produto.preco * quantidade
 
     venda = Venda(
-        total=total
+        total=total,
+        usuario_id=user.id
     )
 
     db.add(venda)

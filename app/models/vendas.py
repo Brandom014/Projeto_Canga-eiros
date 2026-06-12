@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, Float, DateTime, String
+from sqlalchemy import Column, Integer, Float, DateTime, String, ForeignKey
 from datetime import datetime
 from app.database import Base
 
 class Venda(Base):
     __tablename__ = "vendas"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
     total = Column(Float, nullable=False)
 
@@ -13,6 +13,11 @@ class Venda(Base):
         String,
         nullable=False,
         default="Dinheiro"
+    )
+
+    usuario_id = Column(
+        Integer,
+        ForeignKey("usuarios.id")
     )
 
     data = Column(
