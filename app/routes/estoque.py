@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-
+from app.models.movimentacoes import Movimentacao
 from app.database import get_db
 from app.models.produtos import Produto
 from app.models.categoria import Categoria
@@ -108,9 +108,28 @@ def editar_produto(
             detail="Produto não encontrado"
         )
 
+    # Guarda o estoque antigo
+    estoque_antigo = produto.estoque
+
     produto.nome = nome
     produto.preco = preco
     produto.estoque = estoque
+
+    # Calcula a diferença
+    diferenca = estoque - estoque_antigo
+
+    if diferenca != 0:
+
+        movimentacao = Movimentacao(
+            produto_id=produto.id,
+            usuario_id=1,
+            tipo="Entrada" if diferenca > 0 else "Saída",
+            quantidade=abs(diferenca),
+            valor=produto.preco,
+            observacao="Atualização de estoque"
+        )
+
+        db.add(movimentacao)
 
     db.commit()
 
@@ -130,7 +149,7 @@ def atualizar_estoque(
     estoque: int = Form(...),
     db: Session = Depends(get_db)
 ):
-
+    print("ROTA DE ESTOQUE EXECUTOU")
     produto = (
         db.query(Produto)
         .filter(Produto.id == produto_id)
@@ -143,8 +162,26 @@ def atualizar_estoque(
             detail="Produto não encontrado"
         )
 
+    estoque_antigo = produto.estoque
+
     produto.estoque = estoque
 
+    db.commit()
+
+    diferenca = estoque - estoque_antigo
+
+    if diferenca != 0:
+
+        movimentacao = Movimentacao(
+        produto_id=produto.id,
+        usuario_id=1,  # depois trocamos pelo usuário logado
+        tipo="Entrada" if diferenca > 0 else "Saída",
+        quantidade=abs(diferenca),
+        valor=produto.preco,
+        observacao="Atualização de estoque"
+    )
+
+    db.add(movimentacao)
     db.commit()
 
     return RedirectResponse(
