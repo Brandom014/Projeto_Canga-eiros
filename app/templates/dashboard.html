@@ -16,7 +16,7 @@
 </div>
 <body>
 
-    <!-- SIDEBAR -->
+     <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
     <div>
@@ -25,11 +25,13 @@
 
             <div style="display: flex; align-items: center; gap: 12px;">
 
+                <i class="fa-solid fa-store"></i>
+
                 <span class="logo-text"></span>
 
             </div>
 
-            <button class="toggle-btn" onclick="toggleSidebar()" type="button">Menu</button>
+            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
 
         </div>
 
@@ -37,52 +39,61 @@
 
             <li class="menu-item active">
                 <a href="/dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/vendas">
+                    <i class="fa-solid fa-cart-shopping"></i>
                     <span>Vendas</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/produtos">
+                    <i class="fa-solid fa-box"></i>
                     <span>Produtos</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/estoque">
+                    <i class="fa-solid fa-warehouse"></i>
                     <span>Estoque</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/movimentacoes">
+                    <i class="fa-solid fa-boxes-stacked"></i>
                     <span>Movimentações</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/relatorio">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
                     <span>Relatorio de vendas</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/usuarios">
+                    <i class="fa-solid fa-users"></i>
                     <span>Gerenciar Usuários</span>
                 </a>
             </li>
 
+            <li class="menu-item">
         </ul>
 
     </div>
 
     <div class="sidebar-footer">
         <a href="/auth/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span>Sair</span>
         </a>
     </div>
@@ -91,178 +102,262 @@
 
     <main class="main-content">
         
-        <header class="topbar">
-            <h1>Dashboard</h1>
-            
-            <div class="topbar-right">
-                <div class="search-box">
-                    <input type="text" placeholder="Buscar (Ctrl + K)">
-                    <span class="search-shortcut">Ctrl + K</span>
-                </div>
-                
-                <div class="notifications">
-                    <span class="badge">1</span>
-                </div>
-                
-                <div class="user-profile">
-                    <img src="{{ foto_perfil or '/static/img/senai.png' }}" alt="Foto de perfil">
-                    <div class="user-info">
-                        <span class="user-name">
-                            {{ usuario }}
-                        </span>
+    <header class="topbar">
+        <h1>Dashboard</h1>
+        
+        <div class="topbar-right">
 
-                        <span class="user-role">
-                            {{ perfil }}
-                        </span>
+            <div class="user-profile">
+                <img src="{{ foto_perfil or '/static/img/senai.png' }}" alt="Foto de perfil">
+
+                <div class="user-info">
+                    <span class="user-name">
+                        {{ usuario }}
+                    </span>
+
+                    <span class="user-role">
+                        {{ perfil }}
+                    </span>
+                </div>
+            </div>
+
+            <div id="profileMenu" class="profile-menu">
+                <strong>{{ usuario }}</strong>
+                <span>{{ perfil }}</span>
+
+                <form action="/usuarios/perfil" method="POST" enctype="multipart/form-data">
+                    <label for="profilePhoto">Trocar foto</label>
+
+                    <input
+                        id="profilePhoto"
+                        type="file"
+                        name="foto"
+                        accept="image/png,image/jpeg,image/webp"
+                        required
+                    >
+
+                    <button type="submit">
+                        Salvar foto
+                    </button>
+                </form>
+
+                <a href="/auth/logout">
+                    Sair
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+    <section class="metrics-grid">
+
+    <!-- VENDAS HOJE -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Vendas hoje</p>
+
+            <h3>
+                R$ {{ "%.2f"|format(faturamento_hoje) }}
+            </h3>
+
+            <span class="metric-growth growth-up">
+                {{ crescimento_vendas }}% vs ontem
+            </span>
+        </div>
+
+        <div class="metric-icon-box icon-red">
+            <i class="fa-solid fa-dollar-sign"></i>
+        </div>
+
+    </div>
+
+
+    <!-- PEDIDOS -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Pedidos</p>
+
+            <h3>
+                {{ total_vendas }}
+            </h3>
+
+            <span class="metric-growth growth-up">
+                {{ crescimento_pedidos }}% vs ontem
+            </span>
+        </div>
+
+        <div class="metric-icon-box icon-blue">
+            <i class="fa-solid fa-cart-shopping"></i>
+        </div>
+
+    </div>
+
+
+    <!-- ITENS VENDIDOS -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Itens vendidos</p>
+
+            <h3>
+                {{ itens_vendidos }}
+            </h3>
+
+            <span class="metric-growth growth-up">
+                {{ crescimento_itens }}% vs ontem
+            </span>
+        </div>
+
+        <div class="metric-icon-box icon-green">
+            <i class="fa-solid fa-box"></i>
+        </div>
+
+    </div>
+
+
+    <!-- CLIENTES ATENDIDOS -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Clientes atendidos</p>
+
+            <h3>
+                {{ clientes_atendidos }}
+            </h3>
+
+            <span class="metric-growth growth-up">
+                {{ crescimento_clientes }}% vs ontem
+            </span>
+        </div>
+
+        <div class="metric-icon-box icon-purple">
+            <i class="fa-solid fa-users"></i>
+        </div>
+
+    </div>
+
+
+    <!-- PRODUTO MAIS VENDIDO -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Produto mais vendido</p>
+
+            <h3>
+                {{ produto_mais_vendido }}
+            </h3>
+        </div>
+
+        <div class="metric-icon-box icon-red">
+            <i class="fa-solid fa-star"></i>
+        </div>
+
+    </div>
+
+
+    <!-- ESTOQUE BAIXO -->
+    <div class="card-metric">
+
+        <div class="metric-info">
+            <p>Estoque baixo</p>
+
+            <h3>
+                {{ estoque_baixo }}
+            </h3>
+        </div>
+
+        <div class="metric-icon-box icon-blue">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+    </div>
+
+</section>
+
+    <section class="details-grid">
+        
+        <div class="panel-card">
+            <div class="panel-header">
+                <h2>Vendas dos últimos 7 dias</h2>
+
+                <select class="panel-select">
+                    <option>7 dias</option>
+                    <option>15 dias</option>
+                    <option>30 dias</option>
+                </select>
+            </div>
+            
+            <div class="chart-placeholder">
+                {% for dia in vendas_7d %}
+                    <div class="chart-bar-wrap">
+                        <div class="chart-bar"></div>
+                        <span>{{ dia.label }}</span>
                     </div>
-                </div>
-                <div id="profileMenu" class="profile-menu">
-                    <strong>{{ usuario }}</strong>
-                    <span>{{ perfil }}</span>
-                    <form action="/usuarios/perfil" method="POST" enctype="multipart/form-data">
-                        <label for="profilePhoto">Trocar foto</label>
-                        <input id="profilePhoto" type="file" name="foto" accept="image/png,image/jpeg,image/webp" required>
-                        <button type="submit">Salvar foto</button>
-                    </form>
-                    <a href="/auth/logout">Sair</a>
-                </div>
+                {% endfor %}
             </div>
-        </header>
-
-        <section class="metrics-grid">
-            
-            <div class="card-metric">
-                <div class="metric-info">
-                    <p>Vendas hoje</p>
-                    <h3>R$ {{ "%.2f"|format(faturamento_hoje) }}</h3>
-                    <span class="metric-growth growth-up">+12,5% vs ontem</span>
-                </div>
-            </div>
-
-            <div class="card-metric">
-                <div class="metric-info">
-                    <p>Pedidos</p>
-                    <h3>{{ total_vendas }}</h3>
-                    <span class="metric-growth growth-up">+8,2% vs ontem</span>
-                </div>
-            </div>
-
-            <div class="card-metric">
-                <div class="metric-info">
-                    <p>Itens vendidos</p>
-                    <h3>{{ itens_vendidos }}</h3>
-                    <span class="metric-growth growth-up">+15,2% vs ontem</span>
-                </div>
-            </div>
-
-            <div class="card-metric">
-                <div class="metric-info">
-                    <p>Clientes atendidos</p>
-                    <h3>{{ clientes_atendidos }}</h3>
-                    <span class="metric-growth growth-up">+5,1% vs ontem</span>
-                </div>
-            </div>
-
-            <div class="card-metric">
-
-            <div class="metric-info">
-                <p>Produto mais vendido</p>
-                <h3>{{ produto_mais_vendido }}</h3>
-            </div>
-
         </div>
 
-        <div class="card-metric">
-
-            <div class="metric-info">
-                <p>Estoque baixo</p>
-                <h3>{{ estoque_baixo }}</h3>
+        <div class="panel-card">
+            <div class="panel-header">
+                <h2>Últimas vendas</h2>
             </div>
-
-        </div>
-
-        </section>
-
-        <section class="details-grid">
             
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2>Vendas dos últimos 7 dias</h2>
-                    <select class="panel-select">
-                        <option>7 dias</option>
-                        <option>15 dias</option>
-                        <option>30 dias</option>
-                    </select>
-                </div>
-                
-                <div class="chart-placeholder">
-                    {% for dia in vendas_7d %}
-                        <div class="chart-bar-wrap">
-                            <div class="chart-bar"></div>
-                            <span>{{ dia.label }}</span>
+            <div class="sales-list">
+
+                {% if ultimas_vendas %}
+
+                    {% for venda in ultimas_vendas %}
+
+                    <div class="sale-item">
+
+                        <div class="sale-product-info">
+
+                            <div class="sale-avatar">
+                            </div>
+
+                            <div>
+                                <div class="product-name">
+                                    Venda #{{ venda.id }}
+                                </div>
+
+                                <div class="sale-time">
+                                    {{ venda.data.strftime('%d/%m/%Y %H:%M') }}
+                                </div>
+                            </div>
+
                         </div>
+
+                        <div class="sale-value">
+                            R$ {{ "%.2f"|format(venda.total) }}
+                        </div>
+
+                    </div>
+
                     {% endfor %}
-                </div>
-            </div>
 
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2>Últimas vendas</h2>
-                </div>
-                
-               <div class="sales-list">
+                {% else %}
 
-    {% if ultimas_vendas %}
-
-        {% for venda in ultimas_vendas %}
-
-        <div class="sale-item">
-
-            <div class="sale-product-info">
-
-                <div class="sale-avatar">
-                </div>
-
-                <div>
-                    <div class="product-name">
-                        Venda #{{ venda.id }}
+                    <div class="sale-item">
+                        <div class="product-name">
+                            Nenhuma venda encontrada
+                        </div>
                     </div>
 
-                    <div class="sale-time">
-                        {{ venda.data.strftime('%d/%m/%Y %H:%M') }}
-                    </div>
-                </div>
+                {% endif %}
 
             </div>
 
-            <div class="sale-value">
-                R$ {{ "%.2f"|format(venda.total) }}
-            </div>
+            <a class="btn-view-all" href="/relatorio">
+                Ver todas
+            </a>
 
         </div>
 
-        {% endfor %}
+    </section>
 
-    {% else %}
-
-        <div class="sale-item">
-            <div class="product-name">
-                Nenhuma venda encontrada
-            </div>
-        </div>
-
-    {% endif %}
-
-</div>
-
-<a class="btn-view-all" href="/relatorio">Ver todas</a>
-
-                
-            </div>
-
-        </section>
-
-    </main>
+</main>
     
 <script src="/static/js/dashboard.js"></script>
 </body>
