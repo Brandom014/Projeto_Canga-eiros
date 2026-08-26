@@ -197,7 +197,7 @@ body{
 
 .content {
     flex: 1;
-    background-color: #f8fafc;
+    background-color: #fafafa;
     padding: 32px;
     overflow-y: auto;
 }
@@ -240,13 +240,13 @@ body{
 }
 
 .stat-card{
-    background:white;
+    background: #d1d5db;
     padding:24px;
     border-radius:18px;
     display:flex;
     gap:15px;
     align-items:center;
-    box-shadow:0 2px 10px rgba(0,0,0,.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
 }
 
 .icon{
@@ -294,7 +294,7 @@ body{
 ======================= */
 
 .filter-card{
-    background:white;
+    background: #d1d5db;
     padding:20px;
     border-radius:18px;
     display:grid;
@@ -327,7 +327,7 @@ body{
 ======================= */
 
 .table-card{
-    background:white;
+    background: #d1d5db;
     border-radius:20px;
     overflow:hidden;
     box-shadow:0 2px 10px rgba(0,0,0,.05);
@@ -351,7 +351,7 @@ table{
 }
 
 thead{
-    background:#f9fafb;
+    background: #d1d5db;
 }
 
 th{
