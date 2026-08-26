@@ -6,6 +6,7 @@ from app.models.movimentacoes import Movimentacao
 from app.database import get_db
 from app.models.produtos import Produto
 from app.models.categoria import Categoria
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/estoque", tags=["Estoque"])
 
@@ -19,7 +20,8 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/", response_class=HTMLResponse)
 def estoque(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produtos = db.query(Produto).all()
@@ -64,8 +66,15 @@ def criar_produto(
     nome: str = Form(...),
     preco: float = Form(...),
     estoque: int = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
+
+    if estoque < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="O estoque não pode ser negativo."
+        )
 
     produto = Produto(
         nome=nome,
@@ -93,7 +102,8 @@ def editar_produto(
     nome: str = Form(...),
     preco: float = Form(...),
     estoque: int = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produto = (
@@ -106,6 +116,12 @@ def editar_produto(
         raise HTTPException(
             status_code=404,
             detail="Produto não encontrado"
+        )
+
+    if estoque < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="O estoque não pode ser negativo."
         )
 
     # Guarda o estoque antigo
@@ -122,7 +138,7 @@ def editar_produto(
 
         movimentacao = Movimentacao(
             produto_id=produto.id,
-            usuario_id=1,
+            usuario_id=user.id,
             tipo="Entrada" if diferenca > 0 else "Saída",
             quantidade=abs(diferenca),
             valor=produto.preco,
@@ -147,7 +163,8 @@ def editar_produto(
 def atualizar_estoque(
     produto_id: int,
     estoque: int = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
     print("ROTA DE ESTOQUE EXECUTOU")
     produto = (
@@ -162,6 +179,12 @@ def atualizar_estoque(
             detail="Produto não encontrado"
         )
 
+    if estoque < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="O estoque não pode ser negativo."
+        )
+
     estoque_antigo = produto.estoque
 
     produto.estoque = estoque
@@ -174,14 +197,14 @@ def atualizar_estoque(
 
         movimentacao = Movimentacao(
         produto_id=produto.id,
-        usuario_id=1,  # depois trocamos pelo usuário logado
+        usuario_id=user.id,
         tipo="Entrada" if diferenca > 0 else "Saída",
         quantidade=abs(diferenca),
         valor=produto.preco,
         observacao="Atualização de estoque"
     )
+        db.add(movimentacao)
 
-    db.add(movimentacao)
     db.commit()
 
     return RedirectResponse(
@@ -197,7 +220,8 @@ def atualizar_estoque(
 @router.post("/toggle/{produto_id}")
 def toggle_produto(
     produto_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produto = (
@@ -229,7 +253,8 @@ def toggle_produto(
 @router.post("/excluir/{produto_id}")
 def excluir_produto(
     produto_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produto = (

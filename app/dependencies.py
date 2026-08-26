@@ -1,16 +1,10 @@
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
-from dotenv import load_dotenv
-import os
 
 from app.database import get_db
 from app.models.usuarios import Usuario
-
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+from app.config import ALGORITHM, SECRET_KEY
 
 
 def get_current_user(
@@ -18,6 +12,11 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     token = request.cookies.get("access_token")
+    if not token:
+        authorization = request.headers.get("Authorization", "")
+        scheme, _, header_token = authorization.partition(" ")
+        if scheme.lower() == "bearer" and header_token:
+            token = header_token.strip()
 
     if not token:
         raise HTTPException(

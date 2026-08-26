@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy import inspect, text
 
 from app.database import Base, engine
 
@@ -20,6 +21,23 @@ from app.routes import (
 
 # Cria as tabelas
 Base.metadata.create_all(bind=engine)
+
+# Mantém instalações SQLite existentes compatíveis com a foto de perfil.
+with engine.begin() as connection:
+    usuarios_columns = {
+        column["name"] for column in inspect(engine).get_columns("usuarios")
+    }
+    if "foto_perfil" not in usuarios_columns:
+        connection.execute(
+            text("ALTER TABLE usuarios ADD COLUMN foto_perfil VARCHAR")
+        )
+    vendas_columns = {
+        column["name"] for column in inspect(engine).get_columns("vendas")
+    }
+    if "cliente" not in vendas_columns:
+        connection.execute(
+            text("ALTER TABLE vendas ADD COLUMN cliente VARCHAR")
+        )
 
 # App
 app = FastAPI(
@@ -87,14 +105,20 @@ def http_exception_handler(
 ):
 
     if exc.status_code == 401:
-        return RedirectResponse(
-            url="/auth/login"
+        response = RedirectResponse(
+            url="/auth/login?erro=Sessão expirada. Faça login novamente.",
+            status_code=303,
         )
+        response.delete_cookie("access_token", path="/")
+        return response
 
     if exc.status_code == 403:
-        return RedirectResponse(
-            url="/auth/login"
+        response = RedirectResponse(
+            url="/auth/login?erro=Acesso não autorizado.",
+            status_code=303,
         )
+        response.delete_cookie("access_token", path="/")
+        return response
 
     return RedirectResponse(
         url="/404"

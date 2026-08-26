@@ -7,3 +7,5 @@ class ItemVendaRequest(BaseModel):
 
 class VendaRequest(BaseModel):
     itens: List[ItemVendaRequest]
+    forma_pagamento: str = "Dinheiro"
+    cliente: str | None = None

@@ -446,6 +446,37 @@ body{
     background:#f3f4f6;
 }
 
+.qty-controls .remove-item{
+    width:auto;
+    padding:0 10px;
+    background:#fee2e2;
+    color:#b91c1c;
+    font-size:12px;
+}
+
+.purchase-message{
+    position:fixed;
+    right:24px;
+    bottom:24px;
+    z-index:20;
+    max-width:360px;
+    padding:14px 18px;
+    border-radius:10px;
+    color:#fff;
+    opacity:0;
+    transform:translateY(12px);
+    pointer-events:none;
+    transition:.2s ease;
+}
+
+.purchase-message.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.purchase-message.success{ background:#15803d; }
+.purchase-message.error{ background:#b91c1c; }
+
 /* resumo */
 
 .cart-bottom{

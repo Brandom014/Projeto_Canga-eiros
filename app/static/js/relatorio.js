@@ -14,7 +14,9 @@ async function carregarRelatorio() {
 
     try {
 
-        const response = await fetch("/api/relatorio");
+        const response = await fetch("/api/relatorio", {
+            credentials: "same-origin",
+        });
 
         if (!response.ok) {
             throw new Error("Erro ao buscar relatório");
@@ -115,9 +117,10 @@ async function filtrarRelatorio() {
 
     try {
 
-        const response = await fetch(
-            `/api/relatorio?busca=${busca}&data=${data}&pagamento=${pagamento}`
-        );
+        const params = new URLSearchParams({ busca, data, pagamento });
+        const response = await fetch(`/api/relatorio?${params}`, {
+            credentials: "same-origin",
+        });
 
         const dados = await response.json();
 
@@ -181,8 +184,7 @@ function formatarData(data) {
     try {
 
         const d = new Date(data);
-
-        return d.toLocaleDateString("pt-BR");
+        return d.toLocaleString("pt-BR");
 
     } catch {
 

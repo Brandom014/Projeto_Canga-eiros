@@ -69,98 +69,102 @@ function fecharCategoria() {
 
 function filtrarProdutos() {
 
-    const busca =
-        document.getElementById("searchInput")
+    const busca = document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+    const categoriaFiltro = document
+        .getElementById("categoriaFilter")
         .value
         .toLowerCase();
 
-    const categoria =
-        document.getElementById("categoriaFilter")
+    const statusFiltro = document
+        .getElementById("statusFilter")
         .value
         .toLowerCase();
 
-    const status =
-        document.getElementById("statusFilter")
-        .value
-        .toLowerCase();
+    const linhas = document.querySelectorAll(
+        ".products-table tbody tr:not(#semResultados)"
+    );
 
-    const linhas =
-        document.querySelectorAll(
-            ".products-table tbody tr[data-nome]"
-        );
+    const mensagem = document.getElementById("semResultados");
 
-    let totalVisiveis = 0;
+    let contador = 0;
 
     linhas.forEach(linha => {
 
-        const nome =
-            linha.dataset.nome || "";
+        const nome = linha
+            .getAttribute("data-nome")
+            .toLowerCase();
 
-        const cat =
-            linha.dataset.categoria || "";
+        const categoria = linha
+            .getAttribute("data-categoria")
+            .toLowerCase();
 
-        const stat =
-            linha.dataset.status || "";
+        const status = linha
+            .getAttribute("data-status")
+            .toLowerCase();
 
-        const matchBusca =
+        const buscaOk =
+            busca === "" ||
             nome.includes(busca);
 
-        const matchCategoria =
-            categoria === "" ||
-            cat.includes(categoria);
+        const categoriaOk =
+            categoriaFiltro === "" ||
+            categoria === categoriaFiltro;
 
-        const matchStatus =
-            status === "" ||
-            stat.includes(status);
+        const statusOk =
+            statusFiltro === "" ||
+            status === statusFiltro;
 
-        const mostrar =
-            matchBusca &&
-            matchCategoria &&
-            matchStatus;
+        if (
+            buscaOk &&
+            categoriaOk &&
+            statusOk
+        ) {
 
-        linha.style.display =
-            mostrar ? "" : "none";
+            linha.style.display = "";
+            contador++;
 
-        if (mostrar) {
-            totalVisiveis++;
+        } else {
+
+            linha.style.display = "none";
+
         }
 
     });
 
-    const contador =
+    // MOSTRA A MENSAGEM QUANDO NÃO ENCONTRAR NADA
+
+    if (mensagem) {
+
+        if (contador === 0) {
+
+            mensagem.style.display = "table-row";
+
+        } else {
+
+            mensagem.style.display = "none";
+
+        }
+
+    }
+
+    // ATUALIZA CONTADOR
+
+    const contadorElemento =
         document.getElementById("contadorProdutos");
 
-    if (contador) {
-        contador.innerText =
-            `${totalVisiveis} produto${totalVisiveis !== 1 ? "s" : ""} encontrado${totalVisiveis !== 1 ? "s" : ""}`;
+    if (contadorElemento) {
+
+        contadorElemento.textContent =
+            `${contador} produtos encontrados`;
+
     }
 
-    const semResultados =
-        document.getElementById("semResultados");
-
-    if (semResultados) {
-        semResultados.style.display =
-            totalVisiveis === 0 ? "" : "none";
-    }
 }
-
-function limparFiltros() {
-
-    document.getElementById(
-        "searchInput"
-    ).value = "";
-
-    document.getElementById(
-        "categoriaFilter"
-    ).selectedIndex = 0;
-
-    document.getElementById(
-        "statusFilter"
-    ).selectedIndex = 0;
-
-    filtrarProdutos();
-}
-
 // =========================
 // FECHAR MODAL AO CLICAR FORA
 // =========================
@@ -197,3 +201,45 @@ document.addEventListener("keydown", function(e) {
     }
 
 });
+
+// =========================
+// EXCLUIR PRODUTO
+// =========================
+
+let produtoExcluirId = null;
+
+function abrirConfirmacaoProduto(id, nome) {
+
+    produtoExcluirId = id;
+
+    document.getElementById("produtoExcluirNome").textContent = nome;
+
+    document
+        .getElementById("confirmModal")
+        .classList.remove("hidden");
+}
+
+
+function fecharConfirmacaoProduto() {
+
+    document
+        .getElementById("confirmModal")
+        .classList.add("hidden");
+
+    produtoExcluirId = null;
+}
+
+
+function confirmarDeleteProduto() {
+
+    if (!produtoExcluirId) return;
+
+    const form = document.createElement("form");
+
+    form.method = "POST";
+    form.action = `/produtos/excluir/${produtoExcluirId}`;
+
+    document.body.appendChild(form);
+
+    form.submit();
+}

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Float, DateTime, String, ForeignKey
 from datetime import datetime
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class Venda(Base):
     __tablename__ = "vendas"
@@ -15,6 +16,8 @@ class Venda(Base):
         default="Dinheiro"
     )
 
+    cliente = Column(String, nullable=True)
+
     usuario_id = Column(
         Integer,
         ForeignKey("usuarios.id")
@@ -24,3 +27,5 @@ class Venda(Base):
         DateTime,
         default=datetime.utcnow
     )
+
+    usuario = relationship("Usuario")

@@ -11,3 +11,4 @@ class Usuario(Base):
 
     role = Column(String, default="vendedor")
     ativo = Column(Boolean, default=True)
+    foto_perfil = Column(String, nullable=True)

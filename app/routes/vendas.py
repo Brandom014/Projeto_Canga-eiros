@@ -28,7 +28,8 @@ templates = Jinja2Templates(
 @router.get("/", response_class=HTMLResponse)
 def pagina_vendas(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produtos = (
@@ -68,6 +69,18 @@ def finalizar_venda(
             detail="Carrinho vazio"
         )
 
+    if any(item.quantidade < 1 for item in dados.itens):
+        raise HTTPException(
+            status_code=400,
+            detail="A quantidade de cada produto deve ser maior que zero."
+        )
+
+    if dados.forma_pagamento not in {"dinheiro", "pix", "debito", "credito"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Forma de pagamento inválida."
+        )
+
     total_venda = 0
     produtos_processados = []
 
@@ -103,7 +116,9 @@ def finalizar_venda(
     # Cria a venda
     venda = Venda(
         total=total_venda,
-        usuario_id=user.id
+        usuario_id=user.id,
+        forma_pagamento=dados.forma_pagamento,
+        cliente=dados.cliente,
     )
 
     db.add(venda)
@@ -129,8 +144,11 @@ def finalizar_venda(
 
         movimentacao = Movimentacao(
             produto_id=produto.id,
+            usuario_id=user.id,
             tipo="saida",
-            quantidade=quantidade
+            quantidade=quantidade,
+            valor=produto.preco,
+            observacao="Venda finalizada",
         )
 
         db.add(movimentacao)
@@ -151,7 +169,8 @@ def finalizar_venda(
 
 @router.get("/produtos")
 def listar_produtos(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produtos = (
@@ -168,7 +187,8 @@ def listar_produtos(
 
 @router.get("/historico")
 def historico_vendas(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     return (

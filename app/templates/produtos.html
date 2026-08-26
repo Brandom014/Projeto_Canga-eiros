@@ -94,12 +94,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
             </li>
 
             <li class="menu-item">
-                <a href="/configuracoes">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-            </li>
-
         </ul>
 
     </div>
@@ -418,19 +412,14 @@ Sem estoque
 
 </button>
 
-<form
-    action="/produtos/excluir/{{ produto.id }}"
-    method="POST">
+<button
+    type="button"
+    class="delete-btn"
+    onclick="abrirConfirmacaoProduto('{{ produto.id }}', '{{ produto.nome }}')">
 
-    <button
-        type="submit"
-        class="delete-btn">
+    <i class="fa-solid fa-trash"></i>
 
-        <i class="fa-solid fa-trash"></i>
-
-    </button>
-
-</form>
+</button>
 
 </div>
 
@@ -510,6 +499,7 @@ required>
 <input
 type="number"
 step="0.01"
+min="0.05"
 name="preco"
 id="preco"
 required>
@@ -523,6 +513,7 @@ required>
 <input
 type="number"
 name="estoque"
+min="1"
 id="estoque"
 required>
 
@@ -590,15 +581,6 @@ required>
 
 </div>
 
-<div class="field">
-
-<label>Descrição</label>
-
-<input
-type="text"
-name="descricao">
-
-</div>
 
 </div>
 
@@ -624,6 +606,49 @@ Fechar
 
 </div>
 
+<!-- MODAL DELETE PRODUTO -->
+
+<div id="confirmModal" class="modal hidden">
+
+    <div class="modal-content delete-modal">
+
+        <h2>Excluir produto?</h2>
+
+        <p>
+            Tem certeza que deseja excluir o produto
+            <strong id="produtoExcluirNome"></strong>?
+        </p>
+
+        <span class="delete-warning">
+            Essa ação não poderá ser desfeita.
+        </span>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-cancel-delete"
+                onclick="fecharConfirmacaoProduto()">
+
+                Cancelar
+
+            </button>
+
+            <button
+                type="button"
+                class="btn-confirm-delete"
+                onclick="confirmarDeleteProduto()">
+
+                <i class="fa-solid fa-trash"></i>
+                Excluir produto
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 {% if request.query_params.get("sucesso") == "categoria" %}
 
 <script>

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.usuarios import Usuario
 from app.auth import verificar_senha, criar_token
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, cookie_is_secure
 
 router = APIRouter(
     prefix="/auth",
@@ -86,7 +87,11 @@ def login(
     response.set_cookie(
         key="access_token",
         value=token,
-        httponly=True
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=cookie_is_secure(),
+        samesite="lax",
+        path="/",
     )
 
     return response
@@ -101,5 +106,11 @@ def logout():
         status_code=303
     )
 
-    response.delete_cookie("access_token", httponly=True)
+    response.delete_cookie(
+        "access_token",
+        httponly=True,
+        secure=cookie_is_secure(),
+        samesite="lax",
+        path="/",
+    )
     return response

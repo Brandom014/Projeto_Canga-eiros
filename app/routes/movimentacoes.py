@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models.movimentacoes import Movimentacao
 from app.models.produtos import Produto
 from app.models.usuarios import Usuario
+from app.dependencies import get_current_user
 
 
 router = APIRouter()
@@ -15,7 +16,10 @@ templates = Jinja2Templates(
 )
 
 @router.get("/movimentacoes", response_class=HTMLResponse)
-def tela_movimentacoes(request: Request):
+def tela_movimentacoes(
+    request: Request,
+    user=Depends(get_current_user)
+):
     return templates.TemplateResponse(
         "movimentacoes.html",
         {"request": request}
@@ -23,7 +27,8 @@ def tela_movimentacoes(request: Request):
 
 @router.get("/api/movimentacoes")
 def listar_movimentacoes(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     movimentacoes = db.query(Movimentacao).all()
@@ -43,15 +48,12 @@ def listar_movimentacoes(
     ]
 
 @router.get("/relatorio", response_class=HTMLResponse)
-def tela_relatorio(request: Request):
+def tela_relatorio(
+    request: Request,
+    user=Depends(get_current_user)
+):
     return templates.TemplateResponse(
         "relatorio.html",
         {"request": request}
     )
 
-@router.get("/configuracoes", response_class=HTMLResponse)
-def tela_relatorio(request: Request):
-    return templates.TemplateResponse(
-        "configuracoes.html",
-        {"request": request}
-    )

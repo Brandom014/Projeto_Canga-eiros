@@ -12,7 +12,6 @@
 
 </head>
 <div id="toast" class="toast">
-    <i class="fa-solid fa-lock"></i>
     <span>Apenas administradores podem acessar o gerenciamento de usuários.</span>
 </div>
 <body>
@@ -26,13 +25,11 @@
 
             <div style="display: flex; align-items: center; gap: 12px;">
 
-                <i class="fa-solid fa-store"></i>
-
                 <span class="logo-text"></span>
 
             </div>
 
-            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+            <button class="toggle-btn" onclick="toggleSidebar()" type="button">Menu</button>
 
         </div>
 
@@ -40,57 +37,43 @@
 
             <li class="menu-item active">
                 <a href="/dashboard">
-                    <i class="fa-solid fa-chart-pie"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/vendas">
-                    <i class="fa-solid fa-cart-shopping"></i>
                     <span>Vendas</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/produtos">
-                    <i class="fa-solid fa-box"></i>
                     <span>Produtos</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/estoque">
-                    <i class="fa-solid fa-warehouse"></i>
                     <span>Estoque</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/movimentacoes">
-                    <i class="fa-solid fa-boxes-stacked"></i>
                     <span>Movimentações</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/relatorio">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
                     <span>Relatorio de vendas</span>
                 </a>
             </li>
 
             <li class="menu-item">
                 <a href="/usuarios">
-                    <i class="fa-solid fa-users"></i>
                     <span>Gerenciar Usuários</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="/configuracoes">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
                 </a>
             </li>
 
@@ -100,7 +83,6 @@
 
     <div class="sidebar-footer">
         <a href="/auth/logout">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span>Sair</span>
         </a>
     </div>
@@ -114,28 +96,35 @@
             
             <div class="topbar-right">
                 <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" placeholder="Buscar (Ctrl + K)">
                     <span class="search-shortcut">Ctrl + K</span>
                 </div>
                 
                 <div class="notifications">
-                    <i class="fa-regular fa-bell"></i>
                     <span class="badge">1</span>
                 </div>
                 
                 <div class="user-profile">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60" alt="Avatar Usuário">
+                    <img src="{{ foto_perfil or '/static/img/senai.png' }}" alt="Foto de perfil">
                     <div class="user-info">
                         <span class="user-name">
                             {{ usuario }}
-                            <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 2px;"></i>
                         </span>
 
                         <span class="user-role">
                             {{ perfil }}
                         </span>
                     </div>
+                </div>
+                <div id="profileMenu" class="profile-menu">
+                    <strong>{{ usuario }}</strong>
+                    <span>{{ perfil }}</span>
+                    <form action="/usuarios/perfil" method="POST" enctype="multipart/form-data">
+                        <label for="profilePhoto">Trocar foto</label>
+                        <input id="profilePhoto" type="file" name="foto" accept="image/png,image/jpeg,image/webp" required>
+                        <button type="submit">Salvar foto</button>
+                    </form>
+                    <a href="/auth/logout">Sair</a>
                 </div>
             </div>
         </header>
@@ -146,10 +135,7 @@
                 <div class="metric-info">
                     <p>Vendas hoje</p>
                     <h3>R$ {{ "%.2f"|format(faturamento_hoje) }}</h3>
-                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +12,5% vs ontem</span>
-                </div>
-                <div class="metric-icon-box icon-red">
-                    <i class="fa-solid fa-dollar-sign"></i>
+                    <span class="metric-growth growth-up">+12,5% vs ontem</span>
                 </div>
             </div>
 
@@ -157,10 +143,7 @@
                 <div class="metric-info">
                     <p>Pedidos</p>
                     <h3>{{ total_vendas }}</h3>
-                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +8,2% vs ontem</span>
-                </div>
-                <div class="metric-icon-box icon-blue">
-                    <i class="fa-solid fa-receipt"></i>
+                    <span class="metric-growth growth-up">+8,2% vs ontem</span>
                 </div>
             </div>
 
@@ -168,10 +151,7 @@
                 <div class="metric-info">
                     <p>Itens vendidos</p>
                     <h3>{{ itens_vendidos }}</h3>
-                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +15,2% vs ontem</span>
-                </div>
-                <div class="metric-icon-box icon-green">
-                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span class="metric-growth growth-up">+15,2% vs ontem</span>
                 </div>
             </div>
 
@@ -179,10 +159,7 @@
                 <div class="metric-info">
                     <p>Clientes atendidos</p>
                     <h3>{{ clientes_atendidos }}</h3>
-                    <span class="metric-growth growth-up"><i class="fa-solid fa-arrow-up"></i> +5,1% vs ontem</span>
-                </div>
-                <div class="metric-icon-box icon-purple">
-                    <i class="fa-solid fa-user-check"></i>
+                    <span class="metric-growth growth-up">+5,1% vs ontem</span>
                 </div>
             </div>
 
@@ -193,10 +170,6 @@
                 <h3>{{ produto_mais_vendido }}</h3>
             </div>
 
-            <div class="metric-icon-box icon-green">
-                <i class="fa-solid fa-trophy"></i>
-            </div>
-
         </div>
 
         <div class="card-metric">
@@ -204,10 +177,6 @@
             <div class="metric-info">
                 <p>Estoque baixo</p>
                 <h3>{{ estoque_baixo }}</h3>
-            </div>
-
-            <div class="metric-icon-box icon-red">
-                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
 
         </div>
@@ -226,15 +195,13 @@
                     </select>
                 </div>
                 
-                <div class="chart-placeholder"></div>
-                <div class="chart-days">
-                    <span>Qui</span>
-                    <span>Sex</span>
-                    <span>Sáb</span>
-                    <span>Dom</span>
-                    <span>Seg</span>
-                    <span>Ter</span>
-                    <span>Hoje</span>
+                <div class="chart-placeholder">
+                    {% for dia in vendas_7d %}
+                        <div class="chart-bar-wrap">
+                            <div class="chart-bar"></div>
+                            <span>{{ dia.label }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -254,7 +221,6 @@
             <div class="sale-product-info">
 
                 <div class="sale-avatar">
-                    <i class="fa-solid fa-cart-shopping"></i>
                 </div>
 
                 <div>
@@ -289,10 +255,7 @@
 
 </div>
 
-<button class="btn-view-all">
-    <a href="/"></a>
-    Ver todas
-</button>
+<a class="btn-view-all" href="/relatorio">Ver todas</a>
 
                 
             </div>

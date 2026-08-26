@@ -64,7 +64,7 @@ function filtrarProdutos() {
 
     const busca =
         searchInput
-            ? searchInput.value.toLowerCase()
+            ? searchInput.value.toLowerCase().trim()
             : "";
 
     const statusFiltro =
@@ -79,7 +79,7 @@ function filtrarProdutos() {
 
     const linhas =
         document.querySelectorAll(
-            "tbody tr"
+            "tbody tr:not(#semResultados)"
         );
 
     let contador = 0;
@@ -88,23 +88,21 @@ function filtrarProdutos() {
 
         const nome =
             linha
-                .querySelector(
-                    ".produto-info strong"
-                )
-                .textContent
-                .toLowerCase();
+                .querySelector(".produto-info strong")
+                ?.textContent
+                .toLowerCase() || "";
 
         const categoria =
             linha.children[1]
-                .textContent
+                ?.textContent
                 .trim()
-                .toLowerCase();
+                .toLowerCase() || "";
 
         const status =
             linha
                 .querySelector(".status")
-                .textContent
-                .toLowerCase();
+                ?.textContent
+                .toLowerCase() || "";
 
         const buscaOk =
             nome.includes(busca);
@@ -137,6 +135,22 @@ function filtrarProdutos() {
 
     atualizarContador(contador);
 
+    // =========================
+    // MOSTRAR "NENHUM PRODUTO"
+    // =========================
+
+    const semResultados =
+        document.getElementById("semResultados");
+
+    if (semResultados) {
+
+        if (contador === 0) {
+            semResultados.style.display = "";
+        } else {
+            semResultados.style.display = "none";
+        }
+
+    }
 }
 
 // =========================

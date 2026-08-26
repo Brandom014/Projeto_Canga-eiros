@@ -94,12 +94,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
             </li>
 
             <li class="menu-item">
-                <a href="/configuracoes">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-            </li>
-
         </ul>
 
     </div>
@@ -298,7 +292,7 @@ onsubmit="abrirConfirmacao(event, this)">
 
 <div class="field">
 <label>Senha</label>
-<input type="password" name="senha" id="senha">
+<input type="password" name="senha" id="senha" required>
 </div>
 
 <div class="field">
@@ -325,21 +319,41 @@ Fechar
 </div>
 
 <!-- MODAL DELETE -->
+<!-- MODAL DELETE -->
 <div id="confirmModal" class="modal hidden">
 
-<div class="modal-content">
+    <div class="modal-content delete-modal">
 
-<h2>Confirmar exclusão</h2>
-<p>Tem certeza que deseja excluir este usuário?</p>
 
-<div class="modal-actions">
+        <h2>Excluir usuário?</h2>
 
-<button type="button" onclick="confirmarDelete()">Sim, excluir</button>
-<button type="button" onclick="fecharConfirmacao()">Cancelar</button>
+        <p>
+            Tem certeza que deseja excluir o usuário
+            <strong id="usuarioExcluirNome"></strong>?
+        </p>
 
-</div>
+        <span class="delete-warning">
+            Essa ação não poderá ser desfeita.
+        </span>
 
-</div>
+        <div class="modal-actions">
+
+            <button type="button"
+                    class="btn-cancel-delete"
+                    onclick="fecharConfirmacao()">
+                Cancelar
+            </button>
+
+            <button type="button"
+                    class="btn-confirm-delete"
+                    onclick="confirmarDelete()">
+                <i class="fa-solid fa-trash"></i>
+                Excluir usuário
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 

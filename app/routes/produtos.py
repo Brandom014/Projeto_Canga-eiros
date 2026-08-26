@@ -19,6 +19,7 @@ from app.database import get_db
 from app.models.produtos import Produto
 from app.models.categoria import Categoria
 from app.models.movimentacoes import Movimentacao
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
@@ -31,7 +32,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @router.get("/")
 def pagina_produtos(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produtos = db.query(Produto).all()
@@ -72,7 +74,8 @@ async def criar_produto(
     preco: float = Form(...),
     estoque: int = Form(...),
     imagem: UploadFile = File(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     filename = None
@@ -110,7 +113,7 @@ async def criar_produto(
 
     movimentacao = Movimentacao(
     produto_id=produto.id,
-    usuario_id=1,  # depois pegamos o usuário logado
+    usuario_id=user.id,
     tipo="Entrada",
     quantidade=estoque,
     valor=preco,
@@ -129,7 +132,8 @@ async def criar_produto(
 @router.post("/excluir/{produto_id}")
 def excluir_produto(
     produto_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produto = db.query(Produto).filter(
@@ -163,7 +167,8 @@ async def editar_produto(
     preco: float = Form(...),
     estoque: int = Form(...),
     imagem: UploadFile = File(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
 
     produto = db.query(Produto).filter(

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.database import get_db
 from app.models.produtos import Produto
@@ -54,12 +54,30 @@ def dashboard(
     vendas_hoje = [
         venda
         for venda in vendas
-        if venda.data.date() == hoje
+        if venda.data and venda.data.date() == hoje
     ]
 
     faturamento_hoje = sum(
         venda.total
         for venda in vendas_hoje
+    )
+
+    vendas_7d = []
+    for offset in range(6, -1, -1):
+        dia = hoje - timedelta(days=offset)
+        total_dia = sum(
+            venda.total
+            for venda in vendas
+            if venda.data and venda.data.date() == dia
+        )
+        vendas_7d.append({
+            "label": dia.strftime("%d/%m"),
+            "total": round(total_dia, 2),
+        })
+
+    maior_venda_7d = max(
+        (item["total"] for item in vendas_7d),
+        default=0,
     )
 
     # =========================
@@ -128,6 +146,7 @@ def dashboard(
 
             "usuario": user.nome,
             "perfil": user.role,
+            "foto_perfil": user.foto_perfil,
 
             "total_produtos": total_produtos,
 
@@ -145,6 +164,8 @@ def dashboard(
 
             "estoque_baixo": estoque_baixo,
 
-            "ultimas_vendas": ultimas_vendas
+            "ultimas_vendas": ultimas_vendas,
+            "vendas_7d": vendas_7d,
+            "maior_venda_7d": maior_venda_7d,
         }
     )

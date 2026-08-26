@@ -3,8 +3,12 @@ from fastapi import (
     Depends,
     HTTPException,
     Request,
-    Form
+    Form,
+    UploadFile,
+    File
 )
+import os
+from uuid import uuid4
 
 from fastapi.responses import (
     HTMLResponse,
@@ -27,6 +31,8 @@ router = APIRouter(
 templates = Jinja2Templates(
     directory="app/templates"
 )
+
+UPLOAD_DIR = "app/static/uploads"
 
 
 # =========================
@@ -282,3 +288,31 @@ def excluir_usuario(
         url="/usuarios/",
         status_code=303
     )
+
+
+@router.post("/perfil")
+async def atualizar_perfil(
+    foto: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    if not foto.filename:
+        raise HTTPException(status_code=400, detail="Selecione uma foto.")
+
+    extensao = os.path.splitext(foto.filename)[1].lower()
+    if extensao not in {".jpg", ".jpeg", ".png", ".webp"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Use uma imagem JPG, PNG ou WEBP.",
+        )
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    nome_arquivo = f"perfil-{current_user.id}-{uuid4()}{extensao}"
+    caminho = os.path.join(UPLOAD_DIR, nome_arquivo)
+    with open(caminho, "wb") as destino:
+        destino.write(await foto.read())
+
+    current_user.foto_perfil = f"/static/uploads/{nome_arquivo}"
+    db.commit()
+
+    return RedirectResponse("/dashboard", status_code=303)

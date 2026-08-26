@@ -7,7 +7,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./pdv.db"
+    "sqlite:///./banco.db"
 )
 
 engine = create_engine(
