@@ -393,3 +393,62 @@ td{
     padding:10px 15px;
     border-radius:8px;
 }
+
+/* =========================================
+   LISTA DE VENDAS - TAMANHO E CENTRALIZAÇÃO
+========================================= */
+
+.content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 30px 40px;
+    box-sizing: border-box;
+}
+
+.lista-vendas {
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box;
+}
+
+/* Cabeçalho da lista */
+
+.lista-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.lista-header h3 {
+    margin: 0;
+}
+
+
+/* Botão Exportar */
+
+.lista-header .export {
+    position: static !important;
+    float: none !important;
+    margin: 0 !important;
+}
+
+
+/* Área da tabela */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+/* Tabela */
+
+.lista-vendas table {
+    width: 100% !important;
+    min-width: 800px;
+    border-collapse: collapse;
+}
