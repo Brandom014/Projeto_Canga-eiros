@@ -295,7 +295,7 @@ body{
 }
 
 .stat-card{
-    background:#d1d5db;
+    background:#ffffff;
 
     border:1px solid #e2e8f0;
 
@@ -338,7 +338,7 @@ body{
 ===================================== */
 
 .filters-container{
-    background:#d1d5db;
+    background:#ffffff;
 
     border:1px solid #e2e8f0;
 
@@ -444,7 +444,7 @@ body{
 ===================================== */
 
 .table-container{
-    background:#d1d5db;
+    background:#ffffff;
 
     border:1px solid #e2e8f0;
 
@@ -488,7 +488,7 @@ body{
 }
 
 .products-table thead{
-    background:#d1d5db;
+    background:#ffffff;
 }
 
 .products-table th{
@@ -549,7 +549,7 @@ body{
 
     object-fit:cover;
 
-    border:1px solid #d1d5db;
+    border:1px solid #ffffff;
 
     background:white;
 }
