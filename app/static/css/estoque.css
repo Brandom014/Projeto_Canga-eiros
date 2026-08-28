@@ -197,7 +197,7 @@ body{
 
 .content {
     flex: 1;
-    background-color: #fafafa;
+    background-color: #d1d5db;
     padding: 32px;
     overflow-y: auto;
 }

@@ -11,7 +11,7 @@
 body{
     display:flex;
     min-height:100vh;
-    background:#f5f7fb;
+    background:#d1d5db;
     color:#111827;
 }
 
@@ -193,7 +193,7 @@ body{
 
 .main-content {
     flex: 1;
-    background-color: #f8fafc;
+    background-color: #ffffff;
     padding: 32px;
     overflow-y: auto;
 }
