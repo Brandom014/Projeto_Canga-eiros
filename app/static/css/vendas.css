@@ -206,6 +206,7 @@ body {
     flex: 1;
     padding: 24px 32px;
     overflow-y: auto;
+    background: #d1d5db;
 }
 
 .top-header {
