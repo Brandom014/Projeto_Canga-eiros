@@ -9,10 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet"
-
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/estoque.css">
 </head>
 
@@ -20,423 +17,274 @@
 
 <div class="dashboard">
 
-     <!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-
-    <div>
-
-        <div class="sidebar-brand">
-
-            <div style="display: flex; align-items: center; gap: 12px;">
-
-                <i class="fa-solid fa-store"></i>
-
-                <span class="logo-text"></span>
-
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-store"></i>
+                    <span class="logo-text"></span>
+                </div>
+                <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
             </div>
 
-            <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
-
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/vendas">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Vendas</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/produtos">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+                <li class="menu-item active">
+                    <a href="/estoque">
+                        <i class="fa-solid fa-warehouse"></i>
+                        <span>Estoque</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/movimentacoes">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Movimentações</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/relatorio">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Relatorio de vendas</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/usuarios">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Gerenciar Usuários</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/clientes">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>Clientes</span>
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <ul class="menu-list">
+        <div class="sidebar-footer">
+            <a href="/auth/logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </div>
+    </aside>
 
-            <li class="menu-item">
-                <a href="/dashboard">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+    <main class="content">
 
-            <li class="menu-item">
-                <a href="/vendas">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span>Vendas</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="/produtos">
-                    <i class="fa-solid fa-box"></i>
-                    <span>Produtos</span>
-                </a>
-            </li>
-
-            <li class="menu-item active">
-                <a href="/estoque">
-                    <i class="fa-solid fa-warehouse"></i>
-                    <span>Estoque</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="/movimentacoes">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                    <span>Movimentações</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="/relatorio">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Relatorio de vendas</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="/usuarios">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Gerenciar Usuários</span>
-                </a>
-            </li>
-
-            <li class="menu-item">
-        </ul>
-
-    </div>
-
-    <div class="sidebar-footer">
-        <a href="/auth/logout">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
-        </a>
-    </div>
-
-</aside>
-
-<main class="content">
-
-    <div class="page-header">
-
-        <h1>Controle de Estoque</h1>
-
-        <p>
-            Gerencie os produtos e acompanhe o estoque da loja.
-        </p>
-
-    </div>
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-
-            <div class="icon red">
-                📦
-            </div>
-
-            <div>
-
-                <span>Total de Produtos</span>
-
-                <h2>{{ total }}</h2>
-
-                <small>
-                    Produtos cadastrados
-                </small>
-
-            </div>
-
+        <div class="page-header">
+            <h1>Controle de Estoque</h1>
+            <p>Gerencie os produtos e acompanhe o estoque da loja.</p>
         </div>
 
-        <div class="stat-card">
-
-            <div class="icon yellow">
-                ⚠️
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon red">📦</div>
+                <div>
+                    <span>Total de Produtos</span>
+                    <h2>{{ total }}</h2>
+                    <small>Produtos cadastrados</small>
+                </div>
             </div>
 
-            <div>
-
-                <span>Em Falta</span>
-
-                <h2>{{ em_falta }}</h2>
-
-                <small>
-                    Produtos sem estoque
-                </small>
-
+            <div class="stat-card">
+                <div class="icon yellow">⚠️</div>
+                <div>
+                    <span>Em Falta</span>
+                    <h2>{{ em_falta }}</h2>
+                    <small>Produtos sem estoque</small>
+                </div>
             </div>
 
+            <div class="stat-card">
+                <div class="icon green">✅</div>
+                <div>
+                    <span>Estoque Total</span>
+                    <h2>{{ estoque_total }}</h2>
+                    <small>Itens disponíveis</small>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon blue">💰</div>
+                <div>
+                    <span>Valor Total</span>
+                    <h2>R$ {{ "%.2f"|format(valor_total) }}</h2>
+                    <small>Valor do estoque</small>
+                </div>
+            </div>
         </div>
 
-        <div class="stat-card">
+        <!-- FILTROS -->
+        <div class="filter-card">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Buscar produto..."
+                oninput="filtrarProdutos()"
+            >
 
-            <div class="icon green">
-                ✅
-            </div>
+            <select id="statusSelect" onchange="filtrarProdutos()">
+                <option value="">Todos Status</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+            </select>
 
-            <div>
+            <select id="categoriaSelect" onchange="filtrarProdutos()">
+                <option value="">Todas Categorias</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.nome }}">{{ categoria.nome }}</option>
+                {% endfor %}
+            </select>
 
-                <span>Estoque Total</span>
-
-                <h2>{{ estoque_total }}</h2>
-
-                <small>
-                    Itens disponíveis
-                </small>
-
-            </div>
-
+            <button type="button" onclick="limparFiltros()">
+                Limpar
+            </button>
         </div>
 
-        <div class="stat-card">
-
-            <div class="icon blue">
-                💰
+        <!-- TABELA -->
+        <div class="table-card">
+            <div class="table-top">
+                <h3>Lista de Produtos</h3>
+                <span id="contadorProdutos">{{ total }} produto(s)</span>
             </div>
 
-            <div>
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th>Valor em Estoque</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
 
-                <span>Valor Total</span>
-
-                <h2>
-                    R$ {{ "%.2f"|format(valor_total) }}
-                </h2>
-
-                <small>
-                    Valor do estoque
-                </small>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="filter-card">
-
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Buscar produto..."
-        >
-
-        <select>
-            <option>Todos</option>
-            <option>Ativo</option>
-            <option>Inativo</option>
-        </select>
-
-        <select id="categoriaSelect">
-
-            <option value="">
-                Todas Categorias
-            </option>
-
-            {% for categoria in categorias %}
-
-                <option value="{{ categoria.nome }}">
-                    {{ categoria.nome }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-        <button>
-            Limpar
-        </button>
-
-    </div>
-
-    <div class="table-card">
-
-        <div class="table-top">
-
-            <h3>
-                Lista de Produtos
-            </h3>
-
-            <span>
-                {{ total }} produto(s)
-            </span>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Produto</th>
-                    <th>Categoria</th>
-                    <th>Preço</th>
-                    <th>Estoque</th>
-                    <th>Status</th>
-                    <th>Valor em Estoque</th>
-                    <th>Ações</th>
-
-                </tr>
-
-            </thead>
-
-            
-
-            <tbody>
-
-                <tr id="semResultados" style="display: none;">
-                    <td colspan="7" style="text-align: center; padding: 50px;">
-                        <i class="fa-solid fa-box-open"
-                        style="font-size: 42px; color: #94a3b8;">
-                    </i>
-
-                    <br><br>
-
-                    <strong style="font-size: 16px;">
-                        Nenhum produto encontrado
-                    </strong>
-
-                    <br>
-
-                    <span style="color: #64748b;">
-                        Tente alterar os filtros ou pesquisar outro produto.
-                    </span>
-                </td>
-            </tr>
-
-            {% for p in produtos %}
-
-                                <tr>
-
-                        <td>
-
-                            <div class="produto-info">
-
-                                <div class="produto-img">
-
-                                    {% if p.imagem %}
-
-                                        <img
-                                            src="{{ p.imagem }}"
-                                            alt="{{ p.nome }}"
-                                        >
-
-                                    {% else %}
-
-                                        📦
-
-                                    {% endif %}
-
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        {{ p.nome }}
-                                    </strong>
-
-                                    <small>
-                                        ID: {{ p.id }}
-                                    </small>
-
-                                </div>
-
-                            </div>
-
+                <tbody>
+                    <tr id="semResultados" style="display: none;">
+                        <td colspan="7" style="text-align: center; padding: 50px;">
+                            <i class="fa-solid fa-box-open" style="font-size: 42px; color: #94a3b8;"></i>
+                            <br><br>
+                            <strong style="font-size: 16px;">Nenhum produto encontrado</strong>
+                            <br>
+                            <span style="color: #64748b;">Tente alterar os filtros ou pesquisar outro produto.</span>
                         </td>
-
-                        <td>
-
-                            {% if p.categoria %}
-
-                                {{ p.categoria.nome }}
-
-                            {% else %}
-
-                                Sem categoria
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-                            R$ {{ "%.2f"|format(p.preco) }}
-                        </td>
-
-                        <td>
-                            {{ p.estoque }}
-                        </td>
-
-                        <td>
-
-                            <form
-                                action="/estoque/toggle/{{ p.id }}"
-                                method="POST"
-                            >
-
-                                {% if p.ativo %}
-
-                                    <button
-                                        type="submit"
-                                        class="status ativo"
-                                    >
-                                        ● Ativo
-                                    </button>
-
-                                {% else %}
-
-                                    <button
-                                        type="submit"
-                                        class="status inativo"
-                                    >
-                                        ● Inativo
-                                    </button>
-
-                                {% endif %}
-
-                            </form>
-
-                        </td>
-
-                        <td>
-
-                            R$
-                            {{ "%.2f"|format(p.preco * p.estoque) }}
-
-                        </td>
-
-                        <td>
-
-                            <div class="acoes">
-
-                                <button
-                                    type="button"
-                                    class="btn-edit"
-                                    onclick="
-                                        document.getElementById('produtoId').value='{{ p.id }}';
-                                        document.getElementById('produtoNome').value='{{ p.nome }}';
-                                        document.getElementById('produtoPreco').value='{{ p.preco }}';
-                                        document.getElementById('produtoEstoque').value='{{ p.estoque }}';
-                                        document.getElementById('modalEditar').classList.add('show');
-                                    "
-                                >
-                                    ✏ Editar
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="btn-delete"
-                                    onclick="
-                                        document.getElementById('deleteId').value='{{ p.id }}';
-                                        document.getElementById('modalExcluir').classList.add('show');
-                                    "
-                                >
-                                    🗑 Excluir
-                                </button>
-
-                            </div>
-
-                        </td>
-
                     </tr>
 
-                {% endfor %}
+                    {% for p in produtos %}
+                        <!-- REGRA: Se o estoque for 0, o status é forçado como 'inativo' -->
+                        <tr 
+                            data-nome="{{ p.nome }}"
+                            data-categoria="{% if p.categoria %}{{ p.categoria.nome }}{% else %}sem categoria{% endif %}"
+                            data-status="{% if p.estoque <= 0 or not p.ativo %}inativo{% else %}ativo{% endif %}"
+                            data-estoque="{{ p.estoque }}"
+                        >
+                            <td>
+                                <div class="produto-info">
+                                    <div class="produto-img">
+                                        {% if p.imagem %}
+                                            <img src="{{ p.imagem }}" alt="{{ p.nome }}">
+                                        {% else %}
+                                            📦
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <strong>{{ p.nome }}</strong>
+                                        <small>ID: {{ p.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
 
+                            <td>
+                                {% if p.categoria %}
+                                    {{ p.categoria.nome }}
+                                {% else %}
+                                    Sem categoria
+                                {% endif %}
+                            </td>
+
+                            <td>R$ {{ "%.2f"|format(p.preco) }}</td>
+
+                            <td>
+                                <strong>{{ p.estoque }}</strong>
+                                {% if p.estoque <= 0 %}
+                                    <small style="color: #ef4444; display: block;">(Sem Estoque)</small>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <form action="/estoque/toggle/{{ p.id }}" method="POST">
+                                    {% if p.estoque <= 0 %}
+                                        <!-- Se estoque for 0, fica inativo e desativado para mudança de status manual -->
+                                        <button type="button" class="status inativo" disabled title="Produto sem estoque fica inativo automaticamente">
+                                            ● Inativo (Sem Estoque)
+                                        </button>
+                                    {% elif p.ativo %}
+                                        <button type="submit" class="status ativo">
+                                            ● Ativo
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="status inativo">
+                                            ● Inativo
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+
+                            <td>R$ {{ "%.2f"|format(p.preco * p.estoque) }}</td>
+
+                            <td>
+                                <div class="acoes">
+                                    <button 
+                                        type="button" 
+                                        class="btn-edit"
+                                        onclick="abrirModalEditar('{{ p.id }}', '{{ p.nome }}', '{{ p.preco }}', '{{ p.estoque }}')"
+                                    >
+                                        ✏ Editar
+                                    </button>
+
+                                    <button 
+                                        type="button" 
+                                        class="btn-delete"
+                                        onclick="abrirModalExcluir('{{ p.id }}')"
+                                    >
+                                        🗑 Excluir
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
-
             </table>
 
+            <!-- CONTROLES DE PAGINAÇÃO -->
+            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+                <span id="pageInfo">Página 1 de 1</span>
+                <div class="pagination-buttons" style="display: flex; gap: 8px;">
+                    <button id="btnPrev" onclick="mudarPagina(-1)" class="btn-cancel" disabled>Anterior</button>
+                    <button id="btnNext" onclick="mudarPagina(1)" class="btn-cancel">Próximo</button>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -444,137 +292,43 @@
 </div>
 
 <!-- MODAL EDITAR -->
-
-<div
-    id="modalEditar"
-    class="modal"
->
-
+<div id="modalEditar" class="modal">
     <div class="modal-content">
-
         <h2>Editar Produto</h2>
-
-        <form
-            method="POST"
-            id="formEditar"
-        >
-
-            <input
-                type="hidden"
-                id="produtoId"
-            >
+        <form method="POST" id="formEditar">
+            <input type="hidden" id="produtoId">
 
             <label>Nome</label>
-
-            <input
-                type="text"
-                name="nome"
-                id="produtoNome"
-                required
-            >
+            <input type="text" name="nome" id="produtoNome" required>
 
             <label>Preço</label>
-
-            <input
-                type="number"
-                min="0.1"
-                step="0.01"
-                name="preco"
-                id="produtoPreco"
-                required
-            >
+            <input type="number" min="0.01" step="0.01" name="preco" id="produtoPreco" required>
 
             <label>Estoque</label>
-
-            <input
-                type="number"
-                min="1"
-                name="estoque"
-                id="produtoEstoque"
-                required
-            >
+            <input type="number" min="0" name="estoque" id="produtoEstoque" required>
 
             <div class="modal-actions">
-
-                <button
-                    type="button"
-                    class="btn-cancel"
-                    onclick="
-                        document
-                        .getElementById('modalEditar')
-                        .classList.remove('show')
-                    "
-                >
-                    Cancelar
-                </button>
-
-                <button
-                    type="submit"
-                    class="btn-save"
-                >
-                    Salvar Alterações
-                </button>
-
+                <button type="button" class="btn-cancel" onclick="fecharModalEditar()">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar Alterações</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
 <!-- MODAL EXCLUIR -->
-
-<div
-    id="modalExcluir"
-    class="modal"
->
-
+<div id="modalExcluir" class="modal">
     <div class="modal-content">
-
         <h2>Excluir Produto</h2>
-
-        <p>
-            Tem certeza que deseja excluir este produto?
-        </p>
-
-        <form
-            method="POST"
-            id="formExcluir"
-        >
-
-            <input
-                type="hidden"
-                id="deleteId"
-            >
+        <p>Tem certeza que deseja excluir este produto do estoque?</p>
+        <form method="POST" id="formExcluir">
+            <input type="hidden" id="deleteId">
 
             <div class="modal-actions">
-
-                <button
-                    type="button"
-                    class="btn-cancel"
-                    onclick="
-                        document
-                        .getElementById('modalExcluir')
-                        .classList.remove('show')
-                    "
-                >
-                    Cancelar
-                </button>
-
-                <button
-                    type="submit"
-                    class="btn-delete"
-                >
-                    Excluir
-                </button>
-
+                <button type="button" class="btn-cancel" onclick="fecharModalExcluir()">Cancelar</button>
+                <button type="submit" class="btn-delete">Excluir</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
 <script src="/static/js/estoque.js"></script>

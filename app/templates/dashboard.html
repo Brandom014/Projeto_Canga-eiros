@@ -87,6 +87,13 @@
             </li>
 
             <li class="menu-item">
+                <a href="/clientes">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
         </ul>
 
     </div>
@@ -161,9 +168,6 @@
                 R$ {{ "%.2f"|format(faturamento_hoje) }}
             </h3>
 
-            <span class="metric-growth growth-up">
-                {{ crescimento_vendas }}% vs ontem
-            </span>
         </div>
 
         <div class="metric-icon-box icon-red">
@@ -183,9 +187,6 @@
                 {{ total_vendas }}
             </h3>
 
-            <span class="metric-growth growth-up">
-                {{ crescimento_pedidos }}% vs ontem
-            </span>
         </div>
 
         <div class="metric-icon-box icon-blue">
@@ -205,9 +206,6 @@
                 {{ itens_vendidos }}
             </h3>
 
-            <span class="metric-growth growth-up">
-                {{ crescimento_itens }}% vs ontem
-            </span>
         </div>
 
         <div class="metric-icon-box icon-green">
@@ -227,9 +225,6 @@
                 {{ clientes_atendidos }}
             </h3>
 
-            <span class="metric-growth growth-up">
-                {{ crescimento_clientes }}% vs ontem
-            </span>
         </div>
 
         <div class="metric-icon-box icon-purple">

@@ -2,23 +2,17 @@
 <html lang="pt-BR">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gerenciar Usuários</title>
+    <title>Gerenciar Usuários</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="/static/css/usuarios.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<link rel="stylesheet"
-
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/usuarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -26,20 +20,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
-    <div>
+    <div class="sidebar-top">
 
         <div class="sidebar-brand">
-
             <div style="display: flex; align-items: center; gap: 12px;">
-
                 <i class="fa-solid fa-store"></i>
-
-                <span class="logo-text"></span>
-
+                
             </div>
-
             <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
-
         </div>
 
         <ul class="menu-list">
@@ -94,6 +82,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
             </li>
 
             <li class="menu-item">
+                <a href="/clientes">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+
         </ul>
 
     </div>
@@ -110,251 +104,291 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 <!-- MAIN -->
 <main class="main-content">
 
-<div class="container">
+    <div class="container">
 
-<!-- TOP TITLE -->
-<div class="topbar">
-<h1 class="title">Gerenciar Usuários</h1>
-</div>
+        <!-- TOPBAR (TÍTULO + BOTÃO NOVO USUÁRIO) -->
+        <div class="topbar">
+            <h1 class="title">Gerenciar Usuários</h1>
+            <button class="new-user-btn" onclick="abrirModalCriar()">
+                <i class="fa-solid fa-plus"></i>
+                Novo Usuário
+            </button>
+        </div>
 
-<!-- CONTROLES (SEPARADO) -->
-<div class="controls-bar">
+        <!-- STATS -->
+        <div class="stats-grid">
 
-<div class="search-box">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-title">Total de Usuários</span>
+                    <strong class="stat-value">{{ usuarios|length }}</strong>
+                </div>
+            </div>
 
-    <div class="search-icon">
-        <i class="fa-solid fa-magnifying-glass"></i>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-title">Administradores</span>
+                    <strong class="stat-value">{{ total_admins }}</strong>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-title">Vendedores</span>
+                    <strong class="stat-value">{{ total_vendedores }}</strong>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-title">Ativos</span>
+                    <strong class="stat-value">{{ total_ativos }}</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TABELA COM BARRA DE FERRAMENTAS INTEGRADA -->
+        <div class="table-card">
+
+            <div class="table-header">
+                <div class="table-title">Lista de Usuários</div>
+                <div class="table-badge">{{ usuarios|length }} usuários</div>
+            </div>
+
+            <!-- BARRA DE BUSCA E FILTROS -->
+            <div class="table-toolbar">
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Buscar por nome ou e-mail..."
+                        onkeyup="filtrarUsuarios()"
+                    />
+                </div>
+
+                <!-- FILTRO POR FUNÇÃO -->
+                <div class="filter-box">
+                    <select id="filtroRole" onchange="filtrarUsuarios()">
+                        <option value="todos">Todas as Funções</option>
+                        <option value="admin">Administrador</option>
+                        <option value="vendedor">Vendedor</option>
+                    </select>
+                </div>
+
+                <!-- FILTRO POR STATUS -->
+                <div class="filter-box">
+                    <select id="filtroStatus" onchange="filtrarUsuarios()">
+                        <option value="todos">Todos os Status</option>
+                        <option value="ativo">Ativo</option>
+                        <option value="inativo">Inativo</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>Email</th>
+                        <th>Função</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaUsuarios">
+
+                {% for usuario in usuarios %}
+                    <tr
+                        class="user-row"
+                        data-nome="{{ usuario.nome }}"
+                        data-email="{{ usuario.email }}"
+                        data-role="{{ usuario.role }}"
+                        data-status="{{ 'ativo' if usuario.ativo else 'inativo' }}"
+                    >
+
+                        <td>
+                            <div class="user-info">
+                                <div class="avatar">
+                                    {{ usuario.nome[:1].upper() }}
+                                </div>
+                                <div>
+                                    <div class="user-name">{{ usuario.nome }}</div>
+                                    <div class="user-id">ID #{{ usuario.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ usuario.email }}</td>
+
+                        <td>
+                            {% if usuario.role == "admin" %}
+                                <span class="role admin">Administrador</span>
+                            {% else %}
+                                <span class="role vendedor">Vendedor</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if usuario.ativo %}
+                                <span class="status"><span class="status-dot active-dot"></span>Ativo</span>
+                            {% else %}
+                                <span class="status"><span class="status-dot inactive-dot"></span>Inativo</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="actions">
+
+                                <button
+                                    type="button"
+                                    class="action-btn btn-edit"
+                                    title="Editar usuário"
+                                    onclick="abrirModalEditar('{{ usuario.id }}','{{ usuario.nome|e }}','{{ usuario.email|e }}','{{ usuario.role }}')"
+                                >
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                {% if usuario.ativo %}
+                                    <form action="/usuarios/desativar/{{ usuario.id }}" method="POST" onsubmit="abrirConfirmacaoDesativar(event, this, '{{ usuario.nome|e }}')">
+                                        <button type="submit" class="action-btn btn-disable" title="Desativar usuário">
+                                            <i class="fa-solid fa-user-xmark"></i>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form action="/usuarios/ativar/{{ usuario.id }}" method="POST">
+                                        <button type="submit" class="action-btn btn-enable" title="Ativar usuário">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                <form
+                                    action="/usuarios/excluir/{{ usuario.id }}"
+                                    method="POST"
+                                    onsubmit="abrirConfirmacao(event, this, '{{ usuario.nome|e }}')"
+                                >
+                                    <button type="submit" class="action-btn btn-delete" title="Excluir usuário">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">
+                            Nenhum usuário cadastrado.
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
-
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="Buscar usuário..."
-        onkeyup="filtrarUsuarios()"
-    />
-
-</div>
-
-<button class="new-user-btn" onclick="abrirModalCriar()">
-<i class="fa-solid fa-plus"></i>
-Novo Usuário
-</button>
-
-</div>
-
-<!-- STATS -->
-<div class="stats-grid">
-
-<div class="stat-card">
-<div class="stat-title">Total de Usuários</div>
-<div class="stat-value">{{ usuarios|length }}</div>
-</div>
-
-<div class="stat-card">
-<div class="stat-title">Administradores</div>
-<div class="stat-value">{{ total_admins }}</div>
-</div>
-
-<div class="stat-card">
-<div class="stat-title">Vendedores</div>
-<div class="stat-value">{{ total_vendedores }}</div>
-</div>
-
-<div class="stat-card">
-<div class="stat-title">Ativos</div>
-<div class="stat-value">{{ total_ativos }}</div>
-</div>
-
-</div>
-
-<!-- TABELA -->
-<div class="table-card">
-
-<div class="table-header">
-<div class="table-title">Lista de Usuários</div>
-<div class="table-badge">{{ usuarios|length }} usuários</div>
-</div>
-
-<table>
-
-<thead>
-<tr>
-<th>Usuário</th>
-<th>Email</th>
-<th>Função</th>
-<th>Status</th>
-<th>Ações</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for usuario in usuarios %}
-<tr>
-
-<td>
-<div class="user-info">
-<div class="avatar">
-{{ usuario.nome[:1].upper() }}
-</div>
-
-<div>
-<div class="user-name">{{ usuario.nome }}</div>
-<div class="user-id">ID #{{ usuario.id }}</div>
-</div>
-</div>
-</td>
-
-<td>{{ usuario.email }}</td>
-
-<td>
-{% if usuario.role == "admin" %}
-<span class="role admin">Administrador</span>
-{% else %}
-<span class="role vendedor">Vendedor</span>
-{% endif %}
-</td>
-
-<td>
-{% if usuario.ativo %}
-<span class="status"><span class="status-dot active-dot"></span>Ativo</span>
-{% else %}
-<span class="status"><span class="status-dot inactive-dot"></span>Inativo</span>
-{% endif %}
-</td>
-
-<td>
-<div class="actions">
-
-<button class="action-btn btn-enable"
-onclick="abrirModalEditar('{{ usuario.id }}','{{ usuario.nome }}','{{ usuario.email }}','{{ usuario.role }}')">
-<i class="fa-solid fa-pen"></i>
-</button>
-
-{% if usuario.ativo %}
-<form action="/usuarios/desativar/{{ usuario.id }}" method="POST">
-<button type="submit" class="action-btn btn-disable">
-<i class="fa-solid fa-user-xmark"></i>
-</button>
-</form>
-{% else %}
-<form action="/usuarios/ativar/{{ usuario.id }}" method="POST">
-<button type="submit" class="action-btn btn-enable">
-<i class="fa-solid fa-user-check"></i>
-</button>
-</form>
-{% endif %}
-
-<form action="/usuarios/excluir/{{ usuario.id }}"
-method="POST"
-onsubmit="abrirConfirmacao(event, this)">
-<button type="submit" class="action-btn btn-disable">
-<i class="fa-solid fa-trash"></i>
-</button>
-</form>
-
-</div>
-</td>
-
-</tr>
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
 
 </main>
 
 <!-- MODAL CRIAR / EDITAR -->
 <div id="modal" class="modal hidden">
 
-<div class="modal-content">
+    <div class="modal-content">
 
-<h2 id="modalTitle">Usuário</h2>
+        <h2 id="modalTitle">Novo Usuário</h2>
 
-<form id="modalForm" method="POST" class="user-form">
+        <form id="modalForm" method="POST" class="user-form">
 
-<div class="form-grid">
+            <div class="form-grid">
 
-<div class="field">
-<label>Nome completo</label>
-<input type="text" name="nome" id="nome" required>
+                <div class="field">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" name="nome" id="nome" placeholder="Ex: João Silva" required>
+                </div>
+
+                <div class="field">
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" id="email" placeholder="usuario@email.com" required>
+                </div>
+
+                <div class="field">
+                    <label for="senha">Senha</label>
+                    <input type="password" name="senha" id="senha" placeholder="••••••••">
+                    <small id="senhaHelp" class="help-text hidden">Deixe em branco para manter a senha atual.</small>
+                </div>
+
+                <div class="field">
+                    <label for="role">Função</label>
+                    <select name="role" id="role" required>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="modal-actions-form">
+                <button type="button" class="btn-cancel" onclick="fecharModal()">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-save">
+                    <i class="fa-solid fa-check"></i> Salvar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
 
-<div class="field">
-<label>Email</label>
-<input type="email" name="email" id="email" required>
-</div>
-
-<div class="field">
-<label>Senha</label>
-<input type="password" name="senha" id="senha" required>
-</div>
-
-<div class="field">
-<label>Função</label>
-<select name="role" id="role">
-<option value="vendedor">Vendedor</option>
-<option value="admin">Administrador</option>
-</select>
-</div>
-
-</div>
-
-<button type="submit" class="btn-save">Salvar</button>
-
-</form>
-
-<button type="button" class="btn-cancel" onclick="fecharModal()">
-<i class="fa-solid fa-xmark"></i>
-Fechar
-</button>
-
-</div>
-
-</div>
-
-<!-- MODAL DELETE -->
-<!-- MODAL DELETE -->
+<!-- MODAL DE CONFIRMAÇÃO (COMPATÍVEL COM DESATIVAR E EXCLUIR) -->
 <div id="confirmModal" class="modal hidden">
-
     <div class="modal-content delete-modal">
-
-
-        <h2>Excluir usuário?</h2>
-
-        <p>
-            Tem certeza que deseja excluir o usuário
-            <strong id="usuarioExcluirNome"></strong>?
+        <h2 id="confirmTitle">Excluir usuário?</h2>
+        
+        <p id="confirmText">
+            Tem certeza que deseja executar esta ação no usuário
+            <strong id="usuarioConfirmNome"></strong>?
         </p>
 
-        <span class="delete-warning">
+        <span class="delete-warning" id="confirmWarning">
             Essa ação não poderá ser desfeita.
         </span>
 
         <div class="modal-actions">
-
-            <button type="button"
-                    class="btn-cancel-delete"
-                    onclick="fecharConfirmacao()">
+            <button type="button" class="btn-cancel-delete" onclick="fecharConfirmacao()">
                 Cancelar
             </button>
 
-            <button type="button"
-                    class="btn-confirm-delete"
-                    onclick="confirmarDelete()">
-                <i class="fa-solid fa-trash"></i>
-                Excluir usuário
+            <button type="button" class="btn-confirm-delete" onclick="confirmarAcao()">
+                <i class="fa-solid fa-trash" id="confirmBtnIcon"></i>
+                <span id="confirmBtnText">Excluir usuário</span>
             </button>
-
         </div>
-
     </div>
-
 </div>
 
 <script src="/static/js/usuarios.js"></script>

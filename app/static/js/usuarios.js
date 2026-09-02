@@ -4,7 +4,9 @@
 
 function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
-    sidebar.classList.toggle("collapsed");
+    if (sidebar) {
+        sidebar.classList.toggle("collapsed");
+    }
 }
 
 // =========================
@@ -15,17 +17,20 @@ function abrirModalCriar() {
     const modal = document.getElementById("modal");
     const form = document.getElementById("modalForm");
     const title = document.getElementById("modalTitle");
+    const senhaInput = document.getElementById("senha");
+    const senhaHelp = document.getElementById("senhaHelp");
 
     modal.classList.remove("hidden");
-
-    title.innerText = "Criar Usuário";
-
+    title.innerText = "Novo Usuário";
     form.action = "/usuarios/criar";
 
     document.getElementById("nome").value = "";
     document.getElementById("email").value = "";
-    document.getElementById("senha").value = "";
+    senhaInput.value = "";
     document.getElementById("role").value = "vendedor";
+
+    senhaInput.required = true;
+    if (senhaHelp) senhaHelp.classList.add("hidden");
 }
 
 // =========================
@@ -36,28 +41,30 @@ function abrirModalEditar(id, nome, email, role) {
     const modal = document.getElementById("modal");
     const form = document.getElementById("modalForm");
     const title = document.getElementById("modalTitle");
+    const senhaInput = document.getElementById("senha");
+    const senhaHelp = document.getElementById("senhaHelp");
 
     modal.classList.remove("hidden");
-
     title.innerText = "Editar Usuário";
-
     form.action = `/usuarios/editar/${id}`;
 
     document.getElementById("nome").value = nome;
     document.getElementById("email").value = email;
-    document.getElementById("senha").value = "";
+    senhaInput.value = "";
     document.getElementById("role").value = role;
+
+    senhaInput.required = false;
+    if (senhaHelp) senhaHelp.classList.remove("hidden");
 }
 
 // =========================
-// FECHAR MODAL
+// FECHAR MODAIS
 // =========================
 
 function fecharModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
-// fechar clicando fora
 window.onclick = function (event) {
     const modal = document.getElementById("modal");
     const confirmModal = document.getElementById("confirmModal");
@@ -72,20 +79,31 @@ window.onclick = function (event) {
 };
 
 // =========================
-// BUSCA
+// FILTROS COMBINADOS
 // =========================
 
 function filtrarUsuarios() {
-    const input = document.getElementById("searchInput");
-    const filter = input.value.toLowerCase();
+    const searchInput = document.getElementById("searchInput");
+    const filtroRole = document.getElementById("filtroRole");
+    const filtroStatus = document.getElementById("filtroStatus");
 
-    const rows = document.querySelectorAll("tbody tr");
+    const textFilter = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const roleFilter = filtroRole ? filtroRole.value.toLowerCase() : "todos";
+    const statusFilter = filtroStatus ? filtroStatus.value.toLowerCase() : "todos";
+
+    const rows = document.querySelectorAll("tbody tr.user-row");
 
     rows.forEach(row => {
-        const nome = row.querySelector(".user-name")?.innerText.toLowerCase();
-        const email = row.children[1]?.innerText.toLowerCase();
+        const nome = (row.dataset.nome || row.querySelector(".user-name")?.innerText || "").toLowerCase();
+        const email = (row.dataset.email || row.children[1]?.innerText || "").toLowerCase();
+        const role = (row.dataset.role || "").toLowerCase();
+        const status = (row.dataset.status || "").toLowerCase();
 
-        if (nome.includes(filter) || email.includes(filter)) {
+        const matchesSearch = textFilter === "" || nome.includes(textFilter) || email.includes(textFilter);
+        const matchesRole = roleFilter === "todos" || role === roleFilter;
+        const matchesStatus = statusFilter === "todos" || status === statusFilter;
+
+        if (matchesSearch && matchesRole && matchesStatus) {
             row.style.display = "";
         } else {
             row.style.display = "none";
@@ -94,28 +112,62 @@ function filtrarUsuarios() {
 }
 
 // =========================
-// DELETE MODAL (SEM CONFIRM FEIO)
+// MODAL DE CONFIRMAÇÃO (EXCLUIR & DESATIVAR)
 // =========================
 
-let formDeleteAtual = null;
+let formAcaoAtual = null;
 
-function abrirConfirmacao(event, form) {
+// Mantido para compatibilidade com o HTML existente de exclusão
+function abrirConfirmacao(event, form, nomeUsuario) {
+    abrirConfirmacaoExcluir(event, form, nomeUsuario);
+}
+
+function abrirConfirmacaoExcluir(event, form, nomeUsuario) {
     event.preventDefault();
-    formDeleteAtual = form;
+    formAcaoAtual = form;
 
-    document.getElementById("confirmModal")
-        .classList.remove("hidden");
+    const modal = document.getElementById("confirmModal");
+
+    document.getElementById("confirmTitle").innerText = "Excluir usuário?";
+    document.getElementById("confirmText").innerHTML = `Tem certeza que deseja excluir o usuário <strong>${nomeUsuario ? `"${nomeUsuario}"` : 'este usuário'}</strong>?`;
+    document.getElementById("confirmWarning").innerText = "Essa ação não poderá ser desfeita.";
+
+    const btnIcon = document.getElementById("confirmBtnIcon");
+    const btnText = document.getElementById("confirmBtnText");
+
+    if (btnIcon) btnIcon.className = "fa-solid fa-trash";
+    if (btnText) btnText.innerText = "Excluir usuário";
+
+    modal.classList.remove("hidden");
+}
+
+function abrirConfirmacaoDesativar(event, form, nomeUsuario) {
+    event.preventDefault();
+    formAcaoAtual = form;
+
+    const modal = document.getElementById("confirmModal");
+
+    document.getElementById("confirmTitle").innerText = "Desativar usuário?";
+    document.getElementById("confirmText").innerHTML = `Tem certeza que deseja desativar o usuário <strong>${nomeUsuario ? `"${nomeUsuario}"` : 'este usuário'}</strong>?`;
+    document.getElementById("confirmWarning").innerText = "O usuário perderá o acesso ao sistema até ser reativado.";
+
+    const btnIcon = document.getElementById("confirmBtnIcon");
+    const btnText = document.getElementById("confirmBtnText");
+
+    if (btnIcon) btnIcon.className = "fa-solid fa-user-xmark";
+    if (btnText) btnText.innerText = "Desativar usuário";
+
+    modal.classList.remove("hidden");
 }
 
 function fecharConfirmacao() {
-    document.getElementById("confirmModal")
-        .classList.add("hidden");
-
-    formDeleteAtual = null;
+    const modal = document.getElementById("confirmModal");
+    modal.classList.add("hidden");
+    formAcaoAtual = null;
 }
 
-function confirmarDelete() {
-    if (formDeleteAtual) {
-        formDeleteAtual.submit();
+function confirmarAcao() {
+    if (formAcaoAtual) {
+        formAcaoAtual.submit();
     }
 }

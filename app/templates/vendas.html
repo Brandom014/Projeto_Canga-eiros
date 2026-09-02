@@ -8,16 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/vendas.css?v=10">
+<link rel="stylesheet" href="/static/css/vendas.css?v=12">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 </head>
 
 <body>
 
 <div class="container">
-<div id="toast-container"></div>
-<div id="purchaseMessage" class="purchase-message" role="status"></div>
+    <div id="toast-container"></div>
+    <div id="purchaseMessage" class="purchase-message" role="status"></div>
 
      <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -89,6 +88,14 @@
                 </a>
             </li>
 
+            <li class="menu-item">
+                <a href="/clientes">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
         </ul>
 
     </div>
@@ -103,209 +110,228 @@
 </aside>
 
 
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="main-content">
 
-    <!-- TOPO -->
-    <div class="top">
-        <div>
-            <h1>Ponto de Venda</h1>
-            <p>Realize a venda adicionando produtos ao carrinho.</p>
-        </div>
-
-        <a href="/relatorio" class="btn-history">
-            Histórico de Vendas
-        </a>
-    </div>
-
-    <div class="content">
-
-        <!-- PRODUTOS -->
-        <section class="products-box">
-
-    <div class="filters">
-
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Buscar produto...">
-        </div>
-
-        <select id="categoriaFilter">
-
-            <option value="">
-                Todas Categorias
-            </option>
-
-            {% for categoria in categorias %}
-            <option value="{{ categoria.id }}">
-                {{ categoria.nome }}
-            </option>
-            {% endfor %}
-
-        </select>
-
-    </div>
-
-    <div class="products" id="productsContainer">
-
-    {% for produto in produtos %}
-
-    <div
-    class="card product-card"
-    data-id="{{ produto.id }}"
-    data-categoria="{{ produto.categoria_id }}"
-    data-nome="{{ produto.nome|lower }}"
-    data-preco="{{ produto.preco }}"
-    data-estoque="{{ produto.estoque }}"
->
-
-<img
-    src="/static/img/camisa.jpg"
-    alt="Produto">
-
-    <h4>{{ produto.nome }}</h4>
-
-    <small>
-        Estoque: {{ produto.estoque }}
-    </small>
-
-    <p>
-        R$ {{ "%.2f"|format(produto.preco) }}
-    </p>
-
-    <button
-        type="button"
-        class="add-product"
-        data-id="{{ produto.id }}"
-        data-nome="{{ produto.nome }}"
-        data-preco="{{ produto.preco }}"
-    >
-        <i class="fa-solid fa-plus"></i>
-    </button>
-
-</div>
-
-    {% endfor %}
-
-</div>
-
-</section>
-
-        <!-- CARRINHO -->
-        <!-- CARRINHO -->
-<aside class="cart">
-
-    <div class="cart-header">
-
-        <h3>Carrinho de Compras</h3>
-
-        <button
-            type="button"
-            id="clearCart">
-            Limpar
-        </button>
-
-    </div>
-
-    <div
-        class="cart-items"
-        id="cartItems">
-
-        <div class="empty-cart">
-            Nenhum produto adicionado
-        </div>
-
-    </div>
-
-    <div class="cart-bottom">
-
-        <div class="summary">
-
+        <!-- CABEÇALHO DO TOPO -->
+        <div class="top-header">
             <div>
-                <span>Subtotal</span>
-                <strong id="subtotal">
-                    R$ 0,00
-                </strong>
+                <h1>Ponto de Venda</h1>
+                <p>Selecione os produtos e avance para concluir o pedido.</p>
             </div>
 
-            <div class="total">
+            <a href="/relatorio" class="btn-history">
+                <i class="fa-solid fa-clock-rotate-left"></i> Histórico de Vendas
+            </a>
+        </div>
 
-                <span>Total</span>
+        <!-- INDICADOR VISUAL DE PASSO A PASSO (STEPPER) -->
+        <div class="stepper-bar">
+            <div class="step-item active" id="step-badge-1" onclick="irParaEtapa(1)">
+                <div class="step-icon">1</div>
+                <div class="step-info">
+                    <span class="step-title">Etapa 1</span>
+                    <span class="step-sub">Produtos & Carrinho</span>
+                </div>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-item" id="step-badge-2">
+                <div class="step-icon">2</div>
+                <div class="step-info">
+                    <span class="step-title">Etapa 2</span>
+                    <span class="step-sub">Cliente & Pagamento</span>
+                </div>
+            </div>
+        </div>
 
-                <strong id="total">
-                    R$ 0,00
-                </strong>
+        <!-- ========================================================= -->
+        <!-- ETAPA 1: SELEÇÃO DE PRODUTOS E CARRINHO                   -->
+        <!-- ========================================================= -->
+        <div id="etapa-1" class="etapa-view">
+            <div class="pdv-grid">
+
+                <!-- ÁREA DE PRODUTOS -->
+                <section class="products-section">
+                    <!-- BARRA DE FILTROS -->
+                    <div class="filters-bar">
+                        <div class="search-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar produto por nome...">
+                        </div>
+
+                        <select id="categoriaFilter">
+                            <option value="">Todas Categorias</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- GRADE DE CARDS DOS PRODUTOS -->
+                    <div class="products-grid" id="productsContainer">
+                        {% for produto in produtos %}
+                        <div 
+                            class="product-card" 
+                            data-id="{{ produto.id }}" 
+                            data-categoria="{{ produto.categoria_id }}" 
+                            data-nome="{{ produto.nome|lower }}" 
+                            data-preco="{{ produto.preco }}" 
+                            data-estoque="{{ produto.estoque }}"
+                        >
+                            <div class="product-thumb">
+                                <img src="/static/img/camisa.jpg" alt="{{ produto.nome }}">
+                                <span class="stock-badge">Estoque: {{ produto.estoque }}</span>
+                            </div>
+                            <div class="product-details">
+                                <h4 class="product-title">{{ produto.nome }}</h4>
+                                <div class="product-price">R$ {{ "%.2f"|format(produto.preco) }}</div>
+                            </div>
+                            <button 
+                                type="button" 
+                                class="btn-add-product add-product" 
+                                data-id="{{ produto.id }}" 
+                                data-nome="{{ produto.nome }}" 
+                                data-preco="{{ produto.preco }}"
+                                data-estoque="{{ produto.estoque }}"
+                            >
+                                <i class="fa-solid fa-cart-plus"></i> Adicionar
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- BARRA DE PAGINAÇÃO DOS PRODUTOS -->
+                    <div class="pagination-bar" id="paginationContainer">
+                        <button type="button" id="btnPrevPage" class="btn-pagination" onclick="mudarPaginaProdutos(-1)">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="pageInfo" class="page-counter">Página 1 de 1</span>
+                        <button type="button" id="btnNextPage" class="btn-pagination" onclick="mudarPaginaProdutos(1)">
+                            Próxima <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- PAINEL DO CARRINHO (LADO DIREITO) -->
+                <aside class="cart-sidebar">
+                    <div class="cart-header">
+                        <h3><i class="fa-solid fa-basket-shopping"></i> Carrinho</h3>
+                        <button type="button" id="clearCart" class="btn-clear-cart">
+                            <i class="fa-solid fa-trash-can"></i> Limpar
+                        </button>
+                    </div>
+
+                    <!-- ITENS DO CARRINHO -->
+                    <div class="cart-items-container" id="cartItems">
+                        <div class="empty-cart-state">
+                            <i class="fa-solid fa-cart-flatbed-suitcases"></i>
+                            <p>Nenhum produto no carrinho</p>
+                        </div>
+                    </div>
+
+                    <!-- RESUMO E BOTÃO PRÓXIMO -->
+                    <div class="cart-footer">
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <strong id="subtotal">R$ 0,00</strong>
+                        </div>
+                        <div class="summary-line total-line">
+                            <span>Total</span>
+                            <strong id="total">R$ 0,00</strong>
+                        </div>
+
+                        <button type="button" id="btn-proximo-passo" class="btn-primary-action" onclick="irParaEtapa(2)">
+                            Avançar para Pagamento <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </aside>
 
             </div>
-
         </div>
 
-        <div class="customer">
+        <!-- ========================================================= -->
+        <!-- ETAPA 2: IDENTIFICAÇÃO DO CLIENTE & PAGAMENTO             -->
+        <!-- ========================================================= -->
+        <div id="etapa-2" class="etapa-view" style="display: none;">
+            <div class="checkout-layout">
+                
+                <!-- PAINEL ESQUERDO: REVISÃO DOS ITENS -->
+                <div class="checkout-card">
+                    <div class="checkout-card-header">
+                        <h3><i class="fa-solid fa-receipt"></i> Resumo do Pedido</h3>
+                    </div>
+                    
+                    <div id="resumo-itens-lista" class="checkout-items-list">
+                        <!-- Preenchido dinamicamente via JS -->
+                    </div>
 
-            <input
-                type="text"
-                id="customerName"
-                placeholder="Cliente (opcional)">
+                    <div class="checkout-total-summary">
+                        <span>Total Final a Pagar:</span>
+                        <strong id="resumo-total-final">R$ 0,00</strong>
+                    </div>
+                </div>
 
-        </div>
+                <!-- PAINEL DIREITO: CLIENTE E FORMA DE PAGAMENTO -->
+                <div class="checkout-card">
+                    <div class="checkout-card-header">
+                        <h3><i class="fa-solid fa-user-check"></i> Dados & Pagamento</h3>
+                    </div>
 
-        <div class="payment">
+                    <!-- CAMPO CLIENTE -->
+                    <div class="form-group">
+                        <label for="customerName">
+                            <i class="fa-solid fa-user-tag"></i> Nome do Cliente:
+                        </label>
+                        <input 
+                            type="text" 
+                            id="customerName" 
+                            placeholder="Digite o nome do cliente (ou deixe em branco para Avulso)"
+                            autocomplete="off"
+                        >
+                    </div>
 
-            <h4>Forma de Pagamento</h4>
+                    <!-- SELEÇÃO DE PAGAMENTO -->
+                    <div class="payment-section">
+                        <label class="payment-section-title">
+                            <i class="fa-solid fa-wallet"></i> Forma de Pagamento:
+                        </label>
+                        <div class="payment-grid">
+                            <button type="button" class="payment-tile" data-payment="Dinheiro">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                                <span>Dinheiro</span>
+                            </button>
+                            <button type="button" class="payment-tile" data-payment="PIX">
+                                <i class="fa-solid fa-pix"></i>
+                                <span>PIX</span>
+                            </button>
+                            <button type="button" class="payment-tile" data-payment="Debito">
+                                <i class="fa-solid fa-credit-card"></i>
+                                <span>Débito</span>
+                            </button>
+                            <button type="button" class="payment-tile" data-payment="Credito">
+                                <i class="fa-solid fa-regular fa-credit-card"></i>
+                                <span>Crédito</span>
+                            </button>
+                        </div>
+                    </div>
 
-            <div class="payment-methods">
-
-                <button
-                    type="button"
-                    class="payment-btn"
-                    data-payment="dinheiro">
-                    Dinheiro
-                </button>
-
-                <button
-                    type="button"
-                    class="payment-btn"
-                    data-payment="pix">
-                    PIX
-                </button>
-
-                <button
-                    type="button"
-                    class="payment-btn"
-                    data-payment="debito">
-                    Débito
-                </button>
-
-                <button
-                    type="button"
-                    class="payment-btn"
-                    data-payment="credito">
-                    Crédito
-                </button>
+                    <!-- BOTOES DE AÇÃO -->
+                    <div class="checkout-actions">
+                        <button type="button" class="btn-secondary-action" onclick="irParaEtapa(1)">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar aos Produtos
+                        </button>
+                        <button type="button" id="finalizarVenda" class="btn-success-action">
+                            <i class="fa-solid fa-circle-check"></i> Finalizar Venda
+                        </button>
+                    </div>
+                </div>
 
             </div>
-
         </div>
 
-        <button
-            id="finalizarVenda"
-            class="finish">
-
-            Finalizar Venda
-
-        </button>
-
-    </div>
-
-</aside>
-    </div>
-
-</main>
-
+    </main>
 </div>
-<script src="/static/js/vendas.js?v=10"></script>
+
+<script src="/static/js/vendas.js?v=12"></script>
 </body>
 </html>

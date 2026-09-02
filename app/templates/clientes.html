@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SENAI - Clientes</title>
+
+    <link rel="stylesheet" href="/static/css/clientes.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div>
+
+            <div class="sidebar-brand">
+
+                <div style="display: flex; align-items: center; gap: 12px;">
+
+                    <i class="fa-solid fa-store"></i>
+
+                    <span class="logo-text"></span>
+
+                </div>
+
+                <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+
+            </div>
+
+            <ul class="menu-list">
+
+                <li class="menu-item">
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/vendas">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Vendas</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/produtos">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Produtos</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/estoque">
+                        <i class="fa-solid fa-warehouse"></i>
+                        <span>Estoque</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/movimentacoes">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Movimentações</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/relatorio">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Relatorio de vendas</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="/usuarios">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Gerenciar Usuários</span>
+                    </a>
+                </li>
+
+                <li class="menu-item active">
+                    <a href="/clientes">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>Clientes</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="/auth/logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- CONTEÚDO -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div>
+                <h1>Clientes</h1>
+                <p>Gerencie os clientes cadastrados no sistema.</p>
+            </div>
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="abrirModalCadastro()"
+            >
+                <i class="fa-solid fa-plus"></i>
+                Novo cliente
+            </button>
+
+        </header>
+
+
+        <!-- CONTEÚDO DA PÁGINA -->
+        <section class="page-content">
+
+            <!-- CARDS -->
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <div>
+                        <span>Total de clientes</span>
+                        <strong>{{ total_clientes }}</strong>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+
+                    <div>
+                        <span>Clientes ativos</span>
+                        <strong>{{ total_ativos }}</strong>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fa-solid fa-user-xmark"></i>
+                    </div>
+
+                    <div>
+                        <span>Clientes inativos</span>
+                        <strong>{{ total_inativos }}</strong>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ÁREA DA TABELA -->
+            <div class="content-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2>Lista de clientes</h2>
+                        <p>Consulte e gerencie os clientes cadastrados.</p>
+                    </div>
+
+                </div>
+
+
+                <!-- PESQUISA E FILTROS -->
+                <div class="search-area">
+
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input
+                            type="text"
+                            id="campoPesquisa"
+                            placeholder="Pesquisar por nome, CPF, telefone ou e-mail..."
+                            oninput="pesquisarClientes()"
+                        >
+                    </div>
+
+                    <!-- NOVO FILTRO DE STATUS -->
+                    <div class="filter-box">
+                        <select id="filtroStatus" onchange="pesquisarClientes()">
+                            <option value="todos">Todos os status</option>
+                            <option value="ativo">Ativos</option>
+                            <option value="inativo">Inativos</option>
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <!-- TABELA -->
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>CPF</th>
+                                <th>Telefone</th>
+                                <th>E-mail</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tabelaClientes">
+
+                        {% for cliente in clientes %}
+
+                            <tr
+                                class="cliente-row"
+                                data-nome="{{ cliente.nome }}"
+                                data-cpf="{{ cliente.cpf }}"
+                                data-telefone="{{ cliente.telefone or '' }}"
+                                data-email="{{ cliente.email or '' }}"
+                                data-status="{{ 'ativo' if cliente.ativo else 'inativo' }}"
+                            >
+
+                                <td>
+                                    <div class="cliente-info">
+
+                                        <div class="cliente-avatar">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+
+                                        <div>
+                                            <strong>{{ cliente.nome }}</strong>
+                                            <span>ID #{{ cliente.id }}</span>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ cliente.cpf }}
+                                </td>
+
+                                <td>
+                                    {{ cliente.telefone or "Não informado" }}
+                                </td>
+
+                                <td>
+                                    {{ cliente.email or "Não informado" }}
+                                </td>
+
+                                <td>
+
+                                    {% if cliente.ativo %}
+                                        <span class="status ativo">
+                                            <i class="fa-solid fa-circle"></i>
+                                            Ativo
+                                        </span>
+                                    {% else %}
+                                        <span class="status inativo">
+                                            <i class="fa-solid fa-circle"></i>
+                                            Inativo
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <div class="actions">
+
+                                        <button
+                                            type="button"
+                                            class="action-btn edit"
+                                            title="Editar"
+                                            onclick="abrirModalEdicao(this)"
+                                            data-id="{{ cliente.id }}"
+                                            data-nome="{{ cliente.nome|e }}"
+                                            data-cpf="{{ cliente.cpf|e }}"
+                                            data-telefone="{{ cliente.telefone or '' }}"
+                                            data-email="{{ cliente.email or '' }}"
+                                        >
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+
+
+                                        {% if cliente.ativo %}
+
+                                        <form
+                                            method="POST"
+                                            action="/clientes/desativar/{{ cliente.id }}"
+                                            id="formDesativar{{ cliente.id }}"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="action-btn warning"
+                                                title="Desativar"
+                                                onclick="abrirModalDesativacao(
+                                                    '{{ cliente.id }}',
+                                                    '{{ cliente.nome|e }}'
+                                                )"
+                                            >
+                                                <i class="fa-solid fa-user-slash"></i>
+                                            </button>
+                                        </form>
+
+                                        {% else %}
+
+                                        <form
+                                            method="POST"
+                                            action="/clientes/ativar/{{ cliente.id }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="action-btn activate"
+                                                title="Ativar"
+                                            >
+                                                <i class="fa-solid fa-user-check"></i>
+                                            </button>
+                                        </form>
+
+                                        {% endif %}
+
+
+                                        {% if usuario and usuario.role == "admin" %}
+
+                                        <form
+                                            method="POST"
+                                            action="/clientes/excluir/{{ cliente.id }}"
+                                            onsubmit="return confirmarExclusao()"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="action-btn delete"
+                                                title="Excluir"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr id="semClientes">
+                                <td colspan="6" class="empty">
+                                    <i class="fa-solid fa-users"></i>
+                                    <strong>Nenhum cliente cadastrado</strong>
+                                    <span>Cadastre o primeiro cliente para começar.</span>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- MODAL CADASTRO -->
+<div class="modal" id="modalCadastro">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+                <h2>Novo cliente</h2>
+                <p>Preencha os dados do cliente.</p>
+            </div>
+
+            <button
+                type="button"
+                class="close-btn"
+                onclick="fecharModais()"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="/clientes/criar"
+            class="cliente-form"
+        >
+
+            <div class="form-group">
+                <label for="nome">
+                    Nome completo
+                </label>
+
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    placeholder="Digite o nome completo"
+                    required
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="matricula">Matrícula</label>
+                <input
+                    type="text"
+                    id="matricula"
+                    name="matricula"
+                    placeholder="Digite a matrícula"
+                    required
+                >
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="cpf">
+                        CPF
+                    </label>
+
+                    <input
+                        type="text"
+                        id="cpf"
+                        name="cpf"
+                        placeholder="000.000.000-00"
+                        maxlength="14"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="telefone">
+                        Telefone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="telefone"
+                        name="telefone"
+                        placeholder="(00) 00000-0000"
+                        maxlength="15"
+                        required
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="cliente@email.com"
+                    required
+                >
+
+            </div>
+
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fecharModais()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    <i class="fa-solid fa-check"></i>
+                    Cadastrar cliente
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL EDIÇÃO -->
+<div class="modal" id="modalEdicao">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+                <h2>Editar cliente</h2>
+                <p>Atualize os dados do cliente.</p>
+            </div>
+
+            <button
+                type="button"
+                class="close-btn"
+                onclick="fecharModais()"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            id="formEdicao"
+            class="cliente-form"
+        >
+
+            <div class="form-group">
+
+                <label for="editNome">
+                    Nome completo
+                </label>
+
+                <input
+                    type="text"
+                    id="editNome"
+                    name="nome"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+                <label for="edit-matricula">Matrícula</label>
+                <input
+                    type="text"
+                    id="edit-matricula"
+                    name="matricula"
+                    placeholder="Digite a matrícula"
+                    required
+                >
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="editCpf">
+                        CPF
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editCpf"
+                        name="cpf"
+                        maxlength="14"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="editTelefone">
+                        Telefone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editTelefone"
+                        name="telefone"
+                        maxlength="15"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="editEmail">
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    id="editEmail"
+                    name="email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fecharModais()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Salvar alterações
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- MODAL CONFIRMAÇÃO DE DESATIVAÇÃO -->
+<div id="desativarModal" class="modal hidden">
+
+    <div class="modal-content delete-modal">
+
+        <h2>Desativar cliente?</h2>
+
+        <p>
+            Tem certeza que deseja desativar o cliente
+            <strong id="clienteDesativarNome"></strong>?
+        </p>
+
+        <span class="delete-warning">
+            O cliente ficará inativo, mas seus dados não serão excluídos.
+        </span>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn-cancel-delete"
+                onclick="fecharDesativacao()"
+            >
+                Cancelar
+            </button>
+
+            <button
+                type="button"
+                class="btn-confirm-delete"
+                onclick="confirmarDesativacao()"
+            >
+                <i class="fa-solid fa-user-slash"></i>
+                Desativar cliente
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/static/js/clientes.js"></script>
+
+</body>
+</html>

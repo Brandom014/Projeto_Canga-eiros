@@ -1,338 +1,190 @@
+
+// ==========================================
+// CONFIGURAÇÕES E ESTADO GLOBAL
+// ==========================================
+let paginaAtual = 1;
+const itensPorPagina = 8; // Quantidade de itens por página
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Aplica os filtros e paginação ao carregar a página
+    filtrarProdutos();
+});
+
+// ==========================================
+// SIDEBAR TOGGLE
+// ==========================================
 function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("collapsed");
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+        sidebar.classList.toggle("collapsed");
+    }
 }
 
-
-// =========================
-// ELEMENTOS
-// =========================
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const statusSelect =
-    document.querySelector(
-        ".filter-card select:first-of-type"
-    );
-
-const categoriaSelect =
-    document.getElementById(
-        "categoriaSelect"
-    );
-
-const btnLimpar =
-    document.querySelector(
-        ".filter-card button"
-    );
-
-// =========================
-// EVENTOS
-// =========================
-
-if (searchInput) {
-
-    searchInput.addEventListener(
-        "keyup",
-        filtrarProdutos
-    );
-
-}
-
-if (statusSelect) {
-
-    statusSelect.addEventListener(
-        "change",
-        filtrarProdutos
-    );
-
-}
-
-if (categoriaSelect) {
-
-    categoriaSelect.addEventListener(
-        "change",
-        filtrarProdutos
-    );
-
-}
-
-// =========================
-// FILTRAR PRODUTOS
-// =========================
-
+// ==========================================
+// FILTRAGEM, PESQUISA E PAGINAÇÃO
+// ==========================================
 function filtrarProdutos() {
+    const busca = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+    const statusFiltro = (document.getElementById("statusSelect")?.value || "").toLowerCase().trim();
+    const categoriaFiltro = (document.getElementById("categoriaSelect")?.value || "").toLowerCase().trim();
 
-    const busca =
-        searchInput
-            ? searchInput.value.toLowerCase().trim()
-            : "";
+    // Seleciona todas as linhas da tabela, exceto a linha de "sem resultados"
+    const linhas = document.querySelectorAll(".products-table tbody tr:not(#semResultados)");
+    const mensagemSemResultados = document.getElementById("semResultados");
 
-    const statusFiltro =
-        statusSelect
-            ? statusSelect.value.toLowerCase()
-            : "";
-
-    const categoriaFiltro =
-        categoriaSelect
-            ? categoriaSelect.value.toLowerCase()
-            : "";
-
-    const linhas =
-        document.querySelectorAll(
-            "tbody tr:not(#semResultados)"
-        );
-
-    let contador = 0;
+    const produtosFiltrados = [];
 
     linhas.forEach(linha => {
+        const nome = (linha.getAttribute("data-nome") || "").toLowerCase();
+        const categoria = (linha.getAttribute("data-categoria") || "").toLowerCase();
+        const status = (linha.getAttribute("data-status") || "").toLowerCase();
+        const estoque = parseInt(linha.getAttribute("data-estoque") || "0", 10);
 
-        const nome =
-            linha
-                .querySelector(".produto-info strong")
-                ?.textContent
-                .toLowerCase() || "";
+        // Validação da busca
+        const buscaOk = busca === "" || nome.includes(busca);
+        const categoriaOk = categoriaFiltro === "" || categoria === categoriaFiltro;
 
-        const categoria =
-            linha.children[1]
-                ?.textContent
-                .trim()
-                .toLowerCase() || "";
-
-        const status =
-            linha
-                .querySelector(".status")
-                ?.textContent
-                .toLowerCase() || "";
-
-        const buscaOk =
-            nome.includes(busca);
-
-        const statusOk =
-            statusFiltro === "" ||
-            statusFiltro === "todos" ||
-            status.includes(statusFiltro);
-
-        const categoriaOk =
-            categoriaFiltro === "" ||
-            categoria.includes(categoriaFiltro);
-
-        if (
-            buscaOk &&
-            statusOk &&
-            categoriaOk
-        ) {
-
-            linha.style.display = "";
-            contador++;
-
-        } else {
-
-            linha.style.display = "none";
-
+        // Validação do status (Produto com estoque 0 sempre é considerado inativo)
+        let statusOk = false;
+        if (statusFiltro === "") {
+            statusOk = true;
+        } else if (statusFiltro === "ativo") {
+            statusOk = (status === "ativo" && estoque > 0);
+        } else if (statusFiltro === "inativo") {
+            statusOk = (status === "inativo" || estoque <= 0);
         }
 
+        // Esconde a linha por padrão
+        linha.style.display = "none";
+
+        if (buscaOk && categoriaOk && statusOk) {
+            produtosFiltrados.push(linha);
+        }
     });
 
-    atualizarContador(contador);
+    const totalEncontrados = produtosFiltrados.length;
 
-    // =========================
-    // MOSTRAR "NENHUM PRODUTO"
-    // =========================
+    // Exibe ou oculta a mensagem de zero resultados
+    if (mensagemSemResultados) {
+        mensagemSemResultados.style.display = totalEncontrados === 0 ? "table-row" : "none";
+    }
 
-    const semResultados =
-        document.getElementById("semResultados");
+    // Cálculos de Paginação
+    const totalPaginas = Math.ceil(totalEncontrados / itensPorPagina) || 1;
+    
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    if (paginaAtual < 1) paginaAtual = 1;
 
-    if (semResultados) {
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const paginaVisivel = produtosFiltrados.slice(inicio, fim);
 
-        if (contador === 0) {
-            semResultados.style.display = "";
-        } else {
-            semResultados.style.display = "none";
-        }
+    // Exibe apenas os produtos pertencentes à página atual
+    paginaVisivel.forEach(linha => {
+        linha.style.display = "";
+    });
 
+    // Atualiza contadores e botões de interface
+    atualizarControlesInterface(totalEncontrados, totalPaginas);
+}
+
+function atualizarControlesInterface(totalEncontrados, totalPaginas) {
+    const contador = document.getElementById("contadorProdutos");
+    if (contador) {
+        contador.textContent = `${totalEncontrados} produto(s) encontrado(s)`;
+    }
+
+    const pageInfo = document.getElementById("pageInfo");
+    if (pageInfo) {
+        pageInfo.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
+    }
+
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+
+    if (btnPrev) btnPrev.disabled = paginaAtual <= 1;
+    if (btnNext) btnNext.disabled = paginaAtual >= totalPaginas || totalEncontrados === 0;
+}
+
+function mudarPagina(direcao) {
+    paginaAtual += direcao;
+    filtrarProdutos();
+}
+
+function limparFiltros() {
+    const searchInput = document.getElementById("searchInput");
+    const statusSelect = document.getElementById("statusSelect");
+    const categoriaSelect = document.getElementById("categoriaSelect");
+
+    if (searchInput) searchInput.value = "";
+    if (statusSelect) statusSelect.value = "";
+    if (categoriaSelect) categoriaSelect.value = "";
+
+    paginaAtual = 1;
+    filtrarProdutos();
+}
+
+// ==========================================
+// MODAL DE EDIÇÃO
+// ==========================================
+function abrirModalEditar(id, nome, preco, estoque) {
+    const modal = document.getElementById("modalEditar");
+    const form = document.getElementById("formEditar");
+
+    if (!modal || !form) return;
+
+    document.getElementById("produtoId").value = id;
+    document.getElementById("produtoNome").value = nome;
+    document.getElementById("produtoPreco").value = preco;
+    document.getElementById("produtoEstoque").value = estoque;
+
+    form.action = `/estoque/editar/${id}`;
+    modal.classList.add("show");
+}
+
+function fecharModalEditar() {
+    const modal = document.getElementById("modalEditar");
+    if (modal) {
+        modal.classList.remove("show");
     }
 }
 
-// =========================
-// CONTADOR
-// =========================
+// ==========================================
+// MODAL DE EXCLUSÃO
+// ==========================================
+function abrirModalExcluir(id) {
+    const modal = document.getElementById("modalExcluir");
+    const form = document.getElementById("formExcluir");
 
-function atualizarContador(qtd) {
+    if (!modal || !form) return;
 
-    const contador =
-        document.querySelector(
-            ".table-top span"
-        );
+    document.getElementById("deleteId").value = id;
+    form.action = `/estoque/excluir/${id}`;
 
-    if (!contador) return;
-
-    contador.textContent =
-        `${qtd} produto(s)`;
-
+    modal.classList.add("show");
 }
 
-// =========================
-// LIMPAR FILTROS
-// =========================
-
-if (btnLimpar) {
-
-    btnLimpar.addEventListener(
-        "click",
-        () => {
-
-            if (searchInput) {
-                searchInput.value = "";
-            }
-
-            if (statusSelect) {
-                statusSelect.selectedIndex = 0;
-            }
-
-            if (categoriaSelect) {
-                categoriaSelect.selectedIndex = 0;
-            }
-
-            filtrarProdutos();
-
-        }
-    );
-
-}
-
-// =========================
-// MODAL EDITAR
-// =========================
-
-const formEditar =
-    document.getElementById(
-        "formEditar"
-    );
-
-if (formEditar) {
-
-    formEditar.addEventListener(
-        "submit",
-        function () {
-
-            const id =
-                document.getElementById(
-                    "produtoId"
-                ).value;
-
-            this.action =
-                `/estoque/editar/${id}`;
-
-        }
-    );
-
-}
-
-// =========================
-// MODAL EXCLUIR
-// =========================
-
-const formExcluir =
-    document.getElementById(
-        "formExcluir"
-    );
-
-if (formExcluir) {
-
-    formExcluir.addEventListener(
-        "submit",
-        function () {
-
-            const id =
-                document.getElementById(
-                    "deleteId"
-                ).value;
-
-            this.action =
-                `/estoque/excluir/${id}`;
-
-        }
-    );
-
-}
-
-// =========================
-// FECHAR MODAIS
-// =========================
-
-window.addEventListener(
-    "click",
-    function (e) {
-
-        const modalEditar =
-            document.getElementById(
-                "modalEditar"
-            );
-
-        const modalExcluir =
-            document.getElementById(
-                "modalExcluir"
-            );
-
-        if (
-            modalEditar &&
-            e.target === modalEditar
-        ) {
-
-            modalEditar.classList.remove(
-                "show"
-            );
-
-        }
-
-        if (
-            modalExcluir &&
-            e.target === modalExcluir
-        ) {
-
-            modalExcluir.classList.remove(
-                "show"
-            );
-
-        }
-
+function fecharModalExcluir() {
+    const modal = document.getElementById("modalExcluir");
+    if (modal) {
+        modal.classList.remove("show");
     }
-);
+}
 
-// =========================
-// ANIMAÇÃO DOS CARDS
-// =========================
+// ==========================================
+// EVENTOS DE FECHAMENTO (CLIQUE FORA E ESC)
+// ==========================================
+window.addEventListener("click", function (e) {
+    const modalEditar = document.getElementById("modalEditar");
+    const modalExcluir = document.getElementById("modalExcluir");
 
-window.addEventListener(
-    "load",
-    () => {
+    if (e.target === modalEditar) fecharModalEditar();
+    if (e.target === modalExcluir) fecharModalExcluir();
+});
 
-        const cards =
-            document.querySelectorAll(
-                ".stat-card"
-            );
-
-        cards.forEach(
-            (card, index) => {
-
-                card.style.opacity = "0";
-                card.style.transform =
-                    "translateY(20px)";
-
-                setTimeout(() => {
-
-                    card.style.transition =
-                        ".4s ease";
-
-                    card.style.opacity = "1";
-
-                    card.style.transform =
-                        "translateY(0)";
-
-                }, index * 100);
-
-            }
-        );
-
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+        fecharModalEditar();
+        fecharModalExcluir();
     }
-);
+});

@@ -1,246 +1,282 @@
-// ======================
-// ESTADO GLOBAL & GRÁFICO
-// ======================
-let meuGrafico = null; // Guarda a instância do Chart.js para destruí-la antes de redesenhar
+let relatorioVendas = [];
+let vendasFiltradas = [];
+let paginaAtual = 1;
+const itensPorPagina = 8;
 
-// ======================
-// INICIALIZAÇÃO
-// ======================
-document.addEventListener("DOMContentLoaded", () => {
-    carregarRelatorio();
+document.addEventListener('DOMContentLoaded', () => {
+    configurarFiltrosAutomaticos();
+    carregarVendas();
 });
 
-function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    if (sidebar) {
-        sidebar.classList.toggle("collapsed");
-    }
+// Eventos que disparam filtragem instantânea sem botão
+function configurarFiltrosAutomaticos() {
+    const busca = document.getElementById('busca');
+    const dataInicio = document.getElementById('data_inicio');
+    const dataFim = document.getElementById('data_fim');
+    const pagamento = document.getElementById('pagamento');
+
+    if (busca) busca.addEventListener('input', aplicarFiltros);
+    if (dataInicio) dataInicio.addEventListener('change', aplicarFiltros);
+    if (dataFim) dataFim.addEventListener('change', aplicarFiltros);
+    if (pagamento) pagamento.addEventListener('change', aplicarFiltros);
 }
 
-// ======================
-// CARREGAR RELATÓRIO
-// ======================
-async function carregarRelatorio() {
+// Carrega dados reais do servidor/API ou do localStorage da sua aplicação
+// Carrega vendas da API e do localStorage de forma combinada
+async function carregarVendas() {
+    let apiVendas = [];
+
     try {
-        const response = await fetch("/api/relatorio", {
-            credentials: "same-origin",
-        });
-
-        if (!response.ok) throw new Error("Erro ao buscar relatório");
-
-        const dados = await response.json();
-
-        atualizarCards(dados);
-        atualizarTabela(dados.vendas);
-        atualizarGrafico(dados.grafico_pagamento); // Espera um objeto { PIX: 10, Credito: 5, ... }
-
-    } catch (erro) {
-        console.error(erro);
-        const tbody = document.getElementById("tabela-vendas");
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align:center; color: #ef4444;">
-                        Erro ao carregar vendas. Tente novamente mais tarde.
-                    </td>
-                </tr>
-            `;
+        const response = await fetch('/api/vendas');
+        if (response.ok) {
+            const dados = await response.json();
+            if (Array.isArray(dados)) apiVendas = dados;
         }
+    } catch (error) {
+        console.log("Backend offline ou endpoint inativo. Carregando vendas locais...");
     }
-}
 
-// ======================
-// CARDS (Com Intl.NumberFormat)
-// ======================
-function atualizarCards(dados = {}) {
-    const formatadorBRL = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
+    const localData = localStorage.getItem('vendas');
+    const localVendas = localData ? JSON.parse(localData) : [];
+
+    // Une as vendas do banco com as vendas locais sem duplicar por ID
+    const mapaVendas = new Map();
+    [...localVendas, ...apiVendas].forEach(venda => {
+        if (venda && venda.id) mapaVendas.set(venda.id, venda);
     });
 
-    document.getElementById("faturamento").textContent = formatadorBRL.format(dados.faturamento || 0);
-    document.getElementById("total-vendas").textContent = dados.total_vendas || 0;
-    document.getElementById("ticket-medio").textContent = formatadorBRL.format(dados.ticket_medio || 0);
-    document.getElementById("produtos-vendidos").textContent = dados.produtos_vendidos || 0;
+    relatorioVendas = Array.from(mapaVendas.values());
+    aplicarFiltros();
 }
 
-// ======================
-// TABELA (Proteção contra XSS e Otimizada)
-// ======================
-function atualizarTabela(vendas) {
-    const tbody = document.getElementById("tabela-vendas");
+// Filtra as vendas corrigindo maiúsculas/minúsculas
+function aplicarFiltros() {
+    const busca = (document.getElementById('busca')?.value || '').toLowerCase().trim();
+    const dataInicio = document.getElementById('data_inicio')?.value;
+    const dataFim = document.getElementById('data_fim')?.value;
+    const pagamento = (document.getElementById('pagamento')?.value || '').toLowerCase().trim();
+
+    vendasFiltradas = relatorioVendas.filter(venda => {
+        const matchBusca = !busca || 
+            (venda.id && venda.id.toString().toLowerCase().includes(busca)) || 
+            (venda.cliente && venda.cliente.toLowerCase().includes(busca));
+
+        const pagVenda = (venda.pagamento || venda.forma_pagamento || '').toLowerCase().trim();
+        const matchPagamento = !pagamento || pagVenda === pagamento;
+
+        let matchData = true;
+        const dataVenda = venda.data ? venda.data.split('T')[0] : '';
+        if (dataInicio && dataVenda < dataInicio) matchData = false;
+        if (dataFim && dataVenda > dataFim) matchData = false;
+
+        return matchBusca && matchPagamento && matchData;
+    });
+
+    paginaAtual = 1;
+    atualizarCards();
+    renderizarTabela();
+}
+
+// Renderiza somente as vendas da página atual (fatiamento real)
+function renderizarTabela() {
+    const tbody = document.getElementById('tabela-vendas');
     if (!tbody) return;
 
-    tbody.innerHTML = "";
+    tbody.innerHTML = '';
 
-    if (!vendas || vendas.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align:center;">
-                    Nenhuma venda encontrada
-                </td>
-            </tr>
-        `;
+    if (vendasFiltradas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 24px; color: #64748b;">Nenhuma venda realizada ainda.</td></tr>`;
+        atualizarPaginacao();
         return;
     }
 
-    const fragment = document.createDocumentFragment();
-    const formatadorBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const paginaVendas = vendasFiltradas.slice(inicio, fim);
 
-    vendas.forEach(venda => {
-        const tr = document.createElement("tr");
+    paginaVendas.forEach(venda => {
+        const tr = document.createElement('tr');
+        const isCancelada = venda.status === 'Cancelada';
+        const badgeClass = isCancelada ? 'badge-danger' : 'badge-success';
+        const statusTexto = venda.status || 'Concluída';
 
         tr.innerHTML = `
-            <td>#${sanitizarTexto(venda.id)}</td>
+            <td>#${venda.id}</td>
             <td>${formatarData(venda.data)}</td>
-            <td>${sanitizarTexto(venda.cliente || "-")}</td>
-            <td>${sanitizarTexto(venda.usuario || "-")}</td>
-            <td>${Number(venda.itens || 0)}</td>
-            <td>
-                <span class="badge ${classePagamento(venda.pagamento)}">
-                    ${sanitizarTexto(venda.pagamento || "-")}
-                </span>
+            <td>${venda.cliente || 'Cliente Avulso'}</td>
+            <td>${venda.usuario || 'Sistema'}</td>
+            <td>${venda.qtdItens || (venda.itens ? venda.itens.length : 1)} item(ns)</td>
+            <td>${venda.pagamento || 'N/A'}</td>
+            <td><span class="badge ${badgeClass}">${statusTexto}</span></td>
+            <td><strong>${formatarMoeda(venda.total)}</strong></td>
+            <td style="text-align: center;">
+                <button class="btn-icon" onclick="abrirModalDetalhes(${venda.id})" title="Ver Detalhes">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
             </td>
-            <td>${formatadorBRL.format(venda.total || 0)}</td>
         `;
-
-        fragment.appendChild(tr);
+        tbody.appendChild(tr);
     });
 
-    tbody.appendChild(fragment); // Insere tudo de uma vez no DOM
+    atualizarPaginacao();
 }
 
-// ======================
-// GRÁFICO (Chart.js)
-// ======================
-function atualizarGrafico(dadosGrafico) {
-    const canvas = document.getElementById("graficoPagamento");
-    if (!canvas || typeof Chart === "undefined") return;
+// Calcula e atualiza os botões e contadores de página
+function atualizarPaginacao() {
+    const totalItens = vendasFiltradas.length;
+    const totalPaginas = Math.ceil(totalItens / itensPorPagina) || 1;
 
-    // Destrói o gráfico anterior antes de criar outro para evitar sobreposição
-    if (meuGrafico) {
-        meuGrafico.destroy();
-    }
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
-    // Valores padrão caso a API não envie dados ainda
-    const valores = dadosGrafico || { PIX: 0, Credito: 0, Debito: 0, Dinheiro: 0 };
+    const infoSpan = document.getElementById('pagination-info');
+    const pageSpan = document.getElementById('page-num');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
 
-    meuGrafico = new Chart(canvas, {
-        type: "doughnut",
-        data: {
-            labels: ["PIX", "Crédito", "Débito", "Dinheiro"],
-            datasets: [{
-                data: [
-                    valores.PIX || 0,
-                    valores.Credito || 0,
-                    valores.Debito || 0,
-                    valores.Dinheiro || 0
-                ],
-                backgroundColor: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444"],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false } // Usa a legenda customizada em HTML
-            }
+    if (infoSpan) {
+        if (totalItens === 0) {
+            infoSpan.innerText = 'Mostrando 0 de 0 vendas';
+        } else {
+            const inicioIndex = (paginaAtual - 1) * itensPorPagina + 1;
+            const fimIndex = Math.min(paginaAtual * itensPorPagina, totalItens);
+            infoSpan.innerText = `Mostrando ${inicioIndex} até ${fimIndex} de ${totalItens} vendas`;
         }
-    });
+    }
+
+    if (pageSpan) pageSpan.innerText = `Página ${paginaAtual} de ${totalPaginas}`;
+    if (btnPrev) btnPrev.disabled = (paginaAtual <= 1);
+    if (btnNext) btnNext.disabled = (paginaAtual >= totalPaginas);
 }
 
-// ======================
-// FILTROS DE BUSCA
-// ======================
-async function filtrarRelatorio() {
-    const busca = document.getElementById("busca").value.trim();
-    const data = document.getElementById("data").value;
-    const pagamento = document.getElementById("pagamento").value;
+function mudarPagina(direcao) {
+    const totalPaginas = Math.ceil(vendasFiltradas.length / itensPorPagina) || 1;
+    const novaPagina = paginaAtual + direcao;
 
-    try {
-        const params = new URLSearchParams();
-        if (busca) params.append("busca", busca);
-        if (data) params.append("data", data);
-        if (pagamento) params.append("pagamento", pagamento);
-
-        const response = await fetch(`/api/relatorio?${params.toString()}`, {
-            credentials: "same-origin",
-        });
-
-        if (!response.ok) throw new Error("Erro ao filtrar relatório");
-
-        const dados = await response.json();
-
-        atualizarCards(dados);
-        atualizarTabela(dados.vendas);
-        atualizarGrafico(dados.grafico_pagamento);
-
-    } catch (erro) {
-        console.error(erro);
+    if (novaPagina >= 1 && novaPagina <= totalPaginas) {
+        paginaAtual = novaPagina;
+        renderizarTabela();
     }
+}
+
+// Atualiza métricas superiores
+function atualizarCards() {
+    const vendasValidas = vendasFiltradas.filter(v => v.status !== 'Cancelada');
+    
+    const faturamento = vendasValidas.reduce((acc, v) => acc + (v.total || 0), 0);
+    const totalVendas = vendasValidas.length;
+    const ticketMedio = totalVendas > 0 ? faturamento / totalVendas : 0;
+    const totalProdutos = vendasValidas.reduce((acc, v) => acc + (v.qtdItens || (v.itens ? v.itens.length : 1)), 0);
+
+    const elFaturamento = document.getElementById('faturamento');
+    const elTotalVendas = document.getElementById('total-vendas');
+    const elTicketMedio = document.getElementById('ticket-medio');
+    const elProdutosVendidos = document.getElementById('produtos-vendidos');
+
+    if (elFaturamento) elFaturamento.innerText = formatarMoeda(faturamento);
+    if (elTotalVendas) elTotalVendas.innerText = totalVendas;
+    if (elTicketMedio) elTicketMedio.innerText = formatarMoeda(ticketMedio);
+    if (elProdutosVendidos) elProdutosVendidos.innerText = totalProdutos;
 }
 
 function limparFiltros() {
-    document.getElementById("busca").value = "";
-    document.getElementById("data").value = "";
-    document.getElementById("pagamento").value = "";
-
-    carregarRelatorio();
+    if (document.getElementById('busca')) document.getElementById('busca').value = '';
+    if (document.getElementById('data_inicio')) document.getElementById('data_inicio').value = '';
+    if (document.getElementById('data_fim')) document.getElementById('data_fim').value = '';
+    if (document.getElementById('pagamento')) document.getElementById('pagamento').value = '';
+    aplicarFiltros();
 }
 
-// ======================
-// EXPORTAÇÃO
-// ======================
-function exportarRelatorio() {
-    const busca = document.getElementById("busca").value.trim();
-    const data = document.getElementById("data").value;
-    const pagamento = document.getElementById("pagamento").value;
-
-    const params = new URLSearchParams();
-    if (busca) params.append("busca", busca);
-    if (data) params.append("data", data);
-    if (pagamento) params.append("pagamento", pagamento);
-
-    window.open(`/api/relatorio/exportar?${params.toString()}`, "_blank");
+// Toggle da Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
-// ======================
-// FUNÇÕES UTILITÁRIAS
-// ======================
-function sanitizarTexto(texto) {
-    const div = document.createElement("div");
-    div.textContent = texto;
-    return div.innerHTML;
-}
+// Modal de detalhes
+function abrirModalDetalhes(vendaId) {
+    const venda = relatorioVendas.find(v => v.id == vendaId);
+    if (!venda) return;
 
-function classePagamento(pagamento) {
-    if (!pagamento) return "";
-    const p = pagamento.toLowerCase();
+    document.getElementById('modal-venda-id').innerText = venda.id;
+    document.getElementById('modal-venda-data').innerText = formatarData(venda.data);
+    document.getElementById('modal-cliente-nome').innerText = venda.cliente || 'Cliente Avulso';
+    document.getElementById('modal-pagamento').innerText = venda.pagamento || 'N/A';
+    document.getElementById('modal-total-valor').innerText = formatarMoeda(venda.total);
 
-    if (p.includes("pix")) return "pix";
-    if (p.includes("credito") || p.includes("crédito")) return "credito";
-    if (p.includes("debito") || p.includes("débito")) return "debito";
-    if (p.includes("dinheiro")) return "dinheiro";
+    const tbody = document.getElementById('modal-itens-body');
+    tbody.innerHTML = '';
 
-    return "";
-}
+    const itens = venda.itensDetalhes || venda.itens || [];
 
-function formatarData(dataString) {
-    if (!dataString) return "-";
-
-    // Tratamento simples para evitar bugs de fuso horário em strings YYYY-MM-DD
-    const partes = dataString.split("T");
-    const dataApenas = partes[0].split("-");
-
-    if (dataApenas.length === 3) {
-        const [ano, mes, dia] = dataApenas;
-        if (partes[1]) {
-            const hora = partes[1].substring(0, 5);
-            return `${dia}/${mes}/${ano} ${hora}`;
-        }
-        return `${dia}/${mes}/${ano}`;
+    if (itens.length > 0) {
+        itens.forEach(item => {
+            const qtd = item.qtd || item.quantidade || 1;
+            const preco = item.preco || item.preco_unitario || 0;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.nome || item.produto || 'Produto'}</td>
+                    <td>${qtd}</td>
+                    <td>${formatarMoeda(preco)}</td>
+                    <td>${formatarMoeda(qtd * preco)}</td>
+                </tr>
+            `;
+        });
+    } else {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Sem detalhes dos itens.</td></tr>`;
     }
 
-    return dataString;
+    document.getElementById('modalDetalhesVenda').style.display = 'flex';
+}
+
+function fecharModalDetalhes() {
+    document.getElementById('modalDetalhesVenda').style.display = 'none';
+}
+
+function formatarMoeda(valor) {
+    return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function formatarData(dataIso) {
+    if (!dataIso) return '--/--/----';
+    const partes = dataIso.split('T')[0].split('-');
+    if (partes.length < 3) return dataIso;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function exportarRelatorio() {
+    if (!vendasFiltradas || vendasFiltradas.length === 0) {
+        alert('Não há vendas registradas para exportar.');
+        return;
+    }
+
+    // Cabeçalhos das colunas
+    const cabecalhos = ["ID Venda", "Data", "Cliente", "Usuário", "Qtd Itens", "Forma Pagamento", "Status", "Total (R$)"];
+
+    // Converte cada venda filtrada em uma linha do relatório
+    const linhas = vendasFiltradas.map(venda => [
+        `"#${venda.id}"`,
+        `"${formatarData(venda.data)}"`,
+        `"${(venda.cliente || 'Cliente Avulso').replace(/"/g, '""')}"`,
+        `"${(venda.usuario || 'Sistema').replace(/"/g, '""')}"`,
+        venda.qtdItens || (venda.itens ? venda.itens.length : 1),
+        `"${venda.pagamento || 'N/A'}"`,
+        `"${venda.status || 'Concluída'}"`,
+        `"${(venda.total || 0).toFixed(2).replace('.', ',')}"`
+    ]);
+
+    // O prefixo '\uFEFF' (BOM) garante a exibição correta dos caracteres acentuados no Excel
+    const conteudoCSV = "\uFEFF" + [cabecalhos.join(";"), ...linhas.map(row => row.join(";"))].join("\n");
+
+    // Cria o link invisível para download do arquivo .csv
+    const blob = new Blob([conteudoCSV], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const dataAtual = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `relatorio_vendas_${dataAtual}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }

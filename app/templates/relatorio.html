@@ -4,461 +4,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Relatório de Vendas</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="/static/css/relatorio.css">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts & Font Awesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- Font Awesome -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
-    <!-- TOAST -->
     <div id="toast-container"></div>
 
-
-    <!-- =========================================
-         SIDEBAR
-    ========================================== -->
-
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-
         <div>
-
-            <!-- LOGO -->
             <div class="sidebar-brand">
-
-                <div style="display:flex; align-items:center; gap:12px;">
-
+                <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fa-solid fa-store"></i>
-
                     <span class="logo-text"></span>
-
                 </div>
-
-                <i
-                    class="fa-solid fa-bars toggle-btn"
-                    onclick="toggleSidebar()"
-                ></i>
-
+                <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
             </div>
 
-
-            <!-- MENU -->
             <ul class="menu-list">
-
-                <!-- DASHBOARD -->
-                <li class="menu-item">
-
-                    <a href="/dashboard">
-
-                        <i class="fa-solid fa-chart-pie"></i>
-
-                        <span>Dashboard</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- VENDAS -->
-                <li class="menu-item">
-
-                    <a href="/vendas">
-
-                        <i class="fa-solid fa-cart-shopping"></i>
-
-                        <span>Vendas</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- PRODUTOS -->
-                <li class="menu-item">
-
-                    <a href="/produtos">
-
-                        <i class="fa-solid fa-box"></i>
-
-                        <span>Produtos</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- ESTOQUE -->
-                <li class="menu-item">
-
-                    <a href="/estoque">
-
-                        <i class="fa-solid fa-warehouse"></i>
-
-                        <span>Estoque</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- MOVIMENTAÇÕES -->
-                <li class="menu-item">
-
-                    <a href="/movimentacoes">
-
-                        <i class="fa-solid fa-boxes-stacked"></i>
-
-                        <span>Movimentações</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- RELATÓRIO -->
-                <li class="menu-item active">
-
-                    <a href="/relatorio">
-
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-
-                        <span>Relatório de Vendas</span>
-
-                    </a>
-
-                </li>
-
-
-                <!-- USUÁRIOS -->
-                <li class="menu-item">
-
-                    <a href="/usuarios">
-
-                        <i class="fa-solid fa-users"></i>
-
-                        <span>Gerenciar Usuários</span>
-
-                    </a>
-
-                </li>
-
+                <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+                <li class="menu-item"><a href="/vendas"><i class="fa-solid fa-cart-shopping"></i><span>Vendas</span></a></li>
+                <li class="menu-item"><a href="/produtos"><i class="fa-solid fa-box"></i><span>Produtos</span></a></li>
+                <li class="menu-item"><a href="/estoque"><i class="fa-solid fa-warehouse"></i><span>Estoque</span></a></li>
+                <li class="menu-item"><a href="/movimentacoes"><i class="fa-solid fa-boxes-stacked"></i><span>Movimentações</span></a></li>
+                <li class="menu-item active"><a href="/relatorio"><i class="fa-solid fa-file-invoice-dollar"></i><span>Relatório de vendas</span></a></li>
+                <li class="menu-item"><a href="/usuarios"><i class="fa-solid fa-users"></i><span>Gerenciar Usuários</span></a></li>
+                <li class="menu-item"><a href="/clientes"><i class="fa-solid fa-user-group"></i><span>Clientes</span></a></li>
             </ul>
-
         </div>
 
-
-        <!-- SAIR -->
         <div class="sidebar-footer">
-
             <a href="/auth/logout">
-
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-
                 <span>Sair</span>
-
             </a>
-
         </div>
-
     </aside>
 
-
-
-    <!-- =========================================
-         CONTEÚDO PRINCIPAL
-    ========================================== -->
-
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="main-content">
-
 
         <!-- CABEÇALHO -->
         <div class="top">
-
             <div class="title">
-
                 <h1>Relatório de Vendas</h1>
-
-                <p>
-                    Acompanhe o desempenho das vendas no período selecionado.
-                </p>
-
+                <p>Acompanhe o desempenho das vendas no período selecionado.</p>
             </div>
-
         </div>
 
-
-
-        <!-- =========================================
-             CARDS
-        ========================================== -->
-
+        <!-- CARDS DE MÉTRICAS (ÍCONES AO LADO) -->
         <div class="cards">
-
-
-            <!-- FATURAMENTO -->
             <div class="card">
-
                 <div class="icon green">
-
                     <i class="fa-solid fa-dollar-sign"></i>
-
                 </div>
-
-                <small>Faturamento Total</small>
-
-                <h2 id="faturamento">
-                    R$ 0,00
-                </h2>
-
+                <div class="card-info">
+                    <small>Faturamento Total</small>
+                    <h2 id="faturamento">R$ 0,00</h2>
+                </div>
             </div>
 
-
-            <!-- VENDAS -->
             <div class="card">
-
                 <div class="icon blue">
-
                     <i class="fa-solid fa-receipt"></i>
-
                 </div>
-
-                <small>Total de Vendas</small>
-
-                <h2 id="total-vendas">
-                    0
-                </h2>
-
+                <div class="card-info">
+                    <small>Total de Vendas</small>
+                    <h2 id="total-vendas">0</h2>
+                </div>
             </div>
 
-
-            <!-- TICKET MÉDIO -->
             <div class="card">
-
                 <div class="icon purple">
-
                     <i class="fa-solid fa-chart-line"></i>
-
                 </div>
-
-                <small>Ticket Médio</small>
-
-                <h2 id="ticket-medio">
-                    R$ 0,00
-                </h2>
-
+                <div class="card-info">
+                    <small>Ticket Médio</small>
+                    <h2 id="ticket-medio">R$ 0,00</h2>
+                </div>
             </div>
 
-
-            <!-- PRODUTOS -->
             <div class="card">
-
                 <div class="icon orange">
-
                     <i class="fa-solid fa-box"></i>
-
                 </div>
-
-                <small>Produtos Vendidos</small>
-
-                <h2 id="produtos-vendidos">
-                    0
-                </h2>
-
+                <div class="card-info">
+                    <small>Produtos Vendidos</small>
+                    <h2 id="produtos-vendidos">0</h2>
+                </div>
             </div>
-
         </div>
 
-
-
-        <!-- =========================================
-             FILTROS
-        ========================================== -->
-
+        <!-- FILTROS -->
         <div class="filters">
+            <input type="text" id="busca" placeholder="Buscar venda ou cliente">
+            <input type="date" id="data_inicio" title="Data Inicial">
+            <input type="date" id="data_fim" title="Data Final">
 
-
-            <!-- BUSCA -->
-            <input
-                type="text"
-                id="busca"
-                placeholder="Buscar venda"
-            >
-
-
-            <!-- DATA -->
-            <input
-                type="date"
-                id="data"
-            >
-
-
-            <!-- PAGAMENTO -->
             <select id="pagamento">
-
-                <option value="">
-                    Todas as formas
-                </option>
-
-                <option value="PIX">
-                    PIX
-                </option>
-
-                <option value="Credito">
-                    Crédito
-                </option>
-
-                <option value="Debito">
-                    Débito
-                </option>
-
-                <option value="Dinheiro">
-                    Dinheiro
-                </option>
-
+                <option value="">Todas as formas</option>
+                <option value="PIX">PIX</option>
+                <option value="Credito">Crédito</option>
+                <option value="Debito">Débito</option>
+                <option value="Dinheiro">Dinheiro</option>
             </select>
 
-
-            <!-- FILTRAR -->
-            <button
-                class="btn btn-filter"
-                onclick="filtrarRelatorio()"
-            >
-
-                <i class="fa-solid fa-filter"></i>
-
-                Filtrar
-
-            </button>
-
-
-            <!-- LIMPAR -->
-            <button
-                class="btn btn-clear"
-                onclick="limparFiltros()"
-            >
-
+            <button class="btn btn-clear" onclick="limparFiltros()">
                 Limpar
-
             </button>
-
         </div>
 
-
-
-        <!-- =========================================
-             LISTA DE VENDAS
-        ========================================== -->
-
+        <!-- LISTA E TABELA DE VENDAS -->
         <div class="content">
-
             <div class="box lista-vendas">
 
-
-                <!-- CABEÇALHO DA LISTA -->
-
                 <div class="lista-header">
+                    <h3>Lista de Vendas</h3>
 
-                    <h3>
-                        Lista de Vendas
-                    </h3>
-
-
-                    <!-- EXPORTAR -->
-
-                    <button
-                        class="export"
-                        onclick="exportarRelatorio()"
-                    >
-
-                        <i class="fa-solid fa-file-export"></i>
-
-                        Exportar
-
+                    <button class="export" onclick="exportarRelatorio()">
+                        <i class="fa-solid fa-file-export"></i> Exportar
                     </button>
-
                 </div>
 
-
-
-                <!-- TABELA -->
-
                 <div class="table-container">
-
                     <table>
-
                         <thead>
-
                             <tr>
-
                                 <th>Venda</th>
-
                                 <th>Data</th>
-
                                 <th>Cliente</th>
-
                                 <th>Usuário</th>
-
                                 <th>Itens</th>
-
                                 <th>Pagamento</th>
-
+                                <th>Status</th>
                                 <th>Total</th>
-
+                                <th style="text-align: center;">Ações</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody id="tabela-vendas">
-
                             <tr>
-
-                                <td
-                                    colspan="7"
-                                    style="text-align:center;"
-                                >
-
-                                    Carregando vendas...
-
-                                </td>
-
+                                <td colspan="9" style="text-align:center;">Carregando vendas...</td>
                             </tr>
-
                         </tbody>
-
                     </table>
+                </div>
 
+                <!-- PAGINAÇÃO -->
+                <div class="pagination-container">
+                    <span id="pagination-info">Mostrando 0 de 0 vendas</span>
+                    <div class="pagination-buttons">
+                        <button id="btn-prev" onclick="mudarPagina(-1)" class="btn btn-clear" disabled>Anterior</button>
+                        <span id="page-num">Página 1</span>
+                        <button id="btn-next" onclick="mudarPagina(1)" class="btn btn-clear" disabled>Próxima</button>
+                    </div>
                 </div>
 
             </div>
-
         </div>
 
     </main>
 
+    <!-- MODAL DE DETALHES DA VENDA -->
+    <div class="modal" id="modalDetalhesVenda" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2>Detalhes da Venda #<span id="modal-venda-id">--</span></h2>
+                    <p id="modal-venda-data">--/--/----</p>
+                </div>
+                <button type="button" class="close-btn" onclick="fecharModalDetalhes()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="venda-info-summary">
+                    <p><strong>Cliente:</strong> <span id="modal-cliente-nome">--</span></p>
+                    <p><strong>Pagamento:</strong> <span id="modal-pagamento">--</span></p>
+                </div>
 
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Qtd</th>
+                            <th>Preço Un.</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-itens-body"></tbody>
+                </table>
+
+                <div class="modal-total-container">
+                    <strong>Total da Venda:</strong>
+                    <span id="modal-total-valor">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- JAVASCRIPT -->
-
     <script src="/static/js/relatorio.js"></script>
-
 </body>
 
 </html>

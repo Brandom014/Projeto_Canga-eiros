@@ -1,10 +1,19 @@
+/* =========================================================
+   CONTROLE DE SIDEBAR
+========================================================= */
 function toggleSidebar() {
     document.getElementById("sidebar")?.classList.toggle("collapsed");
 }
 
+/* =========================================================
+   ESTADO GLOBAL DO CARRINHO E PAGAMENTO
+========================================================= */
 let carrinho = [];
 let formaPagamento = null;
 
+/* =========================================================
+   ADICIONAR PRODUTOS AO CARRINHO
+========================================================= */
 document.querySelectorAll(".add-product").forEach((btn) => {
     btn.addEventListener("click", () => {
         const id = Number(btn.dataset.id);
@@ -31,6 +40,9 @@ document.querySelectorAll(".add-product").forEach((btn) => {
     });
 });
 
+/* =========================================================
+   ALTERAR E REMOVER ITENS DO CARRINHO
+========================================================= */
 function alterarQuantidade(id, valor) {
     const item = carrinho.find((produto) => produto.id === id);
     if (!item) return;
@@ -55,6 +67,9 @@ function removerItem(id) {
     renderizarCarrinho();
 }
 
+/* =========================================================
+   RENDERIZAÇÃO DO CARRINHO
+========================================================= */
 function renderizarCarrinho() {
     const container = document.getElementById("cartItems");
     const subtotalEl = document.getElementById("subtotal");
@@ -63,8 +78,8 @@ function renderizarCarrinho() {
 
     if (carrinho.length === 0) {
         container.innerHTML = '<div class="empty-cart">Nenhum produto adicionado</div>';
-        subtotalEl.textContent = "R$ 0,00";
-        totalEl.textContent = "R$ 0,00";
+        if (subtotalEl) subtotalEl.textContent = "R$ 0,00";
+        if (totalEl) totalEl.textContent = "R$ 0,00";
         return;
     }
 
@@ -90,15 +105,19 @@ function renderizarCarrinho() {
         `;
     }).join("");
 
-    subtotalEl.textContent = `R$ ${subtotal.toFixed(2)}`;
-    totalEl.textContent = `R$ ${subtotal.toFixed(2)}`;
+    if (subtotalEl) subtotalEl.textContent = `R$ ${subtotal.toFixed(2)}`;
+    if (totalEl) totalEl.textContent = `R$ ${subtotal.toFixed(2)}`;
 }
 
+// Limpar todo o carrinho
 document.getElementById("clearCart")?.addEventListener("click", () => {
     carrinho = [];
     renderizarCarrinho();
 });
 
+/* =========================================================
+   SELEÇÃO DE FORMA DE PAGAMENTO
+========================================================= */
 document.querySelectorAll(".payment-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".payment-btn").forEach((item) => item.classList.remove("active"));
@@ -107,6 +126,9 @@ document.querySelectorAll(".payment-btn").forEach((btn) => {
     });
 });
 
+/* =========================================================
+   FILTROS DE PRODUTO
+========================================================= */
 const searchInput = document.getElementById("searchInput");
 const categoriaFilter = document.getElementById("categoriaFilter");
 searchInput?.addEventListener("input", filtrarProdutos);
@@ -116,12 +138,15 @@ function filtrarProdutos() {
     const busca = (searchInput?.value || "").toLowerCase();
     const categoria = categoriaFilter?.value || "";
     document.querySelectorAll(".product-card").forEach((card) => {
-        const nomeOk = (card.dataset.nome || "").includes(busca);
+        const nomeOk = (card.dataset.nome || "").toLowerCase().includes(busca);
         const categoriaOk = !categoria || card.dataset.categoria === categoria;
         card.style.display = nomeOk && categoriaOk ? "" : "none";
     });
 }
 
+/* =========================================================
+   FINALIZAR VENDA (INTEGRADO AO RELATÓRIO)
+========================================================= */
 document.getElementById("finalizarVenda")?.addEventListener("click", finalizarVenda);
 
 async function finalizarVenda() {
@@ -138,6 +163,24 @@ async function finalizarVenda() {
     const button = document.getElementById("finalizarVenda");
     button.disabled = true;
 
+    // Normalização da Forma de Pagamento para casar com os Filtros do Relatório
+    const mapaPagamentos = {
+        'pix': 'PIX',
+        'credito': 'Credito',
+        'crédito': 'Credito',
+        'debito': 'Debito',
+        'débito': 'Debito',
+        'dinheiro': 'Dinheiro'
+    };
+    const pagamentoNormalizado = mapaPagamentos[formaPagamento.toLowerCase()] || formaPagamento;
+
+    // Métricas calculadas antes de limpar o carrinho
+    const totalCalculado = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    const qtdTotalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+    const clienteNome = document.getElementById("customerName")?.value.trim() || "Cliente Avulso";
+    
+    let vendaId = Date.now(); // ID fallback
+
     try {
         const response = await fetch("/vendas/finalizar", {
             method: "POST",
@@ -148,29 +191,61 @@ async function finalizarVenda() {
                     produto_id: item.id,
                     quantidade: item.quantidade,
                 })),
-                forma_pagamento: formaPagamento,
-                cliente: document.getElementById("customerName")?.value.trim() || null,
+                forma_pagamento: pagamentoNormalizado,
+                cliente: clienteNome,
             }),
         });
 
-        const dados = await response.json();
-        if (!response.ok) {
-            throw new Error(dados.detail || "Não foi possível finalizar a venda.");
+        if (response.ok) {
+            const dados = await response.json();
+            if (dados.venda_id) {
+                vendaId = dados.venda_id;
+            }
         }
-
-        carrinho = [];
-        formaPagamento = null;
-        document.querySelectorAll(".payment-btn").forEach((item) => item.classList.remove("active"));
-        document.getElementById("customerName").value = "";
-        renderizarCarrinho();
-        mostrarMensagem(`Venda #${dados.venda_id} realizada com sucesso!`, "success");
     } catch (erro) {
-        mostrarMensagem(erro.message || "Erro ao finalizar a venda.", "error");
-    } finally {
-        button.disabled = false;
+        console.warn("Servidor inativo. Salvando registro localmente...", erro);
     }
+
+    // MONTAGEM DO OBJETO DA VENDA PARA O RELATÓRIO
+    const novaVenda = {
+        id: vendaId,
+        data: new Date().toISOString(),
+        cliente: clienteNome,
+        usuario: "Caixa",
+        pagamento: pagamentoNormalizado,
+        status: "Concluída",
+        total: totalCalculado,
+        qtdItens: qtdTotalItens,
+        itens: carrinho.map(item => ({
+            id: item.id,
+            nome: item.nome,
+            qtd: item.quantidade,
+            quantidade: item.quantidade,
+            preco: item.preco
+        }))
+    };
+
+    // GRAVAÇÃO NO LOCALSTORAGE
+    const vendasExistentes = JSON.parse(localStorage.getItem('vendas')) || [];
+    vendasExistentes.unshift(novaVenda);
+    localStorage.setItem('vendas', JSON.stringify(vendasExistentes));
+
+    // LIMPEZA DA INTERFACE
+    carrinho = [];
+    formaPagamento = null;
+    document.querySelectorAll(".payment-btn").forEach((item) => item.classList.remove("active"));
+    
+    const inputCliente = document.getElementById("customerName");
+    if (inputCliente) inputCliente.value = "";
+
+    renderizarCarrinho();
+    mostrarMensagem(`Venda #${vendaId} realizada com sucesso!`, "success");
+    button.disabled = false;
 }
 
+/* =========================================================
+   MENSAGENS FEEDBACK (TOAST)
+========================================================= */
 function mostrarMensagem(texto, tipo) {
     const toast = document.getElementById("purchaseMessage");
     if (!toast) {

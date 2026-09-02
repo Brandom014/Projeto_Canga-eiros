@@ -12,10 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/produtos.css?v=10">
-<link rel="stylesheet"
-
-
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
 
@@ -23,7 +20,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 
 <div id="toast-container"></div>
 
-     <!-- SIDEBAR -->
+      <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
     <div>
@@ -90,6 +87,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
                 <a href="/usuarios">
                     <i class="fa-solid fa-users"></i>
                     <span>Gerenciar Usuários</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/clientes">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Clientes</span>
                 </a>
             </li>
 
@@ -431,9 +435,20 @@ Sem estoque
 
 </tbody>
 
-
-
 </table>
+
+<!-- PAGINAÇÃO -->
+<div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+    <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
+        <i class="fa-solid fa-chevron-left"></i> Anterior
+    </button>
+
+    <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
+
+    <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
+        Próxima <i class="fa-solid fa-chevron-right"></i>
+    </button>
+</div>
 
 </div>
 
@@ -581,7 +596,6 @@ required>
 
 </div>
 
-
 </div>
 
 <button
@@ -649,6 +663,7 @@ Fechar
     </div>
 
 </div>
+
 {% if request.query_params.get("sucesso") == "categoria" %}
 
 <script>
@@ -682,7 +697,6 @@ mostrarToast(
 {% endif %}
 
 <script src="/static/js/produtos.js?v=99"></script>
-
 
 </body>
 </html>
