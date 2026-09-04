@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,10 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
     <link rel="stylesheet" href="/static/css/login.css">
 </head>
 
@@ -22,7 +18,6 @@
     <div class="container">
         
         <div class="info-section">
-
             <img src="/static/img/senai.png" alt="SENAI" />
 
             <p class="welcome-text">
@@ -39,39 +34,27 @@
             </p>
             
             <ul class="features-list">
-
                 <li class="feature-item">
-
                     <div class="feature-icon">
                         <i class="fa-solid fa-chart-simple"></i>
                     </div>
-
                     Vendas mais rápidas
-
                 </li>
 
                 <li class="feature-item">
-
                     <div class="feature-icon">
                         <i class="fa-solid fa-cubes"></i>
                     </div>
-
                     Gestão inteligente
-
                 </li>
 
                 <li class="feature-item">
-
                     <div class="feature-icon">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
-
                     Relatórios em tempo real
-
                 </li>
-
             </ul>
-
         </div>
 
         <div class="login-card">
@@ -93,7 +76,6 @@
             <form action="/auth/login" method="POST">
 
                 <div class="form-group">
-
                     <label for="email">
                         Usuário
                     </label>
@@ -106,17 +88,14 @@
                         placeholder="Digite seu usuário"
                         required
                     >
-
                 </div>
                 
                 <div class="form-group">
-
                     <label for="senha">
                         Senha
                     </label>
 
                     <div class="input-wrapper">
-
                         <input
                             type="password"
                             id="senha"
@@ -130,13 +109,10 @@
                             class="fa-regular fa-eye password-toggle"
                             onclick="togglePassword()"
                         ></i>
-
                     </div>
-
                 </div>
                 
                 <div class="form-actions">
-
                     <label class="remember-me">
                         <input type="checkbox">
                         Lembrar-me
@@ -145,23 +121,10 @@
                     <a href="#" class="forgot-password">
                         Esqueceu a senha?
                     </a>
-
                 </div>
                 
                 <button type="submit" class="btn-primary">
                     Entrar
-                </button>
-                
-                <div class="divider">
-                    ou
-                </div>
-                
-                <button type="button" class="btn-secondary">
-
-                    <i class="fa-solid fa-lock"></i>
-
-                    Entrar com código
-
                 </button>
 
             </form>

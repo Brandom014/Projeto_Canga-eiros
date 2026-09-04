@@ -3,7 +3,7 @@
 // CONFIGURAÇÕES E ESTADO GLOBAL
 // ==========================================
 let paginaAtual = 1;
-const itensPorPagina = 8; // Quantidade de itens por página
+const itensPorPagina = 4; // Quantidade de itens por página
 
 document.addEventListener("DOMContentLoaded", function () {
     // Aplica os filtros e paginação ao carregar a página

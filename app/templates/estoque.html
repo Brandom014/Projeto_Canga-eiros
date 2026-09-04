@@ -257,18 +257,20 @@
                                 <div class="acoes">
                                     <button 
                                         type="button" 
-                                        class="btn-edit"
+                                        class="edit-btn"
+                                        title="Editar"
                                         onclick="abrirModalEditar('{{ p.id }}', '{{ p.nome }}', '{{ p.preco }}', '{{ p.estoque }}')"
                                     >
-                                        ✏ Editar
+                                        <i class="fa-solid fa-pen"></i>
                                     </button>
 
                                     <button 
                                         type="button" 
-                                        class="btn-delete"
+                                        class="delete-btn"
+                                        title="Excluir"
                                         onclick="abrirModalExcluir('{{ p.id }}')"
                                     >
-                                        🗑 Excluir
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
@@ -277,13 +279,15 @@
                 </tbody>
             </table>
 
-            <!-- CONTROLES DE PAGINAÇÃO -->
-            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
-                <span id="pageInfo">Página 1 de 1</span>
-                <div class="pagination-buttons" style="display: flex; gap: 8px;">
-                    <button id="btnPrev" onclick="mudarPagina(-1)" class="btn-cancel" disabled>Anterior</button>
-                    <button id="btnNext" onclick="mudarPagina(1)" class="btn-cancel">Próximo</button>
-                </div>
+            <!-- PAGINAÇÃO -->
+            <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
+                    <i class="fa-solid fa-chevron-left"></i> Anterior
+                </button>
+                <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
+                <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
+                    Próxima <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
         </div>
 
