@@ -7,6 +7,12 @@ from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/categorias", tags=["Categorias"])
 
+# ROTA GET: Retorna a lista de categorias em JSON para o Front-End
+@router.get("")
+def listar_categorias(db: Session = Depends(get_db)):
+    categorias = db.query(Categoria).all()
+    return [{"id": c.id, "nome": c.nome, "descricao": c.descricao} for c in categorias]
+
 @router.post("/criar")
 def criar_categoria(
     nome: str = Form(...),

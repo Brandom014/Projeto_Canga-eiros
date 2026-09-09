@@ -107,51 +107,80 @@
         </div>
 
         <!-- CARDS -->
-        <div class="cards">
+<div class="cards">
 
-            <div class="card">
-                <h3>Entradas</h3>
-                <span id="totalEntradas">0</span>
-            </div>
-
-            <div class="card">
-                <h3>Saídas</h3>
-                <span id="totalSaidas">0</span>
-            </div>
-
-            <div class="card">
-                <h3>Hoje</h3>
-                <span id="movHoje">0</span>
-            </div>
-
-            <div class="card">
-                <h3>Valor Movimentado</h3>
-                <span id="valorMov">R$ 0,00</span>
-            </div>
-
+    <div class="card entrada">
+        <div class="card-info">
+            <h3>Entradas</h3>
+            <span id="totalEntradas">0</span>
         </div>
-
-        <!-- FILTROS -->
-        <div class="filtros">
-
-            <input
-                type="text"
-                id="busca"
-                placeholder="Buscar produto..."
-            >
-
-            <select id="tipo">
-                <option value="">Todos os tipos</option>
-                <option value="Entrada">Entrada</option>
-                <option value="Saída">Saída</option>
-            </select>
-
-            <input type="date" id="data">
-
+        <div class="card-icon">
+            <i class="fa-solid fa-circle-arrow-down"></i>
         </div>
+    </div>
 
+    <div class="card saida">
+        <div class="card-info">
+            <h3>Saídas</h3>
+            <span id="totalSaidas">0</span>
+        </div>
+        <div class="card-icon">
+            <i class="fa-solid fa-circle-arrow-up"></i>
+        </div>
+    </div>
+
+    <div class="card hoje">
+        <div class="card-info">
+            <h3>Hoje</h3>
+            <span id="movHoje">0</span>
+        </div>
+        <div class="card-icon">
+            <i class="fa-solid fa-calendar-day"></i>
+        </div>
+    </div>
+
+    <div class="card valor">
+        <div class="card-info">
+            <h3>Valor Movimentado</h3>
+            <span id="valorMov">R$ 0,00</span>
+        </div>
+        <div class="card-icon">
+            <i class="fa-solid fa-sack-dollar"></i>
+        </div>
+    </div>
+
+</div>
+
+<!-- FILTROS -->
+<div class="filtros">
+
+    <!-- Busca por texto -->
+    <input
+        type="text"
+        id="busca"
+        placeholder="Buscar produto ou código..."
+    >
+
+    <!-- Filtro por Tipo de Movimento -->
+    <select id="tipo">
+        <option value="">Todos os tipos</option>
+        <option value="Entrada">Entrada</option>
+        <option value="Saída">Saída</option>
+    </select>
+
+    <!-- Botão Limpar Filtros -->
+    <button type="button" id="btnLimpar" class="btn-limpar">
+        Limpar
+    </button>
+
+</div>
         <!-- TABELA -->
         <div class="table-container">
+
+            <div class="table-top">
+                <h2>Histórico de Movimentações</h2>
+                <span id="contadorMovimentacoes">0 movimentações encontradas</span>
+            </div>
 
             <table>
 
@@ -175,6 +204,17 @@
                 </tbody>
 
             </table>
+
+            <!-- PAGINAÇÃO -->
+            <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
+                    <i class="fa-solid fa-chevron-left"></i> Anterior
+                </button>
+                <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
+                <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
+                    Próxima <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
 
         </div>
 

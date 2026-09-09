@@ -303,7 +303,7 @@ body {
 
 .filter-card input:focus,
 .filter-card select:focus {
-    border-color: #e63946;
+    border-color: #0683f8;
     box-shadow: 0 0 0 4px rgba(230, 57, 70, .10);
 }
 
@@ -324,9 +324,9 @@ body {
 }
 
 .filter-card button:hover {
-    background: #e63946;
+    background:#1d4ed8;
     color: white;
-    border-color: #e63946;
+    border-color: #0683f8;
 }
 
 /* =====================================
