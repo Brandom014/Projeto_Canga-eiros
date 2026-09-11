@@ -1,0 +1,382 @@
+/* ==========================
+   RESET & ESTRUTURA BASE
+========================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 30px 40px;
+}
+
+.checkout-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* ==========================
+   CABEÇALHO
+========================== */
+.checkout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.checkout-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.btn-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-voltar:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* ==========================
+   GRID PRINCIPAL
+========================== */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.card-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.badge-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ==========================
+   LISTA DE PRODUTOS
+========================== */
+.lista-produtos {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    overflow-y: auto;
+    max-height: 380px;
+}
+
+.produto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.produto-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.produto-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+.produto-detalhes {
+    display: flex;
+    flex-direction: column;
+}
+
+.produto-nome {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.produto-qtd {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.produto-preco {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* ==========================
+   RODAPÉ DO RESUMO (VALORES)
+========================== */
+.resumo-footer {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.linha-valor {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.linha-valor.desconto span:last-child {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.btn-add-desconto {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.btn-add-desconto:hover {
+    text-decoration: underline;
+}
+
+.linha-valor.total {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.total-valor {
+    color: #ef4444;
+    font-size: 22px;
+}
+
+/* ==========================
+   FORMAS DE PAGAMENTO
+========================== */
+.grid-metodos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.metodo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.metodo-card i {
+    font-size: 22px;
+    color: #64748b;
+}
+
+.metodo-card span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.metodo-card:hover {
+    border-color: #ef4444;
+}
+
+.metodo-card.active {
+    border: 2px solid #ef4444;
+    background: #fef2f2;
+}
+
+.metodo-card.active i,
+.metodo-card.active span {
+    color: #ef4444;
+}
+
+/* ==========================
+   PAINEL DINÂMICO (DINHEIRO)
+========================== */
+.painel-dinheiro {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    flex: 1;
+}
+
+.painel-dinheiro h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+.grid-troco {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.campo-input label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.input-prefix {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 44px;
+    width: 200px;
+}
+
+.input-prefix span {
+    font-weight: 700;
+    color: #0f172a;
+    margin-right: 6px;
+}
+
+.input-prefix input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    background: transparent;
+}
+
+.box-troco {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.box-troco span {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.valor-troco {
+    font-size: 22px;
+    color: #16a34a;
+    font-weight: 800;
+}
+
+/* ==========================
+   BOTÃO CONFIRMAR
+========================== */
+.pagamento-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+}
+
+.btn-confirmar {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-confirmar:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+@media (max-width: 900px) {
+    body {
+        padding: 16px;
+    }
+
+    .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-metodos {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .btn-confirmar {
+        width: 100%;
+    }
+}

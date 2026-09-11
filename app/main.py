@@ -17,7 +17,8 @@ from app.routes import (
     usuarios,
     movimentacoes,
     relatorio,
-    clientes
+    clientes,
+    pagamento
 )
 
 # Cria as tabelas
@@ -77,6 +78,7 @@ app.include_router(categorias.router)
 app.include_router(movimentacoes.router)
 app.include_router(relatorio.router)
 app.include_router(clientes.router)
+app.include_router(pagamento.router)
 
 # Home
 @app.get("/", response_class=HTMLResponse)

@@ -856,3 +856,30 @@ body {
         position: static;
     }
 }
+
+
+.qty-controls > button:not(.remove-item) {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 6px;
+
+    background: #e2e8f0;
+    color: #1e293b;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.qty-controls > button:not(.remove-item):hover {
+    background: #cbd5e1;
+    transform: scale(1.05);
+}
