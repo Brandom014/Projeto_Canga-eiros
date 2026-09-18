@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento</title>
+    <title>PDV - Pagamento</title>
 
-    <link rel="stylesheet" href="/static/css/pagamento.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- CSS de Pagamento -->
+    <link rel="stylesheet" href="/static/css/pagamento.css">
 </head>
 <body>
 
@@ -17,87 +19,60 @@
         
         <!-- CABEÇALHO SUPERIOR -->
         <header class="checkout-header">
-            <h1>Pagamento</h1>
-            <a href="/carrinho" class="btn-voltar">
-                <i class="fa-solid fa-arrow-left"></i> Voltar ao carrinho
+            <div>
+                <h1>Finalizar Pagamento</h1>
+                <p>Confira os itens e selecione a forma de pagamento.</p>
+            </div>
+            <a href="/vendas" class="btn-voltar">
+                <i class="fa-solid fa-arrow-left"></i> Voltar às Vendas
             </a>
         </header>
 
-        <!-- GRID PRINCIPAL (DUAS COLUNAS) -->
+        <!-- GRID PRINCIPAL -->
         <div class="checkout-grid">
 
-            <!-- CARD ESQUERDO: RESUMO DO PEDIDO -->
+            <!-- COLUNA ESQUERDA: RESUMO DO PEDIDO -->
             <div class="card-box resumo-box">
                 <div class="card-header">
-                    <h2>Resumo do pedido</h2>
-                    <span class="badge-count">3 itens</span>
+                    <h2><i class="fa-solid fa-receipt"></i> Resumo do pedido</h2>
+                    <span class="badge-count" id="badgeCount">0 itens</span>
                 </div>
 
-                <!-- Lista de Produtos com Imagens -->
-                <div class="lista-produtos">
-                    
-                    <div class="produto-item">
-                        <div class="produto-info">
-                            <img src="/static/img/coca.jpg" alt="Coca-Cola 350ml" class="produto-img">
-                            <div class="produto-detalhes">
-                                <span class="produto-nome">Coca-Cola 350ml</span>
-                                <span class="produto-qtd">1 Unidade</span>
-                            </div>
-                        </div>
-                        <span class="produto-preco">R$ 4,50</span>
-                    </div>
-
-                    <div class="produto-item">
-                        <div class="produto-info">
-                            <img src="/static/img/pao.jpg" alt="Pão de Forma" class="produto-img">
-                            <div class="produto-detalhes">
-                                <span class="produto-nome">Pão de Forma</span>
-                                <span class="produto-qtd">1 Unidade</span>
-                            </div>
-                        </div>
-                        <span class="produto-preco">R$ 5,50</span>
-                    </div>
-
-                    <div class="produto-item">
-                        <div class="produto-info">
-                            <img src="/static/img/leite.jpg" alt="Leite Integral 1L" class="produto-img">
-                            <div class="produto-detalhes">
-                                <span class="produto-nome">Leite Integral 1L</span>
-                                <span class="produto-qtd">1 Unidade</span>
-                            </div>
-                        </div>
-                        <span class="produto-preco">R$ 6,20</span>
-                    </div>
-
+                <!-- Lista de Produtos (Injetados via JavaScript) -->
+                <div class="lista-produtos" id="listaProdutos">
+                    <!-- Conteúdo dinâmico -->
                 </div>
 
-                <!-- Rodapé do Resumo (Subtotal, Desconto e Total) -->
+                <!-- Rodapé do Resumo -->
                 <div class="resumo-footer">
                     <div class="linha-valor">
                         <span>Subtotal</span>
-                        <span>R$ 16,20</span>
+                        <strong id="subtotalValor">R$ 0,00</strong>
                     </div>
-                    <div class="linha-valor desconto">
+
+                    <div class="linha-valor desconto" id="linhaDesconto" style="display: none;">
                         <span>Desconto</span>
-                        <span>R$ 0,00</span>
+                        <strong id="descontoValor">- R$ 0,00</strong>
                     </div>
                     
-                    <button type="button" class="btn-add-desconto">+ Adicionar desconto</button>
+                    <button type="button" class="btn-add-desconto" id="btnDesconto">
+                        <i class="fa-solid fa-tag"></i> + Adicionar desconto
+                    </button>
 
                     <div class="linha-valor total">
-                        <span>Total</span>
-                        <span class="total-valor">R$ 16,20</span>
+                        <span>Total a Pagar</span>
+                        <span class="total-valor" id="totalValor">R$ 0,00</span>
                     </div>
                 </div>
             </div>
 
-            <!-- CARD DIREITO: FORMAS DE PAGAMENTO -->
+            <!-- COLUNA DIREITA: FORMAS DE PAGAMENTO -->
             <div class="card-box pagamento-box">
                 <div class="card-header">
-                    <h2>Selecione a forma de pagamento</h2>
+                    <h2><i class="fa-regular fa-credit-card"></i> Forma de Pagamento</h2>
                 </div>
 
-                <!-- Opções de Forma de Pagamento (Horizontal) -->
+                <!-- Opções de Forma de Pagamento -->
                 <div class="grid-metodos">
                     <label class="metodo-card active">
                         <input type="radio" name="forma_pagamento" value="dinheiro" checked hidden>
@@ -108,13 +83,13 @@
                     <label class="metodo-card">
                         <input type="radio" name="forma_pagamento" value="credito" hidden>
                         <i class="fa-solid fa-credit-card"></i>
-                        <span>Cartão de Crédito</span>
+                        <span>Crédito</span>
                     </label>
 
                     <label class="metodo-card">
                         <input type="radio" name="forma_pagamento" value="debito" hidden>
                         <i class="fa-regular fa-credit-card"></i>
-                        <span>Cartão de Débito</span>
+                        <span>Débito</span>
                     </label>
 
                     <label class="metodo-card">
@@ -124,30 +99,30 @@
                     </label>
                 </div>
 
-                <!-- Painel Interno Dinâmico (Ex: Pagamento em Dinheiro) -->
-                <div class="painel-dinheiro">
-                    <h3>Pagamento em dinheiro</h3>
+                <!-- PAINEL DINÂMICO PARA DINHEIRO -->
+                <div class="painel-dinheiro" id="painelDinheiro">
+                    <h3><i class="fa-solid fa-calculator"></i> Cálculo de Troco</h3>
                     
                     <div class="grid-troco">
                         <div class="campo-input">
-                            <label for="valorRecebido">Valor recebido</label>
+                            <label for="valorRecebido">Valor recebido (R$)</label>
                             <div class="input-prefix">
                                 <span>R$</span>
-                                <input type="number" id="valorRecebido" placeholder="20,00" step="0.01">
+                                <input type="number" id="valorRecebido" placeholder="0,00" step="0.01" min="0" autofocus>
                             </div>
                         </div>
 
                         <div class="box-troco">
                             <span>Troco</span>
-                            <strong class="valor-troco">R$ 3,80</strong>
+                            <strong class="valor-troco" id="valorTroco">R$ 0,00</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- Botão de Ação Principal -->
+                <!-- BOTÃO DE CONFIRMAÇÃO -->
                 <div class="pagamento-footer">
-                    <button type="button" class="btn-confirmar">
-                        Confirmar pagamento (F5)
+                    <button type="button" class="btn-confirmar" id="btnConfirmar">
+                        <i class="fa-solid fa-check-circle"></i> Confirmar Pagamento (F5)
                     </button>
                 </div>
 
@@ -157,15 +132,7 @@
 
     </div>
 
-    <!-- Script de seleção de forma de pagamento -->
-    <script>
-        document.querySelectorAll('.metodo-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.metodo-card').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                this.querySelector('input').checked = true;
-            });
-        });
-    </script>
+    <!-- JS de Pagamento -->
+    <script src="/static/js/pagamento.js"></script>
 </body>
 </html>

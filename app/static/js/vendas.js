@@ -37,6 +37,7 @@ function configurarEventos() {
                     preco: Number(btnAdd.dataset.preco),
                     quantidade: 1,
                     estoque,
+                    imagem: btnAdd.dataset.imagem || '/static/img/camisa.jpg' // 👈 CAPTURA A IMAGEM DO PRODUTO
                 });
             }
             salvarERenderizar();
@@ -105,19 +106,27 @@ function renderizarCarrinho() {
     container.innerHTML = carrinho.map((item) => {
         const valor = item.preco * item.quantidade;
         subtotal += valor;
+        
+        // Trata caminho de imagem padrão caso venha nulo/vazio
+        const fotoUrl = item.imagem && item.imagem.trim() !== "" ? item.imagem : "/static/img/camisa.jpg";
+
         return `
-            <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
-                <div class="cart-info">
-                    <h4 style="margin: 0; font-size: 0.95rem;">${item.nome}</h4>
+            <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; gap: 8px;">
+                <img src="${fotoUrl}" alt="${item.nome}" style="width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;" onerror="this.src='/static/img/camisa.jpg'">
+                
+                <div class="cart-info" style="flex: 1;">
+                    <h4 style="margin: 0; font-size: 0.9rem; line-height: 1.2;">${item.nome}</h4>
                     <small style="color: #64748b;">R$ ${item.preco.toFixed(2).replace('.', ',')} cada</small>
                 </div>
+
                 <div class="qty-controls" style="display: flex; align-items: center; gap: 6px;">
                     <button type="button" onclick="alterarQuantidade(${item.id}, -1)">−</button>
                     <span>${item.quantidade}</span>
                     <button type="button" onclick="alterarQuantidade(${item.id}, 1)">+</button>
                     <button type="button" class="remove-item" onclick="removerItem(${item.id})" style="border:none; background:none; color:#ef4444; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
-                <strong>R$ ${valor.toFixed(2).replace('.', ',')}</strong>
+
+                <strong style="font-size: 0.95rem;">R$ ${valor.toFixed(2).replace('.', ',')}</strong>
             </div>
         `;
     }).join("");
@@ -143,9 +152,9 @@ function irParaPagamento() {
         mostrarMensagem("Adicione pelo menos um produto ao carrinho antes de prosseguir.", "error");
         return;
     }
-    // Salva o carrinho e navega para a tela HTML de Pagamento
+    // Salva o carrinho com as imagens e navega para a tela de Pagamento
     localStorage.setItem("carrinho_pdv", JSON.stringify(carrinho));
-    window.location.href = "/pagamento"; // ou "pagamento.html"
+    window.location.href = "/pagamento";
 }
 
 function mostrarMensagem(texto, tipo) {
@@ -157,4 +166,58 @@ function mostrarMensagem(texto, tipo) {
     toast.textContent = texto;
     toast.className = `purchase-message ${tipo} visible`;
     window.setTimeout(() => toast.classList.remove("visible"), 4000);
+}
+
+
+
+/* =========================================================
+   MENSAGENS E ALERTAS PROFISSIONAIS (SWEETALERT2)
+========================================================= */
+
+// 1. Notificação rápida no canto da tela (Substitui a antiga)
+function mostrarMensagem(texto, tipo = "success") {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: tipo, // 'success', 'error', 'warning', 'info'
+        title: texto,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+}
+
+// 2. Alerta Bonito para Desconto Aplicado
+function avisarDesconto(valorDesconto) {
+    Swal.fire({
+        title: 'Desconto Aplicado!',
+        text: `Foi aplicado um desconto no valor total.`,
+        icon: 'success',
+        confirmButtonColor: '#16a34a',
+        confirmButtonText: 'Continuar'
+    });
+}
+
+// 3. Modal Completo de Finalização de Venda + Troco
+function avisarVendaFinalizada(total, valorPago, troco) {
+    Swal.fire({
+        title: '🎉 Venda Concluída com Sucesso!',
+        html: `
+            <div style="font-size: 1.05rem; text-align: left; background: #f8fafc; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #e2e8f0;">
+                <p style="margin: 6px 0; color: #334155;"><strong>Total da Venda:</strong> R$ ${Number(total).toFixed(2).replace('.', ',')}</p>
+                <p style="margin: 6px 0; color: #334155;"><strong>Valor Recebido:</strong> R$ ${Number(valorPago).toFixed(2).replace('.', ',')}</p>
+                <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
+                <p style="margin: 6px 0; font-size: 1.3rem; color: #16a34a;"><strong>Troco: R$ ${Number(troco).toFixed(2).replace('.', ',')}</strong></p>
+            </div>
+        `,
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
+        cancelButtonText: 'Nova Venda',
+        confirmButtonColor: '#16a34a',
+        cancelButtonColor: '#64748b'
+    }).then(() => {
+        localStorage.removeItem("carrinho_pdv");
+        window.location.href = "/vendas";
+    });
 }

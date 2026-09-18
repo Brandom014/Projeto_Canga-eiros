@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/vendas.css?v=12">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -73,17 +74,26 @@
                 <div class="products-grid" id="productsContainer">
                     {% for produto in produtos %}
                     <div class="product-card" data-id="{{ produto.id }}" data-categoria="{{ produto.categoria_id }}" data-nome="{{ produto.nome|lower }}" data-preco="{{ produto.preco }}" data-estoque="{{ produto.estoque }}">
+                        
                         <div class="product-thumb">
-                            <img src="/static/img/camisa.jpg" alt="{{ produto.nome }}">
+                            <img src="{{ produto.imagem if produto.imagem else '/static/img/camisa.jpg' }}" alt="{{ produto.nome }}" onerror="this.src='/static/img/camisa.jpg'">
                             <span class="stock-badge">Estoque: {{ produto.estoque }}</span>
                         </div>
+
                         <div class="product-details">
                             <h4 class="product-title">{{ produto.nome }}</h4>
                             <div class="product-price">R$ {{ "%.2f"|format(produto.preco) }}</div>
                         </div>
-                        <button type="button" class="btn-add-product add-product" data-id="{{ produto.id }}" data-nome="{{ produto.nome }}" data-preco="{{ produto.preco }}" data-estoque="{{ produto.estoque }}">
+
+                        <button type="button" class="btn-add-product add-product" 
+                            data-id="{{ produto.id }}" 
+                            data-nome="{{ produto.nome }}" 
+                            data-preco="{{ produto.preco }}" 
+                            data-estoque="{{ produto.estoque }}"
+                            data-imagem="{{ produto.imagem if produto.imagem else '/static/img/camisa.jpg' }}">
                             <i class="fa-solid fa-cart-plus"></i> Adicionar
                         </button>
+
                     </div>
                     {% endfor %}
                 </div>
@@ -104,7 +114,6 @@
                     <div class="summary-line"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
                     <div class="summary-line total-line"><span>Total</span><strong id="total">R$ 0,00</strong></div>
 
-                    <!-- BOTÃO REDIRECIONA PARA A TELA DE PAGAMENTO -->
                     <button type="button" id="btnIrParaPagamento" class="btn-success-action" onclick="irParaPagamento()" style="width: 100%; padding: 14px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
                         Ir para Pagamento <i class="fa-solid fa-arrow-right"></i>
                     </button>
