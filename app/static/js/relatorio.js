@@ -1,14 +1,13 @@
 let relatorioVendas = [];
 let vendasFiltradas = [];
 let paginaAtual = 1;
-const itensPorPagina = 8;
+const itensPorPagina = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
     configurarFiltrosAutomaticos();
     carregarVendas();
 });
 
-// Eventos que disparam filtragem instantânea sem botão
 function configurarFiltrosAutomaticos() {
     const busca = document.getElementById('busca');
     const dataInicio = document.getElementById('data_inicio');
@@ -21,8 +20,6 @@ function configurarFiltrosAutomaticos() {
     if (pagamento) pagamento.addEventListener('change', aplicarFiltros);
 }
 
-// Carrega dados reais do servidor/API ou do localStorage da sua aplicação
-// Carrega vendas da API e do localStorage de forma combinada
 async function carregarVendas() {
     let apiVendas = [];
 
@@ -39,7 +36,6 @@ async function carregarVendas() {
     const localData = localStorage.getItem('vendas');
     const localVendas = localData ? JSON.parse(localData) : [];
 
-    // Une as vendas do banco com as vendas locais sem duplicar por ID
     const mapaVendas = new Map();
     [...localVendas, ...apiVendas].forEach(venda => {
         if (venda && venda.id) mapaVendas.set(venda.id, venda);
@@ -49,7 +45,6 @@ async function carregarVendas() {
     aplicarFiltros();
 }
 
-// Filtra as vendas corrigindo maiúsculas/minúsculas
 function aplicarFiltros() {
     const busca = (document.getElementById('busca')?.value || '').toLowerCase().trim();
     const dataInicio = document.getElementById('data_inicio')?.value;
@@ -77,15 +72,17 @@ function aplicarFiltros() {
     renderizarTabela();
 }
 
-// Renderiza somente as vendas da página atual (fatiamento real)
 function renderizarTabela() {
     const tbody = document.getElementById('tabela-vendas');
+    const badgeCount = document.getElementById('vendas-count-badge');
+    
+    if (badgeCount) badgeCount.innerText = `${vendasFiltradas.length} vendas`;
     if (!tbody) return;
 
     tbody.innerHTML = '';
 
     if (vendasFiltradas.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 24px; color: #64748b;">Nenhuma venda realizada ainda.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 24px; color: #64748b;">Nenhuma venda encontrada.</td></tr>`;
         atualizarPaginacao();
         return;
     }
@@ -121,7 +118,6 @@ function renderizarTabela() {
     atualizarPaginacao();
 }
 
-// Calcula e atualiza os botões e contadores de página
 function atualizarPaginacao() {
     const totalItens = vendasFiltradas.length;
     const totalPaginas = Math.ceil(totalItens / itensPorPagina) || 1;
@@ -158,7 +154,6 @@ function mudarPagina(direcao) {
     }
 }
 
-// Atualiza métricas superiores
 function atualizarCards() {
     const vendasValidas = vendasFiltradas.filter(v => v.status !== 'Cancelada');
     
@@ -186,13 +181,11 @@ function limparFiltros() {
     aplicarFiltros();
 }
 
-// Toggle da Sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
-// Modal de detalhes
 function abrirModalDetalhes(vendaId) {
     const venda = relatorioVendas.find(v => v.id == vendaId);
     if (!venda) return;
@@ -249,10 +242,8 @@ function exportarRelatorio() {
         return;
     }
 
-    // Cabeçalhos das colunas
     const cabecalhos = ["ID Venda", "Data", "Cliente", "Usuário", "Qtd Itens", "Forma Pagamento", "Status", "Total (R$)"];
 
-    // Converte cada venda filtrada em uma linha do relatório
     const linhas = vendasFiltradas.map(venda => [
         `"#${venda.id}"`,
         `"${formatarData(venda.data)}"`,
@@ -264,10 +255,8 @@ function exportarRelatorio() {
         `"${(venda.total || 0).toFixed(2).replace('.', ',')}"`
     ]);
 
-    // O prefixo '\uFEFF' (BOM) garante a exibição correta dos caracteres acentuados no Excel
     const conteudoCSV = "\uFEFF" + [cabecalhos.join(";"), ...linhas.map(row => row.join(";"))].join("\n");
 
-    // Cria o link invisível para download do arquivo .csv
     const blob = new Blob([conteudoCSV], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

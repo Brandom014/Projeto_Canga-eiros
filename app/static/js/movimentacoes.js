@@ -261,16 +261,13 @@ function atualizarControlesPaginacao(totalPaginas) {
         pageInfo.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
     }
 
+    // Mantém a cor viva (100% de opacidade) em qualquer página
     if (btnPrev) {
-        btnPrev.disabled = paginaAtual <= 1;
-        btnPrev.style.opacity = paginaAtual <= 1 ? "0.5" : "1";
-        btnPrev.style.cursor = paginaAtual <= 1 ? "not-allowed" : "pointer";
+        btnPrev.style.opacity = "1";
     }
 
     if (btnNext) {
-        btnNext.disabled = paginaAtual >= totalPaginas;
-        btnNext.style.opacity = paginaAtual >= totalPaginas ? "0.5" : "1";
-        btnNext.style.cursor = paginaAtual >= totalPaginas ? "not-allowed" : "pointer";
+        btnNext.style.opacity = "1";
     }
 }
 

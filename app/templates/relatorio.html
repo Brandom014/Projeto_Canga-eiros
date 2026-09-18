@@ -20,154 +20,157 @@
 
     <div id="toast-container"></div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div>
-            <div class="sidebar-brand">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fa-solid fa-store"></i>
-                    <span class="logo-text"></span>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <div class="sidebar-brand">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fa-solid fa-store"></i>
+                        <span class="logo-text">Painel</span>
+                    </div>
+                    <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
                 </div>
-                <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
+
+                <ul class="menu-list">
+                    <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="menu-item"><a href="/vendas"><i class="fa-solid fa-cart-shopping"></i><span>Vendas</span></a></li>
+                    <li class="menu-item"><a href="/produtos"><i class="fa-solid fa-box"></i><span>Produtos</span></a></li>
+                    <li class="menu-item"><a href="/estoque"><i class="fa-solid fa-warehouse"></i><span>Estoque</span></a></li>
+                    <li class="menu-item"><a href="/movimentacoes"><i class="fa-solid fa-boxes-stacked"></i><span>Movimentações</span></a></li>
+                    <li class="menu-item active"><a href="/relatorio"><i class="fa-solid fa-file-invoice-dollar"></i><span>Relatório de vendas</span></a></li>
+                    <li class="menu-item"><a href="/usuarios"><i class="fa-solid fa-users"></i><span>Gerenciar Usuários</span></a></li>
+                    <li class="menu-item"><a href="/clientes"><i class="fa-solid fa-user-group"></i><span>Clientes</span></a></li>
+                </ul>
             </div>
+        </aside>
 
-            <ul class="menu-list">
-                <li class="menu-item"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
-                <li class="menu-item"><a href="/vendas"><i class="fa-solid fa-cart-shopping"></i><span>Vendas</span></a></li>
-                <li class="menu-item"><a href="/produtos"><i class="fa-solid fa-box"></i><span>Produtos</span></a></li>
-                <li class="menu-item"><a href="/estoque"><i class="fa-solid fa-warehouse"></i><span>Estoque</span></a></li>
-                <li class="menu-item"><a href="/movimentacoes"><i class="fa-solid fa-boxes-stacked"></i><span>Movimentações</span></a></li>
-                <li class="menu-item active"><a href="/relatorio"><i class="fa-solid fa-file-invoice-dollar"></i><span>Relatório de vendas</span></a></li>
-                <li class="menu-item"><a href="/usuarios"><i class="fa-solid fa-users"></i><span>Gerenciar Usuários</span></a></li>
-                <li class="menu-item"><a href="/clientes"><i class="fa-solid fa-user-group"></i><span>Clientes</span></a></li>
-            </ul>
-        </div>
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
 
-    </aside>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="main-content">
-
-        <!-- CABEÇALHO -->
-        <div class="top">
-            <div class="title">
-                <h1>Relatório de Vendas</h1>
-                <p>Acompanhe o desempenho das vendas no período selecionado.</p>
-            </div>
-        </div>
-
-        <!-- CARDS DE MÉTRICAS (ÍCONES AO LADO) -->
-        <div class="cards">
-            <div class="card">
-                <div class="icon green">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                </div>
-                <div class="card-info">
-                    <small>Faturamento Total</small>
-                    <h2 id="faturamento">R$ 0,00</h2>
+            <!-- CABEÇALHO -->
+            <div class="top">
+                <div class="title">
+                    <h1>Relatório de Vendas</h1>
+                    <p>Acompanhe o desempenho das vendas no período selecionado.</p>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="icon blue">
-                    <i class="fa-solid fa-receipt"></i>
-                </div>
-                <div class="card-info">
-                    <small>Total de Vendas</small>
-                    <h2 id="total-vendas">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon purple">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-                <div class="card-info">
-                    <small>Ticket Médio</small>
-                    <h2 id="ticket-medio">R$ 0,00</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon orange">
-                    <i class="fa-solid fa-box"></i>
-                </div>
-                <div class="card-info">
-                    <small>Produtos Vendidos</small>
-                    <h2 id="produtos-vendidos">0</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- FILTROS -->
-        <div class="filters">
-            <input type="text" id="busca" placeholder="Buscar venda ou cliente">
-            <input type="date" id="data_inicio" title="Data Inicial">
-            <input type="date" id="data_fim" title="Data Final">
-
-            <select id="pagamento">
-                <option value="">Todas as formas</option>
-                <option value="PIX">PIX</option>
-                <option value="Credito">Crédito</option>
-                <option value="Debito">Débito</option>
-                <option value="Dinheiro">Dinheiro</option>
-            </select>
-
-            <button class="btn btn-clear" onclick="limparFiltros()">
-                Limpar
-            </button>
-        </div>
-
-        <!-- LISTA E TABELA DE VENDAS -->
-        <div class="content">
-            <div class="box lista-vendas">
-
-                <div class="lista-header">
-                    <h3>Lista de Vendas</h3>
-
-                    <button class="export" onclick="exportarRelatorio()">
-                        <i class="fa-solid fa-file-export"></i> Exportar
-                    </button>
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Venda</th>
-                                <th>Data</th>
-                                <th>Cliente</th>
-                                <th>Usuário</th>
-                                <th>Itens</th>
-                                <th>Pagamento</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th style="text-align: center;">Ações</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="tabela-vendas">
-                            <tr>
-                                <td colspan="9" style="text-align:center;">Carregando vendas...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- PAGINAÇÃO -->
-                <div class="pagination-container">
-                    <span id="pagination-info">Mostrando 0 de 0 vendas</span>
-                    <div class="pagination-buttons">
-                        <button id="btn-prev" onclick="mudarPagina(-1)" class="btn btn-clear" disabled>Anterior</button>
-                        <span id="page-num">Página 1</span>
-                        <button id="btn-next" onclick="mudarPagina(1)" class="btn btn-clear" disabled>Próxima</button>
+            <!-- CARDS DE MÉTRICAS -->
+            <div class="cards">
+                <div class="card">
+                    <div class="icon green">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+                    <div class="card-info">
+                        <small>Faturamento Total</small>
+                        <h2 id="faturamento">R$ 0,00</h2>
                     </div>
                 </div>
 
-            </div>
-        </div>
+                <div class="card">
+                    <div class="icon blue">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div class="card-info">
+                        <small>Total de Vendas</small>
+                        <h2 id="total-vendas">0</h2>
+                    </div>
+                </div>
 
-    </main>
+                <div class="card">
+                    <div class="icon purple">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="card-info">
+                        <small>Ticket Médio</small>
+                        <h2 id="ticket-medio">R$ 0,00</h2>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="icon orange">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="card-info">
+                        <small>Produtos Vendidos</small>
+                        <h2 id="produtos-vendidos">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filters">
+                <input type="text" id="busca" placeholder="Buscar venda ou cliente">
+                <input type="date" id="data_inicio" title="Data Inicial">
+                <input type="date" id="data_fim" title="Data Final">
+
+                <select id="pagamento">
+                    <option value="">Todas as formas</option>
+                    <option value="PIX">PIX</option>
+                    <option value="Credito">Crédito</option>
+                    <option value="Debito">Débito</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+
+                <button class="btn btn-clear" onclick="limparFiltros()">Limpar</button>
+            </div>
+
+            <!-- LISTA E TABELA DE VENDAS -->
+            <div class="content">
+                <div class="box lista-vendas">
+
+                    <div class="table-header">
+                        <div class="table-title">Relatório de Vendas</div>
+                        <div class="table-badge" id="vendas-count-badge">0 vendas</div>
+                    </div>
+
+                    <div class="lista-header">
+                        <h3>Lista de Vendas</h3>
+                        <button class="export" onclick="exportarRelatorio()">
+                            <i class="fa-solid fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Venda</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Usuário</th>
+                                    <th>Itens</th>
+                                    <th>Pagamento</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th style="text-align: center;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-vendas">
+                                <tr>
+                                    <td colspan="9" style="text-align:center;">Carregando vendas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINAÇÃO -->
+            <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
+                    <i class="fa-solid fa-chevron-left"></i> Anterior
+                </button>
+                <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
+                <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
+                    Próxima <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
 
     <!-- MODAL DE DETALHES DA VENDA -->
     <div class="modal" id="modalDetalhesVenda" style="display: none;">
