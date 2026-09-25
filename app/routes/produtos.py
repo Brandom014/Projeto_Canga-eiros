@@ -219,3 +219,19 @@ async def editar_produto(
         url="/produtos?sucesso=produto",
         status_code=303
     )
+
+@router.get("/listar")
+def listar_produtos_json(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    produtos = db.query(Produto).all()
+    return [
+        {
+            "id": p.id,
+            "nome": p.nome,
+            "preco": p.preco,
+            "estoque": p.estoque
+        }
+        for p in produtos
+    ]

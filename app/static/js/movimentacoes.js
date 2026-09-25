@@ -22,12 +22,51 @@ function toggleSidebar() {
     if (sidebar) sidebar.classList.toggle("collapsed");
 }
 
-// 1. CARREGAMENTO INICIAL
+// 1. SISTEMA DE NOTIFICAÇÕES (TOAST)
+function mostrarNotificacao(mensagem, tipo = 'sucesso') {
+    let container = document.getElementById("toast-container");
+    
+    // Cria o contêiner de notificações se ainda não existir
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "toast-container";
+        document.body.appendChild(container);
+    }
+
+    // Ícones do FontAwesome
+    let icone = 'fa-circle-check';
+    if (tipo === 'erro') icone = 'fa-circle-xmark';
+    if (tipo === 'alerta') icone = 'fa-triangle-exclamation';
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${tipo}`;
+    toast.innerHTML = `
+        <i class="fa-solid ${icone}" style="font-size: 1.25rem;"></i>
+        <span style="flex: 1;">${mensagem}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Animação de entrada
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 10);
+
+    // Remoção automática após 3.5 segundos
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3500);
+}
+
+// 2. CARREGAMENTO INICIAL DE MOVIMENTAÇÕES
 async function carregarMovimentacoes() {
     try {
         let response = await fetch('/api/movimentacoes');
         
-        // Fallback caso a rota no backend não use o prefixo /api
+        // Fallback caso a rota não use o prefixo /api
         if (!response.ok) {
             response = await fetch('/movimentacoes');
         }
@@ -46,7 +85,7 @@ async function carregarMovimentacoes() {
     }
 }
 
-// 2. BUSCA E PREENCHIMENTO DE CATEGORIAS
+// 3. BUSCA E PREENCHIMENTO DE CATEGORIAS
 async function carregarCategorias() {
     try {
         let response = await fetch('/categorias');
@@ -102,7 +141,7 @@ function preencherSelectCategorias(listaCategorias) {
     });
 }
 
-// 3. FILTRAGEM
+// 4. FILTRAGEM
 function filtrarMovimentacoes() {
     if (!Array.isArray(todasMovimentacoes)) return;
 
@@ -111,11 +150,9 @@ function filtrarMovimentacoes() {
     const categoriaFiltro = document.getElementById("categoria")?.value || "";
 
     movimentacoesFiltradas = todasMovimentacoes.filter(mov => {
-        // Busca por texto
         const textoCompleto = `${mov.id || ''} ${mov.produto || ''} ${mov.usuario || ''} ${mov.observacao || ''}`.toLowerCase();
         const passaBusca = !busca || textoCompleto.includes(busca);
 
-        // Filtro de Tipo
         let passaTipo = true;
         if (tipoFiltro) {
             if (tipoFiltro === "Entrada") {
@@ -127,24 +164,19 @@ function filtrarMovimentacoes() {
             }
         }
 
-        // Filtro de Categoria
         const catMov = mov.categoria || mov.categoria_nome || mov.nome_categoria || '';
         const passaCategoria = !categoriaFiltro || catMov === categoriaFiltro;
 
         return passaBusca && passaTipo && passaCategoria;
     });
 
-    // Reseta para a primeira página a cada novo filtro
     paginaAtual = 1;
 
-    // Atualiza os totais dos cards e o contador dinâmico
     atualizarCards(movimentacoesFiltradas);
-
-    // Desenha a tabela com a página atual
     renderizarTabela();
 }
 
-// 4. CÁLCULO DOS CARDS DE RESUMO E CONTADOR DA TABELA
+// 5. CÁLCULO DOS CARDS DE RESUMO E CONTADOR
 function atualizarCards(lista) {
     let entradas = 0;
     let saidas = 0;
@@ -183,7 +215,6 @@ function atualizarCards(lista) {
         });
     }
 
-    // Atualiza o contador de registros encontrados na tabela
     const elContador = document.getElementById("contadorMovimentacoes") || document.getElementById("contadorProdutos");
     if (elContador) {
         const total = lista.length;
@@ -192,7 +223,7 @@ function atualizarCards(lista) {
     }
 }
 
-// 5. RENDERIZAÇÃO DA TABELA E PAGINAÇÃO
+// 6. RENDERIZAÇÃO DA TABELA E PAGINAÇÃO
 function renderizarTabela() {
     const tabela = document.getElementById('tabelaMovimentacoes');
     if (!tabela) return;
@@ -202,11 +233,9 @@ function renderizarTabela() {
     const totalItens = movimentacoesFiltradas.length;
     const totalPaginas = Math.ceil(totalItens / itensPorPagina) || 1;
 
-    // Ajusta limites da página
     if (paginaAtual < 1) paginaAtual = 1;
     if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
-    // Fatia a lista para exibir somente os itens da página atual
     const inicio = (paginaAtual - 1) * itensPorPagina;
     const fim = inicio + itensPorPagina;
     const itensPagina = movimentacoesFiltradas.slice(inicio, fim);
@@ -247,11 +276,10 @@ function renderizarTabela() {
         });
     }
 
-    // Atualiza o texto e estado dos botões da paginação no HTML
     atualizarControlesPaginacao(totalPaginas);
 }
 
-// 6. ATUALIZAÇÃO DOS BOTÕES DE PAGINAÇÃO
+// 7. CONTROLES DE PAGINAÇÃO
 function atualizarControlesPaginacao(totalPaginas) {
     const pageInfo = document.getElementById("pageInfo");
     const btnPrev = document.getElementById("btnPrev");
@@ -261,17 +289,10 @@ function atualizarControlesPaginacao(totalPaginas) {
         pageInfo.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
     }
 
-    // Mantém a cor viva (100% de opacidade) em qualquer página
-    if (btnPrev) {
-        btnPrev.style.opacity = "1";
-    }
-
-    if (btnNext) {
-        btnNext.style.opacity = "1";
-    }
+    if (btnPrev) btnPrev.style.opacity = "1";
+    if (btnNext) btnNext.style.opacity = "1";
 }
 
-// 7. AÇÃO DOS BOTÕES ANTERIOR E PRÓXIMO
 window.mudarPagina = function(direcao) {
     const totalPaginas = Math.ceil(movimentacoesFiltradas.length / itensPorPagina) || 1;
     const novaPagina = paginaAtual + direcao;
@@ -295,7 +316,97 @@ function limparFiltros() {
     filtrarMovimentacoes();
 }
 
-// Vincula eventos aos campos de filtro
+// 9. LÓGICA DO MODAL E BUSCA DE PRODUTOS COM ESTOQUE
+async function carregarProdutosNoSelect() {
+    const selectProduto = document.getElementById("produto_id");
+    if (!selectProduto) return;
+
+    selectProduto.innerHTML = '<option value="">Carregando produtos...</option>';
+
+    try {
+        const response = await fetch('/produtos/listar', {
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            const produtos = await response.json();
+
+            if (Array.isArray(produtos) && produtos.length > 0) {
+                selectProduto.innerHTML = '<option value="">Selecione um produto...</option>';
+                produtos.forEach(p => {
+                    const qtdEstoque = p.estoque ?? 0;
+                    selectProduto.innerHTML += `<option value="${p.id}">${p.nome} (Estoque: ${qtdEstoque})</option>`;
+                });
+                return;
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+    }
+
+    selectProduto.innerHTML = '<option value="">Nenhum produto encontrado</option>';
+}
+
+window.abrirModal = function() {
+    const modal = document.getElementById("modalMovimentacao");
+    if (modal) {
+        modal.style.display = "flex";
+        carregarProdutosNoSelect();
+    }
+};
+
+window.fecharModal = function() {
+    const modal = document.getElementById("modalMovimentacao");
+    const form = document.getElementById("formMovimentacao");
+    if (modal) modal.style.display = "none";
+    if (form) form.reset();
+};
+
+// 10. SALVAR MOVIMENTAÇÃO COM VALOR E TOAST
+window.salvarMovimentacao = async function(event) {
+    event.preventDefault();
+
+    const produto_id = parseInt(document.getElementById("produto_id")?.value);
+    const tipo = document.getElementById("tipo_mov")?.value;
+    const quantidade = parseInt(document.getElementById("quantidade")?.value);
+    const valor = parseFloat(document.getElementById("valor")?.value) || 0.0;
+    const observacao = document.getElementById("observacao")?.value || null;
+
+    if (!produto_id || !tipo || isNaN(quantidade)) {
+        mostrarNotificacao("Preencha todos os campos obrigatórios.", "alerta");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/movimentacoes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                produto_id,
+                tipo,
+                quantidade,
+                valor,
+                observacao
+            })
+        });
+
+        if (response.ok) {
+            mostrarNotificacao("Movimentação cadastrada com sucesso!", "sucesso");
+            fecharModal();
+            carregarMovimentacoes();
+        } else {
+            const erro = await response.json();
+            mostrarNotificacao(erro.detail || 'Não foi possível salvar a movimentação.', "erro");
+        }
+    } catch (error) {
+        console.error("Erro ao salvar movimentação:", error);
+        mostrarNotificacao("Erro de conexão com o servidor.", "erro");
+    }
+};
+
+// 11. EVENT LISTENERS E INICIALIZAÇÃO
 ["busca", "tipo", "categoria"].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -304,11 +415,10 @@ function limparFiltros() {
     }
 });
 
-// Evento do botão limpar
 const btnLimpar = document.getElementById("btnLimpar");
 if (btnLimpar) {
     btnLimpar.addEventListener("click", limparFiltros);
 }
 
-// Execução inicial
+// Inicializa a tabela ao carregar o script
 carregarMovimentacoes();
