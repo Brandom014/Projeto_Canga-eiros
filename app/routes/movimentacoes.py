@@ -2,6 +2,9 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from zoneinfo import ZoneInfo  # Nativo do Python 3.9+
+from datetime import timezone
+
 from app.database import get_db
 from app.models.movimentacoes import Movimentacao
 from app.models.produtos import Produto
@@ -14,6 +17,20 @@ router = APIRouter()
 templates = Jinja2Templates(
     directory="app/templates"
 )
+
+FUSO_BR = ZoneInfo("America/Sao_Paulo")
+
+def formatar_data_movimentacao(dt):
+    if not dt:
+        return None
+    
+    # Se a data no banco não tiver timezone definido (naive), assumimos que foi salva em UTC
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+        
+    # Converte para o fuso horário de Brasília (UTC-3)
+    return dt.astimezone(FUSO_BR).isoformat()
+
 
 @router.get("/movimentacoes", response_class=HTMLResponse)
 def tela_movimentacoes(
@@ -42,7 +59,7 @@ def listar_movimentacoes(
             "quantidade": m.quantidade,
             "valor": m.valor,
             "observacao": m.observacao,
-            "data": m.data.isoformat() if m.data else None
+            "data": formatar_data_movimentacao(m.data)
         }
         for m in movimentacoes
     ]
@@ -56,4 +73,3 @@ def tela_relatorio(
         "relatorio.html",
         {"request": request}
     )
-
