@@ -1,7 +1,7 @@
 let relatorioVendas = [];
 let vendasFiltradas = [];
 let paginaAtual = 1;
-const itensPorPagina = 1;
+const itensPorPagina = 4;
 
 document.addEventListener('DOMContentLoaded', () => {
     configurarFiltrosAutomaticos();
@@ -24,24 +24,29 @@ async function carregarVendas() {
     let apiVendas = [];
 
     try {
-        const response = await fetch('/api/vendas');
+        const response = await fetch('/api/relatorio/');
         if (response.ok) {
             const dados = await response.json();
-            if (Array.isArray(dados)) apiVendas = dados;
+            if (dados && Array.isArray(dados.vendas)) {
+                apiVendas = dados.vendas;
+            } else if (Array.isArray(dados)) {
+                apiVendas = dados;
+            }
+        } else {
+            console.warn("API de relatório retornou status:", response.status);
         }
     } catch (error) {
-        console.log("Backend offline ou endpoint inativo. Carregando vendas locais...");
+        console.error("Erro ao conectar com a API de relatórios:", error);
     }
 
-    const localData = localStorage.getItem('vendas');
-    const localVendas = localData ? JSON.parse(localData) : [];
+    if (apiVendas.length > 0) {
+        relatorioVendas = apiVendas;
+    } else {
+        const localData = localStorage.getItem('vendas');
+        const localVendas = localData ? JSON.parse(localData) : [];
+        relatorioVendas = localVendas;
+    }
 
-    const mapaVendas = new Map();
-    [...localVendas, ...apiVendas].forEach(venda => {
-        if (venda && venda.id) mapaVendas.set(venda.id, venda);
-    });
-
-    relatorioVendas = Array.from(mapaVendas.values());
     aplicarFiltros();
 }
 
@@ -52,17 +57,33 @@ function aplicarFiltros() {
     const pagamento = (document.getElementById('pagamento')?.value || '').toLowerCase().trim();
 
     vendasFiltradas = relatorioVendas.filter(venda => {
+        const clienteNome = (venda.cliente || '').toLowerCase();
+        const usuarioNome = (venda.usuario || '').toLowerCase();
+        const idStr = venda.id ? venda.id.toString().toLowerCase() : '';
+
         const matchBusca = !busca || 
-            (venda.id && venda.id.toString().toLowerCase().includes(busca)) || 
-            (venda.cliente && venda.cliente.toLowerCase().includes(busca));
+            idStr.includes(busca) || 
+            clienteNome.includes(busca) ||
+            usuarioNome.includes(busca);
 
         const pagVenda = (venda.pagamento || venda.forma_pagamento || '').toLowerCase().trim();
         const matchPagamento = !pagamento || pagVenda === pagamento;
 
         let matchData = true;
-        const dataVenda = venda.data ? venda.data.split('T')[0] : '';
-        if (dataInicio && dataVenda < dataInicio) matchData = false;
-        if (dataFim && dataVenda > dataFim) matchData = false;
+        let dataVenda = '';
+        if (venda.data) {
+            if (venda.data.includes('T')) {
+                dataVenda = venda.data.split('T')[0];
+            } else if (venda.data.includes('/')) {
+                const p = venda.data.split(' ')[0].split('/');
+                if (p.length === 3) dataVenda = `${p[2]}-${p[1]}-${p[0]}`;
+            } else {
+                dataVenda = venda.data.split(' ')[0];
+            }
+        }
+
+        if (dataInicio && dataVenda && dataVenda < dataInicio) matchData = false;
+        if (dataFim && dataVenda && dataVenda > dataFim) matchData = false;
 
         return matchBusca && matchPagamento && matchData;
     });
@@ -97,13 +118,22 @@ function renderizarTabela() {
         const badgeClass = isCancelada ? 'badge-danger' : 'badge-success';
         const statusTexto = venda.status || 'Concluída';
 
+        let totalQtdItens = 1;
+        if (typeof venda.itens === 'number') {
+            totalQtdItens = venda.itens;
+        } else if (Array.isArray(venda.itens)) {
+            totalQtdItens = venda.itens.length;
+        } else if (venda.qtdItens) {
+            totalQtdItens = venda.qtdItens;
+        }
+
         tr.innerHTML = `
             <td>#${venda.id}</td>
             <td>${formatarData(venda.data)}</td>
-            <td>${venda.cliente || 'Cliente Avulso'}</td>
+            <td>${venda.cliente || 'Consumidor Final'}</td>
             <td>${venda.usuario || 'Sistema'}</td>
-            <td>${venda.qtdItens || (venda.itens ? venda.itens.length : 1)} item(ns)</td>
-            <td>${venda.pagamento || 'N/A'}</td>
+            <td>${totalQtdItens} item(ns)</td>
+            <td>${(venda.pagamento || venda.forma_pagamento || 'N/I').toUpperCase()}</td>
             <td><span class="badge ${badgeClass}">${statusTexto}</span></td>
             <td><strong>${formatarMoeda(venda.total)}</strong></td>
             <td style="text-align: center;">
@@ -160,7 +190,12 @@ function atualizarCards() {
     const faturamento = vendasValidas.reduce((acc, v) => acc + (v.total || 0), 0);
     const totalVendas = vendasValidas.length;
     const ticketMedio = totalVendas > 0 ? faturamento / totalVendas : 0;
-    const totalProdutos = vendasValidas.reduce((acc, v) => acc + (v.qtdItens || (v.itens ? v.itens.length : 1)), 0);
+    
+    const totalProdutos = vendasValidas.reduce((acc, v) => {
+        if (typeof v.itens === 'number') return acc + v.itens;
+        if (Array.isArray(v.itens)) return acc + v.itens.length;
+        return acc + (v.qtdItens || 1);
+    }, 0);
 
     const elFaturamento = document.getElementById('faturamento');
     const elTotalVendas = document.getElementById('total-vendas');
@@ -186,39 +221,90 @@ function toggleSidebar() {
     if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
-function abrirModalDetalhes(vendaId) {
+/* =========================================================
+   DETALHES DA VENDA (COM SUPORTE A ITENS E DESCONTO)
+========================================================= */
+async function abrirModalDetalhes(vendaId) {
     const venda = relatorioVendas.find(v => v.id == vendaId);
     if (!venda) return;
 
+    // 1. Preenche informações básicas da cabeçalho do modal
     document.getElementById('modal-venda-id').innerText = venda.id;
     document.getElementById('modal-venda-data').innerText = formatarData(venda.data);
-    document.getElementById('modal-cliente-nome').innerText = venda.cliente || 'Cliente Avulso';
-    document.getElementById('modal-pagamento').innerText = venda.pagamento || 'N/A';
-    document.getElementById('modal-total-valor').innerText = formatarMoeda(venda.total);
+    document.getElementById('modal-cliente-nome').innerText = venda.cliente || 'Consumidor Final';
+    document.getElementById('modal-pagamento').innerText = (venda.pagamento || venda.forma_pagamento || 'N/I').toUpperCase();
 
     const tbody = document.getElementById('modal-itens-body');
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 16px; color: #64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Carregando detalhes da venda...</td></tr>`;
+
+    document.getElementById('modalDetalhesVenda').style.display = 'flex';
+
+    let itens = venda.itensDetalhes || (Array.isArray(venda.itens) ? venda.itens : null);
+    let subtotalBruto = venda.subtotal || venda.total || 0;
+    let desconto = venda.desconto || 0;
+    let totalLiquido = venda.total || 0;
+
+    // 2. Busca detalhes completos na API do backend
+    try {
+        let response = await fetch(`/vendas/api/detalhes/${vendaId}`);
+        if (!response.ok) {
+            response = await fetch(`/api/relatorio/${vendaId}`);
+        }
+
+        if (response.ok) {
+            const dados = await response.json();
+            itens = dados.itens || dados.itensDetalhes || [];
+            subtotalBruto = dados.subtotal !== undefined ? dados.subtotal : subtotalBruto;
+            desconto = dados.desconto !== undefined ? dados.desconto : desconto;
+            totalLiquido = dados.total !== undefined ? dados.total : totalLiquido;
+        }
+    } catch (err) {
+        console.error("Erro ao carregar detalhes da venda:", err);
+    }
+
+    // 3. Atualiza o valor final em destaque do modal
+    document.getElementById('modal-total-valor').innerText = formatarMoeda(totalLiquido);
+
+    // 4. Monta a tabela de itens
     tbody.innerHTML = '';
 
-    const itens = venda.itensDetalhes || venda.itens || [];
-
-    if (itens.length > 0) {
+    if (itens && itens.length > 0) {
         itens.forEach(item => {
+            const nome = item.nome || item.produto || item.produto_nome || 'Produto Indefinido';
             const qtd = item.qtd || item.quantidade || 1;
             const preco = item.preco || item.preco_unitario || 0;
+            const itemSubtotal = item.subtotal || (qtd * preco);
+
             tbody.innerHTML += `
                 <tr>
-                    <td>${item.nome || item.produto || 'Produto'}</td>
-                    <td>${qtd}</td>
-                    <td>${formatarMoeda(preco)}</td>
-                    <td>${formatarMoeda(qtd * preco)}</td>
+                    <td style="text-align: left; padding: 8px;">${nome}</td>
+                    <td style="text-align: center; padding: 8px;">${qtd}</td>
+                    <td style="text-align: right; padding: 8px;">${formatarMoeda(preco)}</td>
+                    <td style="text-align: right; padding: 8px; font-weight: 600;">${formatarMoeda(itemSubtotal)}</td>
                 </tr>
             `;
         });
-    } else {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Sem detalhes dos itens.</td></tr>`;
-    }
 
-    document.getElementById('modalDetalhesVenda').style.display = 'flex';
+        // Exibe linhas de resumo (Subtotal e Desconto) se houver desconto aplicado
+        if (desconto > 0) {
+            tbody.innerHTML += `
+                <tr style="border-top: 2px solid #e2e8f0; background-color: #f8fafc;">
+                    <td colspan="3" style="text-align: right; padding: 6px 12px; font-size: 13px;"><strong>Subtotal Bruto:</strong></td>
+                    <td style="text-align: right; padding: 6px 12px; font-size: 13px;">${formatarMoeda(subtotalBruto)}</td>
+                </tr>
+                <tr style="background-color: #f8fafc; color: #dc2626;">
+                    <td colspan="3" style="text-align: right; padding: 6px 12px; font-size: 13px;"><strong>Desconto:</strong></td>
+                    <td style="text-align: right; padding: 6px 12px; font-size: 13px;">- ${formatarMoeda(desconto)}</td>
+                </tr>
+                <tr style="background-color: #f8fafc; font-weight: bold;">
+                    <td colspan="3" style="text-align: right; padding: 8px 12px; font-size: 14px;"><strong>Total Líquido:</strong></td>
+                    <td style="text-align: right; padding: 8px 12px; font-size: 14px; color: #16a34a;">${formatarMoeda(totalLiquido)}</td>
+                </tr>
+            `;
+        }
+    } else {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 16px; color: #94a3b8;">Sem detalhes dos itens.</td></tr>`;
+    }
 }
 
 function fecharModalDetalhes() {
@@ -231,6 +317,7 @@ function formatarMoeda(valor) {
 
 function formatarData(dataIso) {
     if (!dataIso) return '--/--/----';
+    if (dataIso.includes('/')) return dataIso;
     const partes = dataIso.split('T')[0].split('-');
     if (partes.length < 3) return dataIso;
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
@@ -244,16 +331,23 @@ function exportarRelatorio() {
 
     const cabecalhos = ["ID Venda", "Data", "Cliente", "Usuário", "Qtd Itens", "Forma Pagamento", "Status", "Total (R$)"];
 
-    const linhas = vendasFiltradas.map(venda => [
-        `"#${venda.id}"`,
-        `"${formatarData(venda.data)}"`,
-        `"${(venda.cliente || 'Cliente Avulso').replace(/"/g, '""')}"`,
-        `"${(venda.usuario || 'Sistema').replace(/"/g, '""')}"`,
-        venda.qtdItens || (venda.itens ? venda.itens.length : 1),
-        `"${venda.pagamento || 'N/A'}"`,
-        `"${venda.status || 'Concluída'}"`,
-        `"${(venda.total || 0).toFixed(2).replace('.', ',')}"`
-    ]);
+    const linhas = vendasFiltradas.map(venda => {
+        let totalQtd = 1;
+        if (typeof venda.itens === 'number') totalQtd = venda.itens;
+        else if (Array.isArray(venda.itens)) totalQtd = venda.itens.length;
+        else if (venda.qtdItens) totalQtd = venda.qtdItens;
+
+        return [
+            `"#${venda.id}"`,
+            `"${formatarData(venda.data)}"`,
+            `"${(venda.cliente || 'Consumidor Final').replace(/"/g, '""')}"`,
+            `"${(venda.usuario || 'Sistema').replace(/"/g, '""')}"`,
+            totalQtd,
+            `"${(venda.pagamento || venda.forma_pagamento || 'N/A').toUpperCase()}"`,
+            `"${venda.status || 'Concluída'}"`,
+            `"${(venda.total || 0).toFixed(2).replace('.', ',')}"`
+        ];
+    });
 
     const conteudoCSV = "\uFEFF" + [cabecalhos.join(";"), ...linhas.map(row => row.join(";"))].join("\n");
 

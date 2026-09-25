@@ -2,7 +2,7 @@
 // ESTADO GLOBAL & PAGINAÇÃO
 // ==========================================
 let paginaAtual = 1;
-const itensPorPagina = 10; // Alterado para 10 itens por página
+const itensPorPagina = 4; // Alterado para 4 itens por página
 let clientesFiltrados = [];
 
 // ==========================================

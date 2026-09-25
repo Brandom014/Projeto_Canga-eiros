@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class ItemVendaRequest(BaseModel):
     produto_id: int
@@ -8,4 +8,4 @@ class ItemVendaRequest(BaseModel):
 class VendaRequest(BaseModel):
     itens: List[ItemVendaRequest]
     forma_pagamento: str = "Dinheiro"
-    cliente: str | None = None
+    cliente: Optional[str] = None

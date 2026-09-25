@@ -1,24 +1,38 @@
 /* =========================================================
-   LÓGICA DA TELA DE PAGAMENTO (PDV)
+   LÓGICA DA TELA DE PAGAMENTO (PDV) - FASTAPI INTEGRATED
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Carrega os itens do carrinho
     let carrinho = JSON.parse(localStorage.getItem("carrinho_pdv")) || [];
     
-    // 2. Define automaticamente o Vendedor como Admin (ou usuário logado no sistema)
+    // 2. Define o Vendedor / Admin dinamicamente
     let userStorage = JSON.parse(localStorage.getItem("usuario_logado")) || localStorage.getItem("usuario_logado") || "Admin";
     let nomeVendedor = typeof userStorage === "object" ? (userStorage.nome || userStorage.usuario || "Admin") : userStorage;
 
-    // 3. Carrega clientes cadastrados e cliente previamente selecionado
-    let clientesCadastrados = JSON.parse(localStorage.getItem("clientes_db")) || [];
-    let clienteData = JSON.parse(localStorage.getItem("cliente_pdv")) || null;
-    
-    let nomeCliente = clienteData ? (clienteData.nome || "Consumidor Final") : "Consumidor Final";
-    let cpfCliente = clienteData ? (clienteData.cpf || clienteData.cnpj || "") : "";
-    let idCliente = clienteData ? clienteData.id : null;
+    // 3. Estado do Cliente Selecionado (Recupera do localStorage do PDV se existir)
+    let clienteSalvoPdv = localStorage.getItem("cliente_pdv");
+    let nomeCliente = "Consumidor Final";
+    let cpfCliente = "";
+    let idCliente = null;
 
-    // Elementos DOM
+    // Trata o cliente vindo do localStorage (seja objeto JSON ou String)
+    if (clienteSalvoPdv) {
+        try {
+            const objCliente = JSON.parse(clienteSalvoPdv);
+            if (typeof objCliente === "object" && objCliente !== null) {
+                nomeCliente = objCliente.nome || "Consumidor Final";
+                cpfCliente = objCliente.cpf || "";
+                idCliente = objCliente.id || null;
+            } else {
+                nomeCliente = clienteSalvoPdv;
+            }
+        } catch (e) {
+            nomeCliente = clienteSalvoPdv;
+        }
+    }
+
+    // Referências de Elementos do DOM
     const container = document.getElementById("listaProdutos");
     const badgeCount = document.getElementById("badgeCount");
     const subtotalEl = document.getElementById("subtotalValor");
@@ -34,69 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let valorDesconto = 0;
 
-    // Se o carrinho estiver vazio
-    if (!carrinho || carrinho.length === 0) {
-        if (container) {
-            container.innerHTML = `
-                <div style="text-align: center; color: #94a3b8; padding: 40px 10px;">
-                    <i class="fa-solid fa-basket-shopping" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
-                    <p style="font-weight: 500;">Nenhum produto selecionado.</p>
-                </div>
-            `;
-        }
-        if (badgeCount) badgeCount.textContent = "0 itens";
-        if (subtotalEl) subtotalEl.textContent = "R$ 0,00";
-        if (totalEl) totalEl.textContent = "R$ 0,00";
-        return;
-    }
-
+    // -------------------------------------------------------------
+    // FUNÇÕES AUXILIARES DE FORMATAÇÃO E CÁLCULO
+    // -------------------------------------------------------------
     function formatarMoeda(valor) {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    function renderizarResumo() {
-        let totalSubtotal = 0;
-        let totalItens = 0;
-        container.innerHTML = "";
-
-        carrinho.forEach(item => {
-            const preco = Number(item.preco) || 0;
-            const qtd = Number(item.quantidade) || 1;
-            const subtotalItem = preco * qtd;
-
-            totalSubtotal += subtotalItem;
-            totalItens += qtd;
-
-            const imagemUrl = item.imagem || '/static/img/camisa.jpg';
-
-            container.innerHTML += `
-                <div class="produto-item">
-                    <div class="produto-info">
-                        <img src="${imagemUrl}" alt="${item.nome}" class="produto-img">
-                        <div class="produto-detalhes">
-                            <span class="produto-nome">${item.nome}</span>
-                            <span class="produto-qtd">${qtd}x Unidade${qtd > 1 ? 's' : ''} (${formatarMoeda(preco)} cada)</span>
-                        </div>
-                    </div>
-                    <span class="produto-preco">${formatarMoeda(subtotalItem)}</span>
-                </div>
-            `;
-        });
-
-        const totalFinal = Math.max(0, totalSubtotal - valorDesconto);
-
-        if (badgeCount) badgeCount.textContent = `${totalItens} ${totalItens === 1 ? 'item' : 'itens'}`;
-        if (subtotalEl) subtotalEl.textContent = formatarMoeda(totalSubtotal);
-        if (totalEl) totalEl.textContent = formatarMoeda(totalFinal);
-
-        if (valorDesconto > 0) {
-            linhaDesconto.style.display = "flex";
-            descontoEl.textContent = `- ${formatarMoeda(valorDesconto)}`;
-        } else {
-            linhaDesconto.style.display = "none";
-        }
-
-        calcularTroco(totalFinal);
+        return (Number(valor) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
     function calcularTroco(totalFinal) {
@@ -114,6 +70,151 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function renderizarResumo() {
+        if (!container) return;
+
+        // Se o carrinho estiver vazio, exibe a mensagem amigável
+        if (!carrinho || carrinho.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: #94a3b8; padding: 40px 10px;">
+                    <i class="fa-solid fa-basket-shopping" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+                    <p style="font-weight: 500;">Nenhum produto selecionado.</p>
+                </div>
+            `;
+            if (badgeCount) badgeCount.textContent = "0 itens";
+            if (subtotalEl) subtotalEl.textContent = "R$ 0,00";
+            if (totalEl) totalEl.textContent = "R$ 0,00";
+            if (linhaDesconto) linhaDesconto.style.display = "none";
+            return;
+        }
+
+        let totalSubtotal = 0;
+        let totalItens = 0;
+        let htmlItens = "";
+
+        carrinho.forEach(item => {
+            const preco = Number(item.preco) || 0;
+            const qtd = Number(item.quantidade) || 1;
+            const subtotalItem = preco * qtd;
+
+            totalSubtotal += subtotalItem;
+            totalItens += qtd;
+
+            const imagemUrl = item.imagem || '/static/img/camisa.jpg';
+
+            htmlItens += `
+                <div class="produto-item">
+                    <div class="produto-info">
+                        <img src="${imagemUrl}" alt="${item.nome}" class="produto-img">
+                        <div class="produto-detalhes">
+                            <span class="produto-nome">${item.nome}</span>
+                            <span class="produto-qtd">${qtd}x Unidade${qtd > 1 ? 's' : ''} (${formatarMoeda(preco)} cada)</span>
+                        </div>
+                    </div>
+                    <span class="produto-preco">${formatarMoeda(subtotalItem)}</span>
+                </div>
+            `;
+        });
+
+        container.innerHTML = htmlItens;
+
+        const totalFinal = Math.max(0, totalSubtotal - valorDesconto);
+
+        if (badgeCount) badgeCount.textContent = `${totalItens} ${totalItens === 1 ? 'item' : 'itens'}`;
+        if (subtotalEl) subtotalEl.textContent = formatarMoeda(totalSubtotal);
+        if (totalEl) totalEl.textContent = formatarMoeda(totalFinal);
+
+        if (valorDesconto > 0 && linhaDesconto && descontoEl) {
+            linhaDesconto.style.display = "flex";
+            descontoEl.textContent = `- ${formatarMoeda(valorDesconto)}`;
+        } else if (linhaDesconto) {
+            linhaDesconto.style.display = "none";
+        }
+
+        calcularTroco(totalFinal);
+    }
+
+    // -------------------------------------------------------------
+    // BUSCAR E INICIALIZAR SELETOR DE CLIENTES (VIA API FASTAPI)
+    // -------------------------------------------------------------
+    async function inicializarSeletorCliente() {
+        let selectEl = document.getElementById("selectCliente");
+
+        // Se o select não existir no HTML, cria automaticamente na tela
+        if (!selectEl && container) {
+            const caixaCliente = document.createElement("div");
+            caixaCliente.style.cssText = "background: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #cbd5e1;";
+            caixaCliente.innerHTML = `
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                    <i class="fa-solid fa-user-tag" style="margin-right: 4px;"></i> Cliente da Venda:
+                </label>
+                <select id="selectCliente" style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 0.95rem; background: #fff; color: #0f172a; font-weight: 600;">
+                    <option value="">Carregando clientes do banco...</option>
+                </select>
+            `;
+            container.parentNode.insertBefore(caixaCliente, container);
+            selectEl = document.getElementById("selectCliente");
+        }
+
+        try {
+            const response = await fetch("/clientes/api/listar");
+            
+            if (!response.ok) {
+                throw new Error("Erro na requisição dos clientes");
+            }
+
+            const clientesCadastrados = await response.json();
+
+            if (selectEl) {
+                selectEl.innerHTML = `<option value="">Consumidor Final (Sem Cadastro)</option>`;
+                
+                clientesCadastrados.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.id;
+                    opt.textContent = `${c.nome}${c.cpf ? ' - CPF: ' + c.cpf : ''}`;
+                    
+                    // Se o cliente já veio pré-selecionado do PDV, deixa selecionado
+                    if (idCliente && String(c.id) === String(idCliente)) {
+                        opt.selected = true;
+                    } else if (!idCliente && nomeCliente && c.nome.trim().toLowerCase() === nomeCliente.trim().toLowerCase()) {
+                        opt.selected = true;
+                        idCliente = c.id;
+                    }
+
+                    selectEl.appendChild(opt);
+                });
+
+                selectEl.addEventListener("change", (e) => {
+                    const val = e.target.value;
+                    if (!val) {
+                        nomeCliente = "Consumidor Final";
+                        cpfCliente = "";
+                        idCliente = null;
+                        localStorage.removeItem("cliente_pdv");
+                    } else {
+                        let achado = clientesCadastrados.find(c => String(c.id) === String(val));
+                        if (achado) {
+                            nomeCliente = achado.nome;
+                            cpfCliente = achado.cpf || "";
+                            idCliente = achado.id;
+                            localStorage.setItem("cliente_pdv", JSON.stringify(achado));
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Erro ao carregar lista de clientes do servidor:", err);
+            if (selectEl) {
+                selectEl.innerHTML = `<option value="">Consumidor Final (${nomeCliente !== 'Consumidor Final' ? nomeCliente : 'Erro ao carregar lista'})</option>`;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------
+    // EVENT LISTENERS E INTERAÇÕES
+    // -------------------------------------------------------------
+
+    // Atualização em tempo real do valor recebido
     if (inputRecebido) {
         inputRecebido.addEventListener("input", () => {
             const subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
@@ -182,47 +283,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Salva o total gasto e o histórico de compras no cadastro do cliente selecionado
-    function salvarCompraNoCliente(totalFinal, metodo) {
-        if (nomeCliente === "Consumidor Final") return;
-
-        let clientes = JSON.parse(localStorage.getItem("clientes_db")) || [];
-        const dataAtual = new Date().toLocaleString('pt-BR');
-
-        let index = clientes.findIndex(c => 
-            (idCliente && c.id === idCliente) || 
-            (cpfCliente && c.cpf === cpfCliente) || 
-            (c.nome && c.nome.toLowerCase() === nomeCliente.toLowerCase())
-        );
-
-        if (index !== -1) {
-            // Acumula valor total de compras do cliente
-            clientes[index].totalGasto = (Number(clientes[index].totalGasto) || 0) + totalFinal;
-            
-            // Registra os itens e detalhes dessa compra específica no histórico do cliente
-            if (!clientes[index].historicoCompras) {
-                clientes[index].historicoCompras = [];
-            }
-
-            clientes[index].historicoCompras.push({
-                data: dataAtual,
-                vendedor: nomeVendedor,
-                formaPagamento: metodo,
-                total: totalFinal,
-                produtos: carrinho.map(p => ({ nome: p.nome, quantidade: p.quantidade, preco: p.preco }))
-            });
-
-            localStorage.setItem("clientes_db", JSON.stringify(clientes));
-        }
-    }
-
-    // Gerador de Recibo com Vendedor (Admin) e Cliente dinâmicos
-    function gerarEImprimirCupom(metodo, totalFinal, recebido, troco) {
+    // -------------------------------------------------------------
+    // IMPRESSÃO DE COMPROVANTE FISCAL / RECIBO
+    // -------------------------------------------------------------
+    function gerarEImprimirCupom(metodo, totalFinal, recebido, troco, vendaId = "") {
         let cupomAntigo = document.getElementById("comprovante-print");
         if (cupomAntigo) cupomAntigo.remove();
 
         const dataAtual = new Date().toLocaleString('pt-BR');
-        const numVenda = Math.floor(1000 + Math.random() * 9000);
+        const numVenda = vendaId || Math.floor(1000 + Math.random() * 9000);
 
         let itensHtml = carrinho.map(item => `
             <tr>
@@ -331,119 +400,122 @@ document.addEventListener("DOMContentLoaded", () => {
         window.print();
     }
 
-    // Modal para Selecionar o Cliente Cadastrado
-    async function selecionarCliente() {
-        let clientes = JSON.parse(localStorage.getItem("clientes_db")) || [];
-
-        let optionsHtml = `<option value="">Consumidor Final (Sem Cadastro)</option>`;
-        clientes.forEach(c => {
-            const selected = (idCliente && c.id === idCliente) || (c.nome === nomeCliente) ? 'selected' : '';
-            optionsHtml += `<option value="${c.id || c.nome}" ${selected}>${c.nome} ${c.cpf ? ' - ' + c.cpf : ''}</option>`;
-        });
-
-        const { value: clienteSelecionadoId } = await Swal.fire({
-            title: 'Selecione o Cliente',
-            text: 'Escolha qual cliente está efetuando esta compra:',
-            html: `
-                <select id="swal-select-cliente" class="swal2-select" style="width: 100%; font-size: 1rem; margin-top: 10px;">
-                    ${optionsHtml}
-                </select>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Confirmar Cliente',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#16a34a',
-            cancelButtonColor: '#64748b',
-            preConfirm: () => {
-                return document.getElementById('swal-select-cliente').value;
-            }
-        });
-
-        if (clienteSelecionadoId !== undefined) {
-            if (clienteSelecionadoId === "") {
-                nomeCliente = "Consumidor Final";
-                cpfCliente = "";
-                idCliente = null;
-                localStorage.removeItem("cliente_pdv");
-            } else {
-                let cAchado = clientes.find(c => String(c.id) === String(clienteSelecionadoId) || c.nome === clienteSelecionadoId);
-                if (cAchado) {
-                    nomeCliente = cAchado.nome;
-                    cpfCliente = cAchado.cpf || "";
-                    idCliente = cAchado.id;
-                    localStorage.setItem("cliente_pdv", JSON.stringify(cAchado));
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    // Finalizar a venda
+    // -------------------------------------------------------------
+    // FINALIZAR VENDA (COMUNICAÇÃO COM O FASTAPI)
+    // -------------------------------------------------------------
     async function finalizarVenda() {
+        if (!carrinho || carrinho.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Carrinho Vazio',
+                text: 'Adicione pelo menos um produto ao carrinho antes de finalizar a venda.',
+                confirmButtonColor: '#f59e0b'
+            });
+            return;
+        }
+
         const metodo = document.querySelector('input[name="forma_pagamento"]:checked')?.value || 'dinheiro';
         const subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
         const totalFinal = Math.max(0, subtotal - valorDesconto);
         const recebido = parseFloat(inputRecebido?.value) || 0;
 
-        if (metodo === "dinheiro") {
-            if (recebido < totalFinal) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Valor Insuficiente',
-                    text: `O valor recebido (${formatarMoeda(recebido)}) é menor que o total (${formatarMoeda(totalFinal)}).`,
-                    confirmButtonColor: '#ef4444'
-                }).then(() => inputRecebido?.focus());
-                return;
-            }
+        if (metodo === "dinheiro" && recebido < totalFinal) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Valor Insuficiente',
+                text: `O valor recebido (${formatarMoeda(recebido)}) é menor que o total (${formatarMoeda(totalFinal)}).`,
+                confirmButtonColor: '#ef4444'
+            }).then(() => inputRecebido?.focus());
+            return;
         }
-
-        // Seleciona ou confirma o cliente cadastrado
-        const prosseguir = await selecionarCliente();
-        if (!prosseguir) return;
 
         const troco = Math.max(0, recebido - totalFinal);
 
-        // Salva gastos e histórico no cliente
-        salvarCompraNoCliente(totalFinal, metodo);
+        // Desabilita o botão para evitar envio duplicado
+        if (btnConfirmar) btnConfirmar.disabled = true;
 
-        // Exibe tela final de sucesso
-        Swal.fire({
-            title: '🎉 Venda Finalizada!',
-            html: `
-                <div style="font-size: 1.05rem; text-align: left; background: #f8fafc; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0;">
-                    <p style="margin: 6px 0; color: #334155;"><strong>Vendedor:</strong> ${nomeVendedor}</p>
-                    <p style="margin: 6px 0; color: #334155;"><strong>Cliente:</strong> ${nomeCliente}</p>
-                    <p style="margin: 6px 0; color: #334155;"><strong>Forma de Pagamento:</strong> ${metodo.toUpperCase()}</p>
-                    <p style="margin: 6px 0; color: #334155;"><strong>Total da Venda:</strong> ${formatarMoeda(totalFinal)}</p>
-                    ${metodo === 'dinheiro' ? `
-                        <p style="margin: 6px 0; color: #334155;"><strong>Valor Recebido:</strong> ${formatarMoeda(recebido)}</p>
-                        <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
-                        <p style="margin: 6px 0; font-size: 1.25rem; color: #16a34a;"><strong>Troco: ${formatarMoeda(troco)}</strong></p>
-                    ` : ''}
-                </div>
-            `,
-            icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
-            cancelButtonText: 'Nova Venda',
-            confirmButtonColor: '#16a34a',
-            cancelButtonColor: '#64748b'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                gerarEImprimirCupom(metodo, totalFinal, recebido, troco);
+        try {
+            const payload = {
+                cliente_id: idCliente,
+                cliente: nomeCliente, // 👈 Garante que o nome do cliente seja enviado ao backend
+                vendedor: nomeVendedor,
+                forma_pagamento: metodo,
+                subtotal: subtotal,
+                desconto: valorDesconto,
+                total: totalFinal,
+                valor_recebido: recebido,
+                troco: troco,
+                itens: carrinho.map(item => ({
+                    produto_id: item.id || item.produto_id,
+                    quantidade: Number(item.quantidade),
+                    preco_unitario: Number(item.preco)
+                }))
+            };
+
+            const response = await fetch("/vendas/api/finalizar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const erro = await response.json();
+                throw new Error(erro.detail || "Erro ao processar a venda no servidor.");
             }
 
-            localStorage.removeItem("carrinho_pdv");
-            localStorage.removeItem("cliente_pdv");
-            window.location.href = "/vendas";
-        });
+            const resultado = await response.json();
+
+            // Modal de Sucesso
+            Swal.fire({
+                title: '🎉 Venda Finalizada!',
+                html: `
+                    <div style="font-size: 1.05rem; text-align: left; background: #f8fafc; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0;">
+                        <p style="margin: 6px 0; color: #334155;"><strong>Nº da Venda:</strong> #${resultado.venda_id || resultado.id}</p>
+                        <p style="margin: 6px 0; color: #334155;"><strong>Vendedor:</strong> ${nomeVendedor}</p>
+                        <p style="margin: 6px 0; color: #334155;"><strong>Cliente:</strong> ${nomeCliente}</p>
+                        <p style="margin: 6px 0; color: #334155;"><strong>Forma de Pagamento:</strong> ${metodo.toUpperCase()}</p>
+                        <p style="margin: 6px 0; color: #334155;"><strong>Total da Venda:</strong> ${formatarMoeda(totalFinal)}</p>
+                        ${metodo === 'dinheiro' ? `
+                            <p style="margin: 6px 0; color: #334155;"><strong>Valor Recebido:</strong> ${formatarMoeda(recebido)}</p>
+                            <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
+                            <p style="margin: 6px 0; font-size: 1.25rem; color: #16a34a;"><strong>Troco: ${formatarMoeda(troco)}</strong></p>
+                        ` : ''}
+                    </div>
+                `,
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
+                cancelButtonText: 'Nova Venda',
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#64748b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    gerarEImprimirCupom(metodo, totalFinal, recebido, troco, resultado.venda_id || resultado.id);
+                }
+
+                localStorage.removeItem("carrinho_pdv");
+                localStorage.removeItem("cliente_pdv");
+                window.location.href = "/vendas";
+            });
+
+        } catch (err) {
+            console.error("Erro ao finalizar venda:", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao Finalizar Venda',
+                text: err.message || 'Ocorreu um erro ao se comunicar com o servidor.',
+                confirmButtonColor: '#ef4444'
+            });
+        } finally {
+            if (btnConfirmar) btnConfirmar.disabled = false;
+        }
     }
 
     if (btnConfirmar) {
         btnConfirmar.addEventListener("click", finalizarVenda);
     }
 
+    // Atalho do Teclado: Aperta F5 para finalizar venda rapidamente
     document.addEventListener("keydown", (e) => {
         if (e.key === "F5") {
             e.preventDefault();
@@ -451,5 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Inicialização do fluxo da tela
     renderizarResumo();
+    inicializarSeletorCliente();
 });

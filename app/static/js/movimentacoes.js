@@ -2,7 +2,7 @@
 let todasMovimentacoes = [];
 let movimentacoesFiltradas = [];
 let paginaAtual = 1;
-const itensPorPagina = 10; // Registros exibidos por página
+const itensPorPagina = 4; // Registros exibidos por página
 
 // Auxiliares para normalizar Entrada e Saída/Venda
 function ehSaida(tipo) {

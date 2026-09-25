@@ -248,3 +248,29 @@ def excluir_cliente(
         url="/clientes/",
         status_code=303
     )
+
+
+# =========================
+# API: LISTAR CLIENTES (JSON)
+# =========================
+
+@router.get("/api/listar")
+def listar_clientes_json(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    # Busca apenas os clientes que estão ativos no banco
+    clientes = db.query(Cliente).filter(
+        Cliente.ativo == True
+    ).order_by(Cliente.nome.asc()).all()
+
+    return [
+        {
+            "id": c.id,
+            "nome": c.nome,
+            "cpf": c.cpf,
+            "telefone": c.telefone,
+            "email": c.email
+        }
+        for c in clientes
+    ]

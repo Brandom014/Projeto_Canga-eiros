@@ -37,7 +37,7 @@ function configurarEventos() {
                     preco: Number(btnAdd.dataset.preco),
                     quantidade: 1,
                     estoque,
-                    imagem: btnAdd.dataset.imagem || '/static/img/camisa.jpg' // 👈 CAPTURA A IMAGEM DO PRODUTO
+                    imagem: btnAdd.dataset.imagem || '/static/img/camisa.jpg' // CAPTURA A IMAGEM DO PRODUTO
                 });
             }
             salvarERenderizar();
@@ -152,72 +152,101 @@ function irParaPagamento() {
         mostrarMensagem("Adicione pelo menos um produto ao carrinho antes de prosseguir.", "error");
         return;
     }
-    // Salva o carrinho com as imagens e navega para a tela de Pagamento
+
+    // Busca o campo de cliente na tela (seja select ou input)
+    const selectCliente = document.getElementById("clienteSelect") || 
+                          document.getElementById("cliente") || 
+                          document.getElementById("cliente_id");
+    
+    let nomeCliente = "Consumidor Final";
+
+    if (selectCliente) {
+        if (selectCliente.tagName === "SELECT" && selectCliente.selectedIndex >= 0) {
+            const opcaoSelecionada = selectCliente.options[selectCliente.selectedIndex];
+            if (opcaoSelecionada.value && opcaoSelecionada.value !== "") {
+                nomeCliente = opcaoSelecionada.text.trim();
+            }
+        } else if (selectCliente.value && selectCliente.value.trim() !== "") {
+            nomeCliente = selectCliente.value.trim();
+        }
+    }
+
+    // Salva o carrinho E o cliente no localStorage
     localStorage.setItem("carrinho_pdv", JSON.stringify(carrinho));
+    localStorage.setItem("cliente_pdv", nomeCliente);
+
     window.location.href = "/pagamento";
 }
-
-function mostrarMensagem(texto, tipo) {
-    const toast = document.getElementById("purchaseMessage");
-    if (!toast) {
-        alert(texto);
-        return;
-    }
-    toast.textContent = texto;
-    toast.className = `purchase-message ${tipo} visible`;
-    window.setTimeout(() => toast.classList.remove("visible"), 4000);
-}
-
-
 
 /* =========================================================
    MENSAGENS E ALERTAS PROFISSIONAIS (SWEETALERT2)
 ========================================================= */
 
-// 1. Notificação rápida no canto da tela (Substitui a antiga)
+// 1. Notificação rápida (usa SweetAlert2 se disponível, ou fallback para elemento/alert)
 function mostrarMensagem(texto, tipo = "success") {
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: tipo, // 'success', 'error', 'warning', 'info'
-        title: texto,
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: tipo, // 'success', 'error', 'warning', 'info'
+            title: texto,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    } else {
+        const toast = document.getElementById("purchaseMessage");
+        if (!toast) {
+            alert(texto);
+            return;
+        }
+        toast.textContent = texto;
+        toast.className = `purchase-message ${tipo} visible`;
+        window.setTimeout(() => toast.classList.remove("visible"), 4000);
+    }
 }
 
 // 2. Alerta Bonito para Desconto Aplicado
 function avisarDesconto(valorDesconto) {
-    Swal.fire({
-        title: 'Desconto Aplicado!',
-        text: `Foi aplicado um desconto no valor total.`,
-        icon: 'success',
-        confirmButtonColor: '#16a34a',
-        confirmButtonText: 'Continuar'
-    });
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: 'Desconto Aplicado!',
+            text: `Foi aplicado um desconto no valor total.`,
+            icon: 'success',
+            confirmButtonColor: '#16a34a',
+            confirmButtonText: 'Continuar'
+        });
+    }
 }
 
 // 3. Modal Completo de Finalização de Venda + Troco
 function avisarVendaFinalizada(total, valorPago, troco) {
-    Swal.fire({
-        title: '🎉 Venda Concluída com Sucesso!',
-        html: `
-            <div style="font-size: 1.05rem; text-align: left; background: #f8fafc; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #e2e8f0;">
-                <p style="margin: 6px 0; color: #334155;"><strong>Total da Venda:</strong> R$ ${Number(total).toFixed(2).replace('.', ',')}</p>
-                <p style="margin: 6px 0; color: #334155;"><strong>Valor Recebido:</strong> R$ ${Number(valorPago).toFixed(2).replace('.', ',')}</p>
-                <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
-                <p style="margin: 6px 0; font-size: 1.3rem; color: #16a34a;"><strong>Troco: R$ ${Number(troco).toFixed(2).replace('.', ',')}</strong></p>
-            </div>
-        `,
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
-        cancelButtonText: 'Nova Venda',
-        confirmButtonColor: '#16a34a',
-        cancelButtonColor: '#64748b'
-    }).then(() => {
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: '🎉 Venda Concluída com Sucesso!',
+            html: `
+                <div style="font-size: 1.05rem; text-align: left; background: #f8fafc; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #e2e8f0;">
+                    <p style="margin: 6px 0; color: #334155;"><strong>Total da Venda:</strong> R$ ${Number(total).toFixed(2).replace('.', ',')}</p>
+                    <p style="margin: 6px 0; color: #334155;"><strong>Valor Recebido:</strong> R$ ${Number(valorPago).toFixed(2).replace('.', ',')}</p>
+                    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
+                    <p style="margin: 6px 0; font-size: 1.3rem; color: #16a34a;"><strong>Troco: R$ ${Number(troco).toFixed(2).replace('.', ',')}</strong></p>
+                </div>
+            `,
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
+            cancelButtonText: 'Nova Venda',
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#64748b'
+        }).then(() => {
+            localStorage.removeItem("carrinho_pdv");
+            localStorage.removeItem("cliente_pdv");
+            window.location.href = "/vendas";
+        });
+    } else {
+        alert(`Venda Concluída! Total: R$ ${total} | Troco: R$ ${troco}`);
         localStorage.removeItem("carrinho_pdv");
+        localStorage.removeItem("cliente_pdv");
         window.location.href = "/vendas";
-    });
+    }
 }
