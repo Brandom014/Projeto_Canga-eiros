@@ -1,5 +1,5 @@
 /* =========================================================
-   LÓGICA DA TELA DE PAGAMENTO (PDV) - CORRIGIDA
+   PDV - MÚLTIPLAS FORMAS DE PAGAMENTO + NOTA FISCAL (COMPLETO)
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -60,11 +60,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return Math.max(0, obterSubtotal() - valorDesconto);
     }
 
-    // Adicionar forma de pagamento
     function adicionarFormaPagamento(tipo) {
         const totalVenda = obterTotalFinal();
         const totalPagoAtual = pagamentos.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
         const restante = Math.max(0, totalVenda - totalPagoAtual);
+
+        if (restante <= 0 && pagamentos.length > 0) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire("Atenção", "O valor total da venda já foi totalmente atingido!", "info");
+            }
+            return;
+        }
 
         pagamentos.push({
             id: Date.now() + Math.random(),
@@ -120,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
             containerPagamentos.appendChild(card);
         });
 
-        // Eventos nos inputs e botões
         containerPagamentos.querySelectorAll(".input-valor-pagamento").forEach(input => {
             input.addEventListener("input", (e) => {
                 const id = parseFloat(e.target.getAttribute("data-id"));
@@ -226,15 +231,344 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (linhaDesconto) {
             linhaDesconto.style.display = "none";
         }
+
+        atualizarResumoPagamentos();
     }
 
-    // Eventos nos botões de adicionar pagamento
+    async function inicializarSeletorCliente() {
+        let selectEl = document.getElementById("selectCliente");
+
+        if (!selectEl && container) {
+            const caixaCliente = document.createElement("div");
+            caixaCliente.style.cssText = "background: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #cbd5e1;";
+            caixaCliente.innerHTML = `
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                    <i class="fa-solid fa-user-tag" style="margin-right: 4px;"></i> Cliente da Venda:
+                </label>
+                <select id="selectCliente" style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 0.95rem; background: #fff; color: #0f172a; font-weight: 600;">
+                    <option value="">Carregando clientes do banco...</option>
+                </select>
+            `;
+            container.parentNode.insertBefore(caixaCliente, container);
+            selectEl = document.getElementById("selectCliente");
+        }
+
+        try {
+            const response = await fetch("/clientes/api/listar");
+            const contentType = response.headers.get("content-type");
+
+            if (response.ok && contentType && contentType.includes("application/json")) {
+                const clientesCadastrados = await response.json();
+                if (selectEl) {
+                    selectEl.innerHTML = `<option value="">Consumidor Final (Sem Cadastro)</option>`;
+                    clientesCadastrados.forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c.id;
+                        opt.textContent = `${c.nome}${c.cpf ? ' - CPF: ' + c.cpf : ''}`;
+                        if (idCliente && String(c.id) === String(idCliente)) opt.selected = true;
+                        selectEl.appendChild(opt);
+                    });
+
+                    selectEl.addEventListener("change", (e) => {
+                        const val = e.target.value;
+                        if (!val) {
+                            nomeCliente = "Consumidor Final";
+                            cpfCliente = "";
+                            idCliente = null;
+                            localStorage.removeItem("cliente_pdv");
+                        } else {
+                            let achado = clientesCadastrados.find(c => String(c.id) === String(val));
+                            if (achado) {
+                                nomeCliente = achado.nome;
+                                cpfCliente = achado.cpf || "";
+                                idCliente = achado.id;
+                                localStorage.setItem("cliente_pdv", JSON.stringify(achado));
+                            }
+                        }
+                    });
+                }
+            } else {
+                if (selectEl) selectEl.innerHTML = `<option value="">Consumidor Final (Sem Cadastro)</option>`;
+            }
+        } catch (err) {
+            if (selectEl) selectEl.innerHTML = `<option value="">Consumidor Final</option>`;
+        }
+    }
+
+    if (btnDesconto) {
+        btnDesconto.addEventListener("click", async () => {
+            const subtotal = obterSubtotal();
+            if (subtotal <= 0) return;
+
+            if (typeof Swal !== 'undefined') {
+                const { value: entrada } = await Swal.fire({
+                    title: 'Aplicar Desconto',
+                    input: 'number',
+                    inputLabel: 'Informe o valor do desconto (R$)',
+                    inputValue: valorDesconto || '',
+                    inputAttributes: { step: '0.01', min: '0', max: subtotal },
+                    showCancelButton: true,
+                    confirmButtonText: 'Aplicar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (entrada !== undefined && entrada !== null) {
+                    valorDesconto = parseFloat(entrada) || 0;
+                    renderizarResumo();
+                }
+            }
+        });
+    }
+
     document.getElementById("btnAddDinheiro")?.addEventListener("click", () => adicionarFormaPagamento('dinheiro'));
     document.getElementById("btnAddCredito")?.addEventListener("click", () => adicionarFormaPagamento('credito'));
     document.getElementById("btnAddDebito")?.addEventListener("click", () => adicionarFormaPagamento('debito'));
     document.getElementById("btnAddPix")?.addEventListener("click", () => adicionarFormaPagamento('pix'));
 
-    // ORDEM DE EXECUÇÃO CORRETA:
-    renderizarResumo();                // 1. Renderiza o resumo do carrinho e define o Total
-    adicionarFormaPagamento('dinheiro'); // 2. Lança a primeira forma preenchendo o valor total real
+    function gerarEImprimirCupom(totalFinal, troco, vendaId = "") {
+        let cupomAntigo = document.getElementById("comprovante-print");
+        if (cupomAntigo) cupomAntigo.remove();
+
+        const dataAtual = new Date().toLocaleString('pt-BR');
+        const numVenda = vendaId || Math.floor(1000 + Math.random() * 9000);
+
+        let itensHtml = carrinho.map(item => `
+            <tr>
+                <td style="text-align: left; padding: 8px 0; color: #0f172a; font-size: 15px; font-weight: 500;">${item.nome}</td>
+                <td style="text-align: center; color: #334155; font-size: 15px;">${item.quantidade}</td>
+                <td style="text-align: right; color: #334155; font-size: 15px;">${formatarMoeda(item.preco)}</td>
+                <td style="text-align: right; font-weight: bold; color: #0f172a; font-size: 15px;">${formatarMoeda(item.preco * item.quantidade)}</td>
+            </tr>
+        `).join('');
+
+        let pagamentosHtml = pagamentos.map(p => {
+            const info = infoMetodos[p.tipo] || { nome: p.tipo };
+            return `
+                <div class="cupom-flex" style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">
+                    <span>${info.nome}</span>
+                    <span>${formatarMoeda(p.valor)}</span>
+                </div>
+            `;
+        }).join('');
+
+        const cupomDiv = document.createElement("div");
+        cupomDiv.id = "comprovante-print";
+        cupomDiv.innerHTML = `
+            <style>
+                @media screen { #comprovante-print { display: none !important; } }
+                @media print {
+                    @page { size: auto; margin: 8mm; }
+                    body * { visibility: hidden !important; }
+                    #comprovante-print, #comprovante-print * { visibility: visible !important; }
+                    #comprovante-print {
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        max-width: 750px !important;
+                        margin: 0 auto !important;
+                        padding: 20px !important;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+                        color: #000 !important;
+                        background: #fff !important;
+                        box-sizing: border-box !important;
+                    }
+                    .cupom-flex { display: flex !important; justify-content: space-between !important; align-items: center !important; }
+                    .cupom-linha { border-bottom: 2px dashed #94a3b8 !important; margin: 16px 0 !important; }
+                    .cupom-linha-destaque { border-bottom: 3px dashed #0f172a !important; margin: 20px 0 !important; }
+                }
+            </style>
+            
+            <div style="text-align: left; margin-bottom: 12px;">
+                <h2 style="margin: 0; font-size: 26px; font-weight: 800; color: #0f172a;">Sistema de Ponto de Venda</h2>
+                <span style="font-size: 14px; color: #64748b;">CNPJ: 00.000.000/0001-00</span>
+            </div>
+
+            <div class="cupom-linha"></div>
+
+            <div class="cupom-flex" style="font-size: 17px; font-weight: 700; color: #0f172a;">
+                <span>Venda #${numVenda}</span>
+                <span>${dataAtual}</span>
+            </div>
+
+            <div class="cupom-flex" style="font-size: 14px; color: #475569; margin-top: 6px;">
+                <span>Vendedor: <strong>${nomeVendedor}</strong></span>
+                <span>Cliente: <strong>${nomeCliente}</strong>${cpfCliente ? ` (${cpfCliente})` : ''}</span>
+            </div>
+
+            <div class="cupom-linha"></div>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #cbd5e1; text-align: left; color: #64748b; font-size: 14px; text-transform: uppercase;">
+                        <th style="padding: 8px 0;">Produto</th>
+                        <th style="text-align: center;">Qtd.</th>
+                        <th style="text-align: right;">Unitário</th>
+                        <th style="text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itensHtml}
+                </tbody>
+            </table>
+
+            <div class="cupom-linha"></div>
+
+            ${valorDesconto > 0 ? `
+            <div class="cupom-flex" style="font-size: 16px; margin-bottom: 6px;">
+                <span>Desconto</span>
+                <span style="color: #ef4444; font-weight: 600;">- ${formatarMoeda(valorDesconto)}</span>
+            </div>
+            ` : ''}
+
+            <div class="cupom-flex" style="font-size: 24px; font-weight: 800; margin: 14px 0; color: #0f172a;">
+                <span>TOTAL</span>
+                <span>${formatarMoeda(totalFinal)}</span>
+            </div>
+
+            <div class="cupom-linha-destaque"></div>
+
+            <div style="margin-bottom: 10px;">
+                <span style="display: block; font-size: 14px; color: #64748b; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Formas de Pagamento:</span>
+                ${pagamentosHtml}
+            </div>
+
+            ${troco > 0 ? `
+            <div class="cupom-flex" style="font-size: 18px; font-weight: 700; color: #16a34a; margin-top: 8px;">
+                <span>Troco:</span>
+                <span>${formatarMoeda(troco)}</span>
+            </div>
+            ` : ''}
+
+            <div class="cupom-linha"></div>
+
+            <div style="text-align: center; font-size: 14px; color: #64748b; margin-top: 20px;">
+                Obrigado pela preferência, ${nomeCliente}! Volte sempre.
+            </div>
+        `;
+
+        document.body.appendChild(cupomDiv);
+        window.print();
+    }
+
+    async function finalizarVenda() {
+        if (!carrinho || carrinho.length === 0) {
+            if (typeof Swal !== 'undefined') Swal.fire("Atenção", "Carrinho vazio!", "warning");
+            return;
+        }
+
+        const totalVenda = obterTotalFinal();
+        const totalPago = pagamentos.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+        const restante = totalVenda - totalPago;
+
+        if (restante > 0.009) {
+            if (typeof Swal !== 'undefined') Swal.fire("Atenção", "O valor restante precisa ser totalmente quitado!", "warning");
+            return;
+        }
+
+        const temDinheiro = pagamentos.some(p => p.tipo === 'dinheiro');
+        const troco = (temDinheiro && restante < -0.01) ? Math.abs(restante) : 0;
+
+        // Pega a principal forma de pagamento para compatibilidade com o backend
+        const formaPagamentoPrincipal = pagamentos.length > 0 ? pagamentos[0].tipo : "dinheiro";
+
+        if (btnConfirmar) btnConfirmar.disabled = true;
+
+        try {
+            const payload = {
+                cliente_id: idCliente,
+                cliente: nomeCliente,
+                vendedor: nomeVendedor,
+                forma_pagamento: formaPagamentoPrincipal, // 👈 CORREÇÃO: Garante o envio do campo forma_pagamento
+                subtotal: obterSubtotal(),
+                desconto: valorDesconto,
+                total: totalVenda,
+                troco: troco,
+                pagamentos: pagamentos.map(p => ({
+                    tipo: p.tipo,
+                    nome: infoMetodos[p.tipo]?.nome || p.tipo,
+                    valor: Number(p.valor)
+                })),
+                itens: carrinho.map(item => ({
+                    produto_id: item.id || item.produto_id,
+                    nome: item.nome || "",
+                    quantidade: Number(item.quantidade),
+                    preco_unitario: Number(item.preco)
+                }))
+            };
+
+            const response = await fetch("/vendas/api/finalizar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const contentType = response.headers.get("content-type");
+            let resultado = {};
+
+            if (contentType && contentType.includes("application/json")) {
+                resultado = await response.json();
+            } else {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("Sessão expirada. Faça login novamente para prosseguir.");
+                } else if (response.status === 404) {
+                    throw new Error("Rota de finalização não encontrada no servidor Python (/vendas/api/finalizar).");
+                } else {
+                    throw new Error(`O servidor respondeu com código ${response.status}.`);
+                }
+            }
+
+            if (!response.ok) {
+                throw new Error(resultado.detail || resultado.mensagem || "Forma de pagamento ou dados inválidos.");
+            }
+
+            if (typeof Swal !== 'undefined') {
+                const res = await Swal.fire({
+                    title: '🎉 Venda Finalizada!',
+                    html: `
+                        <div style="font-size: 1rem; text-align: left; background: #f8fafc; padding: 14px; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0;">
+                            <p style="margin: 4px 0;"><strong>Venda:</strong> #${resultado.venda_id || resultado.id || 1024}</p>
+                            <p style="margin: 4px 0;"><strong>Cliente:</strong> ${nomeCliente}</p>
+                            <p style="margin: 4px 0;"><strong>Total:</strong> ${formatarMoeda(totalVenda)}</p>
+                            ${troco > 0 ? `<p style="margin: 4px 0; color: #16a34a; font-size: 1.1rem;"><strong>Troco: ${formatarMoeda(troco)}</strong></p>` : ''}
+                        </div>
+                    `,
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-print"></i> Imprimir Comprovante',
+                    cancelButtonText: 'Nova Venda',
+                    confirmButtonColor: '#16a34a'
+                });
+
+                if (res.isConfirmed) {
+                    gerarEImprimirCupom(totalVenda, troco, resultado.venda_id || resultado.id);
+                }
+            }
+
+            localStorage.removeItem("carrinho_pdv");
+            localStorage.removeItem("cliente_pdv");
+            window.location.href = "/vendas";
+
+        } catch (err) {
+            console.error(err);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire("Erro", err.message || "Erro ao processar o pagamento.", "error");
+            }
+        } finally {
+            if (btnConfirmar) btnConfirmar.disabled = false;
+        }
+    }
+
+    if (btnConfirmar) btnConfirmar.addEventListener("click", finalizarVenda);
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "F5") {
+            e.preventDefault();
+            if (btnConfirmar && !btnConfirmar.disabled) finalizarVenda();
+        }
+    });
+
+    renderizarResumo();
+    adicionarFormaPagamento('dinheiro');
+    inicializarSeletorCliente();
 });

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy import inspect, text
@@ -58,15 +58,6 @@ app.mount(
     name="static"
 )
 
-# Se você tiver uma pasta uploads separada
-# descomente estas linhas:
-
-# app.mount(
-#     "/uploads",
-#     StaticFiles(directory="uploads"),
-#     name="uploads"
-# )
-
 # Rotas
 app.include_router(produtos.router)
 app.include_router(auth.router)
@@ -93,6 +84,8 @@ def home(request: Request):
 # Página 404
 @app.exception_handler(404)
 def not_found(request: Request, exc):
+    if "/api" in request.url.path:
+        return JSONResponse({"detail": f"Rota não encontrada: {request.url.path}"}, status_code=404)
     return templates.TemplateResponse(
         "404.html",
         {
@@ -101,12 +94,18 @@ def not_found(request: Request, exc):
         status_code=404
     )
 
-# Tratamento de autenticação
+# Tratamento de autenticação e erros HTTP
 @app.exception_handler(StarletteHTTPException)
 def http_exception_handler(
     request: Request,
     exc: StarletteHTTPException
 ):
+    # Se a requisição for para uma rota de API, devolve JSON para o JavaScript
+    if "/api" in request.url.path or "json" in request.headers.get("accept", "").lower():
+        return JSONResponse(
+            {"detail": exc.detail or "Erro ao processar requisição."},
+            status_code=exc.status_code
+        )
 
     if exc.status_code == 401:
         response = RedirectResponse(
@@ -123,6 +122,15 @@ def http_exception_handler(
         )
         response.delete_cookie("access_token", path="/")
         return response
+
+    if exc.status_code == 404:
+        return templates.TemplateResponse(
+            "404.html",
+            {
+                "request": request
+            },
+            status_code=404
+        )
 
     return RedirectResponse(
         url="/404"
