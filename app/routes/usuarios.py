@@ -23,6 +23,7 @@ from app.models.usuarios import Usuario
 from app.dependencies import get_current_admin, get_current_user
 from app.auth import hash_senha
 
+
 router = APIRouter(
     prefix="/usuarios",
     tags=["Usuarios"]
@@ -79,7 +80,8 @@ def pagina_usuarios(
             "total_usuarios": total_usuarios,
             "total_admins": total_admins,
             "total_vendedores": total_vendedores,
-            "total_ativos": total_ativos
+            "total_ativos": total_ativos,
+            "current_user": current_user  # 🟢 CORRIGIDO: Passando current_user para o Jinja2
         }
     )
 
@@ -202,7 +204,7 @@ def alterar_senha(
 
 
 # =========================
-# DESATIVAR
+# DESATIVAR USUÁRIO
 # =========================
 
 @router.post("/desativar/{usuario_id}")
@@ -211,6 +213,13 @@ def desativar_usuario(
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin)
 ):
+    # 🔴 TRAVA: Impede que o Admin desative a PRÓPRIA conta
+    if admin.id == usuario_id:
+        return RedirectResponse(
+            url="/usuarios/?erro=autoexclusao",
+            status_code=303
+        )
+
     usuario = db.query(Usuario).filter(
         Usuario.id == usuario_id
     ).first()
@@ -231,8 +240,9 @@ def desativar_usuario(
         status_code=303
     )
 
+
 # =========================
-# ATIVAR
+# ATIVAR USUÁRIO
 # =========================
 
 @router.post("/ativar/{usuario_id}")
@@ -262,7 +272,7 @@ def ativar_usuario(
 
 
 # =========================
-# EXCLUIR
+# EXCLUIR USUÁRIO
 # =========================
 
 @router.post("/excluir/{usuario_id}")
@@ -271,6 +281,13 @@ def excluir_usuario(
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin)
 ):
+    # 🔴 TRAVA 1: Impede que o Admin exclua a PRÓPRIA conta
+    if admin.id == usuario_id:
+        return RedirectResponse(
+            url="/usuarios/?erro=autoexclusao",
+            status_code=303
+        )
+
     usuario = db.query(Usuario).filter(
         Usuario.id == usuario_id
     ).first()
@@ -281,14 +298,30 @@ def excluir_usuario(
             detail="Usuário não encontrado"
         )
 
+    # 🔴 TRAVA 2: Impede excluir se for o ÚLTIMO administrador do sistema
+    if usuario.role == "admin":
+        total_admins = db.query(Usuario).filter(
+            Usuario.role == "admin"
+        ).count()
+        
+        if total_admins <= 1:
+            return RedirectResponse(
+                url="/usuarios/?erro=ultimo_admin",
+                status_code=303
+            )
+
     db.delete(usuario)
     db.commit()
 
     return RedirectResponse(
-        url="/usuarios/",
+        url="/usuarios/?sucesso=excluido",
         status_code=303
     )
 
+
+# =========================
+# ATUALIZAR PERFIL
+# =========================
 
 @router.post("/perfil")
 async def atualizar_perfil(
