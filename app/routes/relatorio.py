@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 import csv
 import io
+import math
 from datetime import datetime
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
@@ -24,9 +25,11 @@ def obter_relatorio(
     busca: str = Query(""),
     data: str = Query(""),
     pagamento: str = Query(""),
+    pagina: int = Query(1, ge=1),
+    limite: int = Query(10, ge=1),
 ):
-    # Traz as vendas ordenadas e carrega o relacionamento de itens de uma só vez
-    query = db.query(Venda).order_by(Venda.id.desc())
+    # Traz as vendas ordenadas
+    query = db.query(Venda).options(joinedload(Venda.usuario)).order_by(Venda.id.desc())
     vendas_todas = query.all()
 
     # Filtro por Forma de Pagamento
@@ -50,17 +53,17 @@ def obter_relatorio(
             v for v in vendas_todas
             if termo in str(v.id).lower()
             or termo in (v.cliente or "").lower()
-            or (v.usuario and termo in v.usuario.nome.lower())
+            or (getattr(v, "usuario", None) and termo in v.usuario.nome.lower())
         ]
 
-    # Totais dos Cards
+    # Totais dos Cards (calculados sobre o total de vendas filtradas)
     faturamento = sum((v.total or 0) for v in vendas_todas)
     total_vendas = len(vendas_todas)
     ticket_medio = (faturamento / total_vendas) if total_vendas > 0 else 0.0
 
     venda_ids = [v.id for v in vendas_todas]
 
-    # Consulta unificada dos itens para evitar o problema de N+1 consultas
+    # Consulta unificada dos itens para evitar N+1
     itens_filtrados = (
         db.query(ItemVenda)
         .filter(ItemVenda.venda_id.in_(venda_ids))
@@ -85,7 +88,17 @@ def obter_relatorio(
         .all() if venda_ids else []
     )
 
+    # --- CÁLCULO DA PAGINAÇÃO ---
+    total_registros = total_vendas
+    total_paginas = math.ceil(total_registros / limite) if total_registros > 0 else 1
+    
+    offset = (pagina - 1) * limite
+    vendas_pagina = vendas_todas[offset : offset + limite]
+
     return {
+        "pagina_atual": pagina,
+        "total_paginas": total_paginas,
+        "total_registros": total_registros,
         "faturamento": faturamento,
         "total_vendas": total_vendas,
         "ticket_medio": round(ticket_medio, 2),
@@ -99,13 +112,13 @@ def obter_relatorio(
         "vendas": [
             {
                 "id": v.id,
-                "data": v.data.strftime("%d/%m/%Y %H:%M") if v.data else "Data N/A",
+                "data": v.data.strftime("%d/%m/%Y %H:%M") if getattr(v, "data", None) else "Data N/A",
                 "cliente": v.cliente or "Consumidor Final",
                 "usuario": v.usuario.nome if getattr(v, "usuario", None) else "Sistema",
                 "itens": qtd_itens_por_venda.get(v.id, 0),
                 "pagamento": (v.forma_pagamento or "N/I").upper(),
                 "total": v.total or 0.0,
-            } for v in vendas_todas
+            } for v in vendas_pagina
         ],
     }
 

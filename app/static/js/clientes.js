@@ -2,8 +2,42 @@
 // ESTADO GLOBAL & PAGINAÇÃO
 // ==========================================
 let paginaAtual = 1;
-const itensPorPagina = 4; // Alterado para 4 itens por página
+const itensPorPagina = 4; // 4 itens por página
 let clientesFiltrados = [];
+
+// ==========================================
+// VALIDAÇÃO ALGORÍTMICA DE CPF
+// ==========================================
+function validarCPF(cpf) {
+    if (!cpf) return false;
+
+    // Remove pontos e traços
+    cpf = cpf.replace(/\D/g, '');
+
+    // Verifica se tem 11 dígitos ou é uma sequência repetida (111.111.111-11, etc)
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+        return false;
+    }
+
+    // Validação do 1º dígito
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let resto = (soma * 10) % 11;
+    let digito1 = (resto === 10 || resto === 11) ? 0 : resto;
+    if (digito1 !== parseInt(cpf.charAt(9))) return false;
+
+    // Validação do 2º dígito
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    let digito2 = (resto === 10 || resto === 11) ? 0 : resto;
+
+    return digito2 === parseInt(cpf.charAt(10));
+}
 
 // ==========================================
 // MODAIS (CADASTRO E EDIÇÃO)
@@ -300,6 +334,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const telefones = [document.getElementById("telefone"), document.getElementById("editTelefone")];
     telefones.forEach(input => input && aplicarMascaraTelefone(input));
+
+    // Validar CPF no Envio do Formulário de Cadastro
+    const formCadastro = document.querySelector("#modalCadastro form");
+    if (formCadastro) {
+        formCadastro.addEventListener("submit", function (e) {
+            const inputCpf = document.getElementById("cpf");
+            if (inputCpf && !validarCPF(inputCpf.value)) {
+                e.preventDefault();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire("Atenção", "Por favor, informe um CPF válido.", "warning");
+                } else {
+                    alert("Por favor, informe um CPF válido.");
+                }
+            }
+        });
+    }
+
+    // Validar CPF no Envio do Formulário de Edição
+    const formEdicao = document.getElementById("formEdicao");
+    if (formEdicao) {
+        formEdicao.addEventListener("submit", function (e) {
+            const inputEditCpf = document.getElementById("editCpf");
+            if (inputEditCpf && !validarCPF(inputEditCpf.value)) {
+                e.preventDefault();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire("Atenção", "Por favor, informe um CPF válido.", "warning");
+                } else {
+                    alert("Por favor, informe um CPF válido.");
+                }
+            }
+        });
+    }
 
     const campoPesquisa = document.getElementById("campoPesquisa");
     if (campoPesquisa) {

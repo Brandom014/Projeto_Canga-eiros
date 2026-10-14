@@ -1,7 +1,11 @@
+/* =========================================================
+   LÓGICA DO RELATÓRIO DE VENDAS (IDs CORRIGIDOS)
+========================================================= */
+
 let relatorioVendas = [];
 let vendasFiltradas = [];
 let paginaAtual = 1;
-const itensPorPagina = 4;
+const itensPorPagina = 4; // Ajuste para quantos itens quer ver por página (ex: 5, 10)
 
 document.addEventListener('DOMContentLoaded', () => {
     configurarFiltrosAutomaticos();
@@ -148,30 +152,34 @@ function renderizarTabela() {
     atualizarPaginacao();
 }
 
+// -------------------------------------------------------------
+// CORREÇÃO: IDs SINCRONIZADOS COM O SEU HTML (pageInfo, btnPrev, btnNext)
+// -------------------------------------------------------------
 function atualizarPaginacao() {
     const totalItens = vendasFiltradas.length;
     const totalPaginas = Math.ceil(totalItens / itensPorPagina) || 1;
 
     if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
-    const infoSpan = document.getElementById('pagination-info');
-    const pageSpan = document.getElementById('page-num');
-    const btnPrev = document.getElementById('btn-prev');
-    const btnNext = document.getElementById('btn-next');
+    const pageInfo = document.getElementById('pageInfo');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
 
-    if (infoSpan) {
-        if (totalItens === 0) {
-            infoSpan.innerText = 'Mostrando 0 de 0 vendas';
-        } else {
-            const inicioIndex = (paginaAtual - 1) * itensPorPagina + 1;
-            const fimIndex = Math.min(paginaAtual * itensPorPagina, totalItens);
-            infoSpan.innerText = `Mostrando ${inicioIndex} até ${fimIndex} de ${totalItens} vendas`;
-        }
+    if (pageInfo) {
+        pageInfo.innerText = `Página ${paginaAtual} de ${totalPaginas}`;
     }
 
-    if (pageSpan) pageSpan.innerText = `Página ${paginaAtual} de ${totalPaginas}`;
-    if (btnPrev) btnPrev.disabled = (paginaAtual <= 1);
-    if (btnNext) btnNext.disabled = (paginaAtual >= totalPaginas);
+    if (btnPrev) {
+        btnPrev.disabled = (paginaAtual <= 1);
+        btnPrev.style.opacity = (paginaAtual <= 1) ? "0.5" : "1";
+        btnPrev.style.cursor = (paginaAtual <= 1) ? "not-allowed" : "pointer";
+    }
+
+    if (btnNext) {
+        btnNext.disabled = (paginaAtual >= totalPaginas);
+        btnNext.style.opacity = (paginaAtual >= totalPaginas) ? "0.5" : "1";
+        btnNext.style.cursor = (paginaAtual >= totalPaginas) ? "not-allowed" : "pointer";
+    }
 }
 
 function mudarPagina(direcao) {
@@ -228,7 +236,6 @@ async function abrirModalDetalhes(vendaId) {
     const venda = relatorioVendas.find(v => v.id == vendaId);
     if (!venda) return;
 
-    // 1. Preenche informações básicas da cabeçalho do modal
     document.getElementById('modal-venda-id').innerText = venda.id;
     document.getElementById('modal-venda-data').innerText = formatarData(venda.data);
     document.getElementById('modal-cliente-nome').innerText = venda.cliente || 'Consumidor Final';
@@ -244,7 +251,6 @@ async function abrirModalDetalhes(vendaId) {
     let desconto = venda.desconto || 0;
     let totalLiquido = venda.total || 0;
 
-    // 2. Busca detalhes completos na API do backend
     try {
         let response = await fetch(`/vendas/api/detalhes/${vendaId}`);
         if (!response.ok) {
@@ -262,10 +268,7 @@ async function abrirModalDetalhes(vendaId) {
         console.error("Erro ao carregar detalhes da venda:", err);
     }
 
-    // 3. Atualiza o valor final em destaque do modal
     document.getElementById('modal-total-valor').innerText = formatarMoeda(totalLiquido);
-
-    // 4. Monta a tabela de itens
     tbody.innerHTML = '';
 
     if (itens && itens.length > 0) {
@@ -285,7 +288,6 @@ async function abrirModalDetalhes(vendaId) {
             `;
         });
 
-        // Exibe linhas de resumo (Subtotal e Desconto) se houver desconto aplicado
         if (desconto > 0) {
             tbody.innerHTML += `
                 <tr style="border-top: 2px solid #e2e8f0; background-color: #f8fafc;">

@@ -25,7 +25,6 @@
         <div class="sidebar-brand">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <i class="fa-solid fa-store"></i>
-                
             </div>
             <i class="fa-solid fa-bars toggle-btn" onclick="toggleSidebar()"></i>
         </div>
@@ -98,6 +97,21 @@
 <main class="main-content">
 
     <div class="container">
+
+        <!-- ALERTAS DE ERRO DA URL -->
+        {% if request.query_params.get('erro') == 'autoexclusao' %}
+            <div style="background-color: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span><strong>Ação bloqueada!</strong> Você não pode desativar ou excluir sua própria conta.</span>
+            </div>
+        {% endif %}
+
+        {% if request.query_params.get('erro') == 'ultimo_admin' %}
+            <div style="background-color: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span><strong>Ação bloqueada!</strong> Este é o único administrador do sistema e não pode ser removido.</span>
+            </div>
+        {% endif %}
 
         <!-- TOPBAR (TÍTULO + BOTÃO NOVO USUÁRIO) -->
         <div class="topbar">
@@ -223,7 +237,12 @@
                                     {{ usuario.nome[:1].upper() }}
                                 </div>
                                 <div>
-                                    <div class="user-name">{{ usuario.nome }}</div>
+                                    <div class="user-name">
+                                        {{ usuario.nome }}
+                                        {% if usuario.id == current_user.id %}
+                                            <span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">Você</span>
+                                        {% endif %}
+                                    </div>
                                     <div class="user-id">ID #{{ usuario.id }}</div>
                                 </div>
                             </div>
@@ -259,29 +278,36 @@
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
 
-                                {% if usuario.ativo %}
-                                    <form action="/usuarios/desativar/{{ usuario.id }}" method="POST" onsubmit="abrirConfirmacaoDesativar(event, this, '{{ usuario.nome|e }}')">
-                                        <button type="submit" class="action-btn btn-disable" title="Desativar usuário">
-                                            <i class="fa-solid fa-user-xmark"></i>
-                                        </button>
-                                    </form>
+                                {% if usuario.id == current_user.id %}
+                                    <!-- TRAVA DE INTERFACE: Oculta excluir/desativar se for a conta do usuário logado -->
+                                    <span class="action-btn" title="Você não pode desativar ou excluir sua própria conta" style="opacity: 0.5; cursor: not-allowed; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #e2e8f0; border-radius: 6px; color: #64748b;">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </span>
                                 {% else %}
-                                    <form action="/usuarios/ativar/{{ usuario.id }}" method="POST">
-                                        <button type="submit" class="action-btn btn-enable" title="Ativar usuário">
-                                            <i class="fa-solid fa-user-check"></i>
+                                    {% if usuario.ativo %}
+                                        <form action="/usuarios/desativar/{{ usuario.id }}" method="POST" onsubmit="abrirConfirmacaoDesativar(event, this, '{{ usuario.nome|e }}')">
+                                            <button type="submit" class="action-btn btn-disable" title="Desativar usuário">
+                                                <i class="fa-solid fa-user-xmark"></i>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="/usuarios/ativar/{{ usuario.id }}" method="POST">
+                                            <button type="submit" class="action-btn btn-enable" title="Ativar usuário">
+                                                <i class="fa-solid fa-user-check"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    <form
+                                        action="/usuarios/excluir/{{ usuario.id }}"
+                                        method="POST"
+                                        onsubmit="abrirConfirmacao(event, this, '{{ usuario.nome|e }}')"
+                                    >
+                                        <button type="submit" class="action-btn btn-delete" title="Excluir usuário">
+                                            <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
                                 {% endif %}
-
-                                <form
-                                    action="/usuarios/excluir/{{ usuario.id }}"
-                                    method="POST"
-                                    onsubmit="abrirConfirmacao(event, this, '{{ usuario.nome|e }}')"
-                                >
-                                    <button type="submit" class="action-btn btn-delete" title="Excluir usuário">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
 
                             </div>
                         </td>
