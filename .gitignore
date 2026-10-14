@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 banco.db
 *.db
+.mailmap
