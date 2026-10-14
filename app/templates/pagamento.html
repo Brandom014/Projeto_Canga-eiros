@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- CSS de Pagamento -->
     <link rel="stylesheet" href="/static/css/pagamento.css">
 </head>
@@ -21,7 +22,7 @@
         <header class="checkout-header">
             <div>
                 <h1>Finalizar Pagamento</h1>
-                <p>Confira os itens e selecione a forma de pagamento.</p>
+                <p>Confira os itens e selecione as formas de pagamento.</p>
             </div>
             <a href="/vendas" class="btn-voltar">
                 <i class="fa-solid fa-arrow-left"></i> Voltar às Vendas
@@ -52,7 +53,7 @@
 
                     <div class="linha-valor desconto" id="linhaDesconto" style="display: none;">
                         <span>Desconto</span>
-                        <strong id="descontoValor">- R$ 0,00</strong>
+                        <strong id="descontoValor">R$ 0,00</strong>
                     </div>
                     
                     <button type="button" class="btn-add-desconto" id="btnDesconto">
@@ -66,71 +67,59 @@
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA: FORMAS DE PAGAMENTO -->
-            <div class="card-box pagamento-box">
-                <div class="card-header">
-                    <h2><i class="fa-regular fa-credit-card"></i> Forma de Pagamento</h2>
-                </div>
-
-                <!-- Opções de Forma de Pagamento -->
-                <div class="grid-metodos">
-                    <label class="metodo-card active">
-                        <input type="radio" name="forma_pagamento" value="dinheiro" checked hidden>
-                        <i class="fa-solid fa-money-bill-wave"></i>
-                        <span>Dinheiro</span>
-                    </label>
-
-                    <label class="metodo-card">
-                        <input type="radio" name="forma_pagamento" value="credito" hidden>
-                        <i class="fa-solid fa-credit-card"></i>
-                        <span>Crédito</span>
-                    </label>
-
-                    <label class="metodo-card">
-                        <input type="radio" name="forma_pagamento" value="debito" hidden>
-                        <i class="fa-regular fa-credit-card"></i>
-                        <span>Débito</span>
-                    </label>
-
-                    <label class="metodo-card">
-                        <input type="radio" name="forma_pagamento" value="pix" hidden>
-                        <i class="fa-brands fa-pix"></i>
-                        <span>PIX</span>
-                    </label>
-                </div>
-
-                <!-- PAINEL DINÂMICO PARA DINHEIRO -->
-                <div class="painel-dinheiro" id="painelDinheiro">
-                    <h3><i class="fa-solid fa-calculator"></i> Cálculo de Troco</h3>
-                    
-                    <div class="grid-troco">
-                        <div class="campo-input">
-                            <label for="valorRecebido">Valor recebido (R$)</label>
-                            <div class="input-prefix">
-                                <span>R$</span>
-                                <input type="number" id="valorRecebido" placeholder="0,00" step="0.01" min="0" autofocus>
-                            </div>
-                        </div>
-
-                        <div class="box-troco">
-                            <span>Troco</span>
-                            <strong class="valor-troco" id="valorTroco">R$ 0,00</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTÃO DE CONFIRMAÇÃO -->
-                <div class="pagamento-footer">
-                    <button type="button" class="btn-confirmar" id="btnConfirmar">
-                        <i class="fa-solid fa-check-circle"></i> Confirmar Pagamento (F5)
-                    </button>
-                </div>
-
-            </div>
-
-        </div>
-
+<!-- COLUNA DIREITA: FORMAS DE PAGAMENTO MÚLTIPLAS -->
+<div class="card-box pagamento-box">
+    <div class="card-header">
+        <h2><i class="fa-regular fa-credit-card"></i> Forma(s) de Pagamento</h2>
     </div>
+
+    <!-- Painel de Seleção para Adicionar Métodos -->
+    <div class="metodos-adicionar">
+        <p class="instrucao">Clique para adicionar uma forma de pagamento:</p>
+        <div class="grid-metodos-botoes">
+            <button type="button" class="btn-metodo" id="btnAddDinheiro">
+                <i class="fa-solid fa-money-bill-wave"></i> Dinheiro
+            </button>
+            <button type="button" class="btn-metodo" id="btnAddCredito">
+                <i class="fa-solid fa-credit-card"></i> Crédito
+            </button>
+            <button type="button" class="btn-metodo" id="btnAddDebito">
+                <i class="fa-regular fa-credit-card"></i> Débito
+            </button>
+            <button type="button" class="btn-metodo" id="btnAddPix">
+                <i class="fa-brands fa-pix"></i> PIX
+            </button>
+        </div>
+    </div>
+
+    <!-- Lista Dinâmica de Pagamentos Lançados -->
+    <div class="pagamentos-lancados" id="listaPagamentos">
+        <!-- Os itens inseridos via JS aparecerão aqui -->
+    </div>
+
+    <!-- Painel de Cálculos -->
+    <div class="painel-calculo-pagamento">
+        <div class="linha-calculo">
+            <span>Total Pago:</span>
+            <strong id="totalPago">R$ 0,00</strong>
+        </div>
+        <div class="linha-calculo destaque-restante">
+            <span>Falta Pagar:</span>
+            <strong id="valorRestante">R$ 0,00</strong>
+        </div>
+        <div class="linha-calculo destaque-troco" id="boxTroco" style="display: none;">
+            <span>Troco Total:</span>
+            <strong id="valorTroco">R$ 0,00</strong>
+        </div>
+    </div>
+
+    <!-- BOTÃO DE CONFIRMAÇÃO -->
+    <div class="pagamento-footer">
+        <button type="button" class="btn-confirmar" id="btnConfirmar" disabled>
+            <i class="fa-solid fa-check-circle"></i> Confirmar Pagamento (F5)
+        </button>
+    </div>
+</div>
 
     <!-- JS de Pagamento -->
     <script src="/static/js/pagamento.js"></script>
