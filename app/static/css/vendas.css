@@ -199,6 +199,7 @@ body {
 .sidebar.collapsed .sidebar-footer span {
     display: none;
 }
+
 /* =========================================================
    CONTEÚDO PRINCIPAL E TOPO
 ========================================================= */
@@ -471,40 +472,51 @@ body {
     border-color: var(--primary);
 }
 
-/* Paginação */
-.pagination-bar {
+/* =========================================================
+   PAGINAÇÃO DE PRODUTOS
+========================================================= */
+.pagination-container {
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
-    background: #fff;
-    padding: 12px 16px;
-    border-radius: var(--radius-md);
+    gap: 8px;
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
-.btn-pagination {
-    padding: 8px 16px;
+.page-btn {
+    padding: 8px 14px;
     border: 1px solid var(--border-color);
-    background: #fff;
+    background-color: var(--bg-card);
+    color: var(--text-main);
     border-radius: var(--radius-sm);
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
 }
 
-.btn-pagination:disabled {
+.page-btn:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.page-btn.active {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+.page-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-}
-
-.btn-pagination:not(:disabled):hover {
-    background-color: #f1f5f9;
-}
-
-.page-counter {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-muted);
 }
 
 /* =========================================================
@@ -857,7 +869,6 @@ body {
         position: static;
     }
 }
-
 
 .qty-controls > button:not(.remove-item) {
     width: 30px;

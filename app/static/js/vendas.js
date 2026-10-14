@@ -6,13 +6,16 @@ function toggleSidebar() {
 }
 
 /* =========================================================
-   ESTADO GLOBAL DO CARRINHO
+   ESTADO GLOBAL DO CARRINHO E PAGINAÇÃO
 ========================================================= */
 let carrinho = JSON.parse(localStorage.getItem("carrinho_pdv")) || [];
+let paginaAtual = 1;
+const itensPorPagina = 10; // Configurado para 14 produtos visíveis por tela
 
 document.addEventListener("DOMContentLoaded", () => {
     renderizarCarrinho();
     configurarEventos();
+    aplicarPaginacaoEFiltros(); // Inicializa a paginação e filtros
 });
 
 function configurarEventos() {
@@ -37,7 +40,7 @@ function configurarEventos() {
                     preco: Number(btnAdd.dataset.preco),
                     quantidade: 1,
                     estoque,
-                    imagem: btnAdd.dataset.imagem || '/static/img/camisa.jpg' // CAPTURA A IMAGEM DO PRODUTO
+                    imagem: btnAdd.dataset.imagem || '/static/img/camisa.jpg'
                 });
             }
             salvarERenderizar();
@@ -50,11 +53,123 @@ function configurarEventos() {
         salvarERenderizar();
     });
 
-    // Filtros
-    document.getElementById("searchInput")?.addEventListener("input", filtrarProdutos);
-    document.getElementById("categoriaFilter")?.addEventListener("change", filtrarProdutos);
+    // Filtros com reset da página para 1
+    document.getElementById("searchInput")?.addEventListener("input", () => {
+        paginaAtual = 1;
+        aplicarPaginacaoEFiltros();
+    });
+
+    document.getElementById("categoriaFilter")?.addEventListener("change", () => {
+        paginaAtual = 1;
+        aplicarPaginacaoEFiltros();
+    });
 }
 
+/* =========================================================
+   LÓGICA DE PAGINAÇÃO E FILTRAGEM
+========================================================= */
+function aplicarPaginacaoEFiltros() {
+    const busca = (document.getElementById("searchInput")?.value || "").toLowerCase();
+    const categoria = document.getElementById("categoriaFilter")?.value || "";
+
+    const todosCards = Array.from(document.querySelectorAll(".product-card"));
+
+    // 1. Filtra os cards que atendem à pesquisa e à categoria
+    const cardsFiltrados = todosCards.filter((card) => {
+        const nomeOk = (card.dataset.nome || "").toLowerCase().includes(busca);
+        const categoriaOk = !categoria || card.dataset.categoria === categoria;
+        return nomeOk && categoriaOk;
+    });
+
+    // Oculta todos os cards
+    todosCards.forEach((card) => {
+        card.style.display = "none";
+    });
+
+    // 2. Calcula total de páginas
+    const totalPaginas = Math.ceil(cardsFiltrados.length / itensPorPagina) || 1;
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    if (paginaAtual < 1) paginaAtual = 1;
+
+    // 3. Exibe apenas os cards do intervalo da página atual
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const cardsDaPagina = cardsFiltrados.slice(inicio, fim);
+
+    cardsDaPagina.forEach((card) => {
+        card.style.display = ""; // Reseta para o estilo original
+    });
+
+    // 4. Renderiza os botões de paginação inteligente
+    renderizarBotoesPaginacao(totalPaginas);
+}
+
+function renderizarBotoesPaginacao(totalPaginas) {
+    const container = document.getElementById("paginationContainer");
+    if (!container) return;
+
+    if (totalPaginas <= 1) {
+        container.innerHTML = "";
+        return;
+    }
+
+    let html = `
+        <button type="button" class="page-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})">
+            <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+    `;
+
+    // Lógica para limitar a exibição de botões numéricos (máximo 5)
+    const maxBotoes = 5;
+    let inicio = Math.max(1, paginaAtual - Math.floor(maxBotoes / 2));
+    let fim = Math.min(totalPaginas, inicio + maxBotoes - 1);
+
+    if (fim - inicio + 1 < maxBotoes) {
+        inicio = Math.max(1, fim - maxBotoes + 1);
+    }
+
+    // Primeira página + reticências
+    if (inicio > 1) {
+        html += `<button type="button" class="page-btn ${paginaAtual === 1 ? 'active' : ''}" onclick="mudarPagina(1)">1</button>`;
+        if (inicio > 2) {
+            html += `<span class="pagination-ellipsis" style="padding: 6px 10px; color: #64748b; font-weight: 700; user-select: none;">...</span>`;
+        }
+    }
+
+    // Páginas intermediárias
+    for (let i = inicio; i <= fim; i++) {
+        html += `
+            <button type="button" class="page-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Última página + reticências
+    if (fim < totalPaginas) {
+        if (fim < totalPaginas - 1) {
+            html += `<span class="pagination-ellipsis" style="padding: 6px 10px; color: #64748b; font-weight: 700; user-select: none;">...</span>`;
+        }
+        html += `<button type="button" class="page-btn ${paginaAtual === totalPaginas ? 'active' : ''}" onclick="mudarPagina(${totalPaginas})">${totalPaginas}</button>`;
+    }
+
+    html += `
+        <button type="button" class="page-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})">
+            Próximo <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    `;
+
+    container.innerHTML = html;
+}
+
+function mudarPagina(novaPagina) {
+    paginaAtual = novaPagina;
+    aplicarPaginacaoEFiltros();
+}
+
+/* =========================================================
+   GERENCIAMENTO DO CARRINHO
+========================================================= */
 function salvarERenderizar() {
     localStorage.setItem("carrinho_pdv", JSON.stringify(carrinho));
     renderizarCarrinho();
@@ -107,7 +222,6 @@ function renderizarCarrinho() {
         const valor = item.preco * item.quantidade;
         subtotal += valor;
         
-        // Trata caminho de imagem padrão caso venha nulo/vazio
         const fotoUrl = item.imagem && item.imagem.trim() !== "" ? item.imagem : "/static/img/camisa.jpg";
 
         return `
@@ -135,17 +249,6 @@ function renderizarCarrinho() {
     if (totalEl) totalEl.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
 }
 
-function filtrarProdutos() {
-    const busca = (document.getElementById("searchInput")?.value || "").toLowerCase();
-    const categoria = document.getElementById("categoriaFilter")?.value || "";
-
-    document.querySelectorAll(".product-card").forEach((card) => {
-        const nomeOk = (card.dataset.nome || "").toLowerCase().includes(busca);
-        const categoriaOk = !categoria || card.dataset.categoria === categoria;
-        card.style.display = nomeOk && categoriaOk ? "" : "none";
-    });
-}
-
 /* REDIRECIONA PARA A TELA DE PAGAMENTO */
 function irParaPagamento() {
     if (!carrinho.length) {
@@ -153,7 +256,6 @@ function irParaPagamento() {
         return;
     }
 
-    // Busca o campo de cliente na tela (seja select ou input)
     const selectCliente = document.getElementById("clienteSelect") || 
                           document.getElementById("cliente") || 
                           document.getElementById("cliente_id");
@@ -171,7 +273,6 @@ function irParaPagamento() {
         }
     }
 
-    // Salva o carrinho E o cliente no localStorage
     localStorage.setItem("carrinho_pdv", JSON.stringify(carrinho));
     localStorage.setItem("cliente_pdv", nomeCliente);
 
@@ -182,13 +283,12 @@ function irParaPagamento() {
    MENSAGENS E ALERTAS PROFISSIONAIS (SWEETALERT2)
 ========================================================= */
 
-// 1. Notificação rápida (usa SweetAlert2 se disponível, ou fallback para elemento/alert)
 function mostrarMensagem(texto, tipo = "success") {
     if (typeof Swal !== "undefined") {
         Swal.fire({
             toast: true,
             position: 'top-end',
-            icon: tipo, // 'success', 'error', 'warning', 'info'
+            icon: tipo,
             title: texto,
             showConfirmButton: false,
             timer: 3000,
@@ -206,7 +306,6 @@ function mostrarMensagem(texto, tipo = "success") {
     }
 }
 
-// 2. Alerta Bonito para Desconto Aplicado
 function avisarDesconto(valorDesconto) {
     if (typeof Swal !== "undefined") {
         Swal.fire({
@@ -219,7 +318,6 @@ function avisarDesconto(valorDesconto) {
     }
 }
 
-// 3. Modal Completo de Finalização de Venda + Troco
 function avisarVendaFinalizada(total, valorPago, troco) {
     if (typeof Swal !== "undefined") {
         Swal.fire({
