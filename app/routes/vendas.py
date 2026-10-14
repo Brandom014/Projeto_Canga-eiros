@@ -1,4 +1,6 @@
+import json
 from datetime import datetime
+from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -11,7 +13,6 @@ from app.models.itens_venda import ItemVenda
 from app.models.movimentacoes import Movimentacao
 from app.models.produtos import Produto
 from app.models.vendas import Venda
-from app.schemas.venda import VendaRequest
 
 router = APIRouter(
     prefix="/vendas",
@@ -53,28 +54,34 @@ def pagina_vendas(
     )
 
 # =========================
-# FINALIZAR VENDA (COM SUPORTE A DESCONTO)
+# FINALIZAR VENDA (SUPORTE TOTAL A MÚLTIPLOS PAGAMENTOS)
 # =========================
 
 @router.post("/api/finalizar")
 def finalizar_venda(
-    dados: VendaRequest,
+    dados: Dict[str, Any],
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
-    if not dados.itens:
+    itens_in = dados.get("itens", [])
+    if not itens_in:
         raise HTTPException(
             status_code=400,
             detail="Carrinho vazio"
         )
 
-    if any(item.quantidade < 1 for item in dados.itens):
-        raise HTTPException(
-            status_code=400,
-            detail="A quantidade de cada produto deve ser maior que zero."
-        )
+    for item in itens_in:
+        qtd = int(item.get("quantidade", 0))
+        if qtd < 1:
+            raise HTTPException(
+                status_code=400,
+                detail="A quantidade de cada produto deve ser maior que zero."
+            )
 
-    if dados.forma_pagamento not in {"dinheiro", "pix", "debito", "credito"}:
+    pagamentos_in = dados.get("pagamentos", [])
+    forma_pagto = str(dados.get("forma_pagamento", "") or "").lower()
+
+    if not pagamentos_in and forma_pagto not in {"dinheiro", "pix", "debito", "credito", "multiplo"}:
         raise HTTPException(
             status_code=400,
             detail="Forma de pagamento inválida."
@@ -84,49 +91,62 @@ def finalizar_venda(
     produtos_processados = []
 
     # Valida todos os produtos e calcula o subtotal bruto
-    for item in dados.itens:
+    for item in itens_in:
+        p_id = item.get("produto_id") or item.get("id")
+        qtd = int(item.get("quantidade", 1))
+
         produto = (
             db.query(Produto)
-            .filter(Produto.id == item.produto_id)
+            .filter(Produto.id == p_id)
             .first()
         )
 
         if not produto:
             raise HTTPException(
                 status_code=404,
-                detail=f"Produto {item.produto_id} não encontrado"
+                detail=f"Produto {p_id} não encontrado"
             )
 
-        if produto.estoque < item.quantidade:
+        if produto.estoque < qtd:
             raise HTTPException(
                 status_code=400,
                 detail=f"Estoque insuficiente para {produto.nome}"
             )
 
-        subtotal_item = produto.preco * item.quantidade
+        subtotal_item = produto.preco * qtd
         total_bruto += float(subtotal_item)
 
         produtos_processados.append({
             "produto": produto,
-            "quantidade": item.quantidade
+            "quantidade": qtd
         })
 
-    # Captura o desconto (caso enviado) e calcula o valor líquido
-    desconto = float(getattr(dados, "desconto", 0) or 0)
+    # Captura desconto e troco
+    desconto = float(dados.get("desconto") or 0)
     total_liquido = max(0.0, total_bruto - desconto)
+    troco = float(dados.get("troco") or 0)
 
-    # Cria o dicionário da venda
+    # Guarda a lista completa de pagamentos em formato JSON
+    if pagamentos_in and len(pagamentos_in) > 0:
+        forma_pagamento_salvar = json.dumps(pagamentos_in)
+    else:
+        forma_pagamento_salvar = forma_pagto or "dinheiro"
+
+    cliente_info = dados.get("cliente") or dados.get("cliente_id")
+
     venda_kwargs = {
         "data": datetime.now(),
         "total": total_liquido,
         "usuario_id": user.id,
-        "forma_pagamento": dados.forma_pagamento,
-        "cliente": getattr(dados, "cliente", None) or getattr(dados, "cliente_id", None),
+        "forma_pagamento": forma_pagamento_salvar,
+        "cliente": str(cliente_info) if cliente_info else None,
     }
 
-    # Atribui o campo desconto apenas se a model Venda possuir essa coluna
     if hasattr(Venda, "desconto"):
         venda_kwargs["desconto"] = desconto
+
+    if hasattr(Venda, "troco"):
+        venda_kwargs["troco"] = troco
 
     venda = Venda(**venda_kwargs)
 
@@ -167,6 +187,7 @@ def finalizar_venda(
         "subtotal": total_bruto,
         "desconto": desconto,
         "total": total_liquido,
+        "troco": troco,
         "itens": len(produtos_processados)
     }
 
@@ -241,14 +262,47 @@ def obter_detalhes_venda(
 
     desconto = float(getattr(venda, "desconto", 0) or 0)
     total_final = float(venda.total)
+    troco = float(getattr(venda, "troco", 0) or 0)
+
+    # Identifica o vendedor
+    vendedor_nome = "Administrador"
+    if hasattr(venda, "usuario") and venda.usuario:
+        vendedor_nome = getattr(venda.usuario, "nome", None) or getattr(venda.usuario, "username", None) or "Administrador"
+
+    # Processa os pagamentos (Extrai a lista enviada em JSON)
+    pagamentos_formatados = []
+    forma_raw = str(getattr(venda, "forma_pagamento", "") or "")
+
+    if forma_raw.startswith("[") or forma_raw.startswith("{"):
+        try:
+            data_parsed = json.loads(forma_raw)
+            if isinstance(data_parsed, list):
+                for item in data_parsed:
+                    pagamentos_formatados.append({
+                        "tipo": item.get("tipo") or item.get("forma") or "Pagamento",
+                        "nome": item.get("nome") or item.get("tipo") or "Pagamento",
+                        "valor": float(item.get("valor", 0))
+                    })
+        except Exception:
+            pass
+
+    if not pagamentos_formatados:
+        pagamentos_formatados.append({
+            "tipo": venda.forma_pagamento or "dinheiro",
+            "nome": venda.forma_pagamento or "Dinheiro",
+            "valor": total_final
+        })
 
     return {
         "id": venda.id,
         "cliente": venda.cliente or "Consumidor Final",
+        "vendedor": vendedor_nome,
         "forma_pagamento": venda.forma_pagamento,
         "subtotal": subtotal_bruto,
         "desconto": desconto,
         "total": total_final,
+        "troco": troco,
         "data": venda.data.isoformat() if venda.data else "",
+        "pagamentos": pagamentos_formatados,
         "itens": itens_formatados
     }

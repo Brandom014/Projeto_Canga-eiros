@@ -156,15 +156,15 @@
                     </div>
 
                     <!-- PAGINAÇÃO -->
-            <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
-                <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
-                    <i class="fa-solid fa-chevron-left"></i> Anterior
-                </button>
-                <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
-                <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
-                    Próxima <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
+                    <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #ffffff; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                        <button id="btnPrev" type="button" class="clear-filter" onclick="mudarPagina(-1)" style="cursor: pointer;">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="pageInfo" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">Página 1 de 1</span>
+                        <button id="btnNext" type="button" class="clear-filter" onclick="mudarPagina(1)" style="cursor: pointer;">
+                            Próxima <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
 
                 </div>
             </div>
@@ -172,42 +172,64 @@
         </main>
     </div>
 
-    <!-- MODAL DE DETALHES DA VENDA -->
-    <div class="modal" id="modalDetalhesVenda" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
+    <!-- MODAL DE DETALHES DA VENDA (ATUALIZADO) -->
+    <div class="modal" id="modalDetalhesVenda" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999;">
+        <div class="modal-content" style="max-width: 520px; width: 90%; border-radius: 12px; padding: 24px; background: #ffffff; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">
+            
+            <!-- Cabeçalho do Modal -->
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
                 <div>
-                    <h2>Detalhes da Venda #<span id="modal-venda-id">--</span></h2>
-                    <p id="modal-venda-data">--/--/----</p>
+                    <h2 style="margin: 0; font-size: 1.3rem; font-weight: 800; color: #0f172a;">
+                        Detalhes da Venda #<span id="modal-venda-id">--</span>
+                    </h2>
+                    <p id="modal-venda-data" style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748b;">--/--/----</p>
                 </div>
-                <button type="button" class="close-btn" onclick="fecharModalDetalhes()">
+                <button type="button" class="close-btn" onclick="fecharModalDetalhes()" style="background: none; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
             <div class="modal-body">
-                <div class="venda-info-summary">
-                    <p><strong>Cliente:</strong> <span id="modal-cliente-nome">--</span></p>
-                    <p><strong>Pagamento:</strong> <span id="modal-pagamento">--</span></p>
+                <!-- Informações do Cliente e Vendedor -->
+                <div class="venda-info-summary" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.875rem;">
+                    <p style="margin: 0;"><strong style="color: #64748b;">Cliente:</strong> <span id="modal-cliente-nome" style="color: #0f172a; font-weight: 600;">--</span></p>
+                    <p style="margin: 0;"><strong style="color: #64748b;">Vendedor:</strong> <span id="modal-vendedor-nome" style="color: #0f172a; font-weight: 600;">--</span></p>
                 </div>
 
-                <table class="modal-table">
+                <!-- Tabela de Produtos -->
+                <table class="modal-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 0.875rem;">
                     <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th>Qtd</th>
-                            <th>Preço Un.</th>
-                            <th>Subtotal</th>
+                        <tr style="border-bottom: 2px solid #f1f5f9; text-align: left; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">
+                            <th style="padding: 8px 4px;">Produto</th>
+                            <th style="padding: 8px 4px; text-align: center;">Qtd</th>
+                            <th style="padding: 8px 4px; text-align: right;">Preço Un.</th>
+                            <th style="padding: 8px 4px; text-align: right;">Subtotal</th>
                         </tr>
                     </thead>
-                    <tbody id="modal-itens-body"></tbody>
+                    <tbody id="modal-itens-body">
+                        <!-- Preenchido via JS -->
+                    </tbody>
                 </table>
 
-                <div class="modal-total-container">
-                    <strong>Total da Venda:</strong>
-                    <span id="modal-total-valor">R$ 0,00</span>
+                <!-- Formas de Pagamento Utilizadas -->
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em;">
+                        Formas de Pagamento Utilizadas:
+                    </label>
+                    <div id="modal-pagamento">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <!-- Resumo Financeiro (Subtotal, Desconto, Total e Troco) -->
+                <div id="modal-resumo-financeiro">
+                    <div class="modal-total-container" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+                        <strong style="color: #0f172a;">Total da Venda:</strong>
+                        <span id="modal-total-valor" style="font-size: 1.15rem; font-weight: 800; color: #16a34a;">R$ 0,00</span>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 
