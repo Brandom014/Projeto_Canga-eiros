@@ -1,3 +1,4 @@
+import re
 from fastapi import (
     APIRouter,
     Depends,
@@ -27,6 +28,36 @@ router = APIRouter(
 templates = Jinja2Templates(
     directory="app/templates"
 )
+
+
+# =========================
+# FUNÇÃO AUXILIAR: VALIDAR CPF
+# =========================
+
+def validar_cpf(cpf: str) -> bool:
+    """Valida se o CPF é matematicamente válido."""
+    if not cpf:
+        return False
+
+    # Remove pontuações/espaços e mantém apenas números
+    cpf = re.sub(r'\D', '', str(cpf))
+
+    # Verifica se tem 11 dígitos ou se é uma sequência repetida (ex: 111.111.111-11)
+    if len(cpf) != 11 or cpf == cpf[0] * 11:
+        return False
+
+    # Validação do 1º dígito verificador
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = (soma * 10) % 11
+    digito_1 = 0 if resto in (10, 11) else resto
+    if digito_1 != int(cpf[9]):
+        return False
+
+    # Validação do 2º dígito verificador
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = (soma * 10) % 11
+    digito_2 = 0 if resto in (10, 11) else resto
+    return digito_2 == int(cpf[10])
 
 
 # =========================
@@ -82,19 +113,30 @@ def criar_cliente(
     current_user=Depends(get_current_user)
 ):
 
+    # 1. Limpa o CPF (remove pontos e traços)
+    cpf_limpo = re.sub(r'\D', '', cpf)
+
+    # 2. Validação matemática do formato do CPF
+    if not validar_cpf(cpf_limpo):
+        raise HTTPException(
+            status_code=400,
+            detail="O CPF informado é inválido."
+        )
+
+    # 3. Verificação de duplicação na base de dados
     cpf_existente = db.query(Cliente).filter(
-        Cliente.cpf == cpf
+        Cliente.cpf == cpf_limpo
     ).first()
 
     if cpf_existente:
         raise HTTPException(
             status_code=400,
-            detail="CPF já cadastrado"
+            detail="CPF já cadastrado."
         )
 
     novo_cliente = Cliente(
         nome=nome,
-        cpf=cpf,
+        cpf=cpf_limpo,
         telefone=telefone,
         email=email,
         ativo=True
@@ -131,22 +173,33 @@ def editar_cliente(
     if not cliente:
         raise HTTPException(
             status_code=404,
-            detail="Cliente não encontrado"
+            detail="Cliente não encontrado."
         )
 
+    # 1. Limpa o CPF
+    cpf_limpo = re.sub(r'\D', '', cpf)
+
+    # 2. Validação matemática do formato do CPF
+    if not validar_cpf(cpf_limpo):
+        raise HTTPException(
+            status_code=400,
+            detail="O CPF informado é inválido."
+        )
+
+    # 3. Verificação de duplicação na base de dados para outros clientes
     cpf_existente = db.query(Cliente).filter(
-        Cliente.cpf == cpf,
+        Cliente.cpf == cpf_limpo,
         Cliente.id != cliente_id
     ).first()
 
     if cpf_existente:
         raise HTTPException(
             status_code=400,
-            detail="CPF já está cadastrado para outro cliente"
+            detail="CPF já está cadastrado para outro cliente."
         )
 
     cliente.nome = nome
-    cliente.cpf = cpf
+    cliente.cpf = cpf_limpo
     cliente.telefone = telefone
     cliente.email = email
 
@@ -176,7 +229,7 @@ def desativar_cliente(
     if not cliente:
         raise HTTPException(
             status_code=404,
-            detail="Cliente não encontrado"
+            detail="Cliente não encontrado."
         )
 
     cliente.ativo = False
@@ -207,7 +260,7 @@ def ativar_cliente(
     if not cliente:
         raise HTTPException(
             status_code=404,
-            detail="Cliente não encontrado"
+            detail="Cliente não encontrado."
         )
 
     cliente.ativo = True
@@ -238,7 +291,7 @@ def excluir_cliente(
     if not cliente:
         raise HTTPException(
             status_code=404,
-            detail="Cliente não encontrado"
+            detail="Cliente não encontrado."
         )
 
     db.delete(cliente)
