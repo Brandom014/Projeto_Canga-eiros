@@ -56,8 +56,15 @@ document.addEventListener("DOMContentLoaded", () => {
         return carrinho.reduce((acc, item) => acc + (Number(item.preco || 0) * Number(item.quantidade || 1)), 0);
     }
 
+    // -------------------------------------------------------------
+    // TRAVA DE SEGURANÇA NO CÁLCULO DO TOTAL
+    // -------------------------------------------------------------
     function obterTotalFinal() {
-        return Math.max(0, obterSubtotal() - valorDesconto);
+        const subtotal = obterSubtotal();
+        if (valorDesconto > subtotal) {
+            valorDesconto = subtotal;
+        }
+        return Math.max(0, subtotal - valorDesconto);
     }
 
     function adicionarFormaPagamento(tipo) {
@@ -295,25 +302,49 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // -------------------------------------------------------------
+    // BOTÃO APLICAR DESCONTO COM VALIDAÇÃO EM TEMPO REAL
+    // -------------------------------------------------------------
     if (btnDesconto) {
         btnDesconto.addEventListener("click", async () => {
             const subtotal = obterSubtotal();
-            if (subtotal <= 0) return;
+            if (subtotal <= 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire("Atenção", "Adicione produtos ao carrinho antes de aplicar desconto!", "warning");
+                }
+                return;
+            }
 
             if (typeof Swal !== 'undefined') {
                 const { value: entrada } = await Swal.fire({
                     title: 'Aplicar Desconto',
                     input: 'number',
-                    inputLabel: 'Informe o valor do desconto (R$)',
+                    inputLabel: `Informe o valor do desconto (R$) - Máximo: ${formatarMoeda(subtotal)}`,
                     inputValue: valorDesconto || '',
                     inputAttributes: { step: '0.01', min: '0', max: subtotal },
                     showCancelButton: true,
-                    confirmButtonText: 'Aplicar',
-                    cancelButtonText: 'Cancelar'
+                    confirmButtonText: 'Aplicar Desconto',
+                    cancelButtonText: 'Cancelar',
+                    inputValidator: (value) => {
+                        if (!value && value !== '0') {
+                            return null;
+                        }
+                        const num = parseFloat(value);
+                        if (isNaN(num)) {
+                            return 'Por favor, introduza um valor numérico válido.';
+                        }
+                        if (num < 0) {
+                            return 'O valor do desconto não pode ser negativo!';
+                        }
+                        if (num > subtotal) {
+                            return `O desconto não pode ser superior ao valor da compra (${formatarMoeda(subtotal)})!`;
+                        }
+                    }
                 });
 
                 if (entrada !== undefined && entrada !== null) {
-                    valorDesconto = parseFloat(entrada) || 0;
+                    const numEntrada = parseFloat(entrada) || 0;
+                    valorDesconto = Math.min(subtotal, Math.max(0, numEntrada));
                     renderizarResumo();
                 }
             }
@@ -469,7 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const temDinheiro = pagamentos.some(p => p.tipo === 'dinheiro');
         const troco = (temDinheiro && restante < -0.01) ? Math.abs(restante) : 0;
 
-        // Pega a principal forma de pagamento para compatibilidade com o backend
         const formaPagamentoPrincipal = pagamentos.length > 0 ? pagamentos[0].tipo : "dinheiro";
 
         if (btnConfirmar) btnConfirmar.disabled = true;
@@ -479,7 +509,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cliente_id: idCliente,
                 cliente: nomeCliente,
                 vendedor: nomeVendedor,
-                forma_pagamento: formaPagamentoPrincipal, // 👈 CORREÇÃO: Garante o envio do campo forma_pagamento
+                forma_pagamento: formaPagamentoPrincipal,
                 subtotal: obterSubtotal(),
                 desconto: valorDesconto,
                 total: totalVenda,

@@ -47,6 +47,21 @@ async def renderizar_pagamento(request: Request):
 @router.post("/vendas/finalizar")
 async def finalizar_venda(venda: VendaRequestPayload):
     try:
+        # ---------------------------------------------------------
+        # TRAVA DE SEGURANÇA: VALIDAÇÃO DO DESCONTO NO BACKEND
+        # ---------------------------------------------------------
+        if venda.desconto < 0:
+            raise HTTPException(
+                status_code=400,
+                detail="O valor do desconto não pode ser negativo."
+            )
+
+        if venda.desconto > venda.subtotal:
+            raise HTTPException(
+                status_code=400,
+                detail=f"O desconto (R$ {venda.desconto:.2f}) não pode ser maior que o subtotal da compra (R$ {venda.subtotal:.2f})."
+            )
+
         nome_cliente = "Consumidor Final"
         if isinstance(venda.cliente, dict):
             nome_cliente = venda.cliente.get("nome", "Consumidor Final")
@@ -56,6 +71,7 @@ async def finalizar_venda(venda: VendaRequestPayload):
         print("\n================ VENDA RECEBIDA NO PYTHON ================")
         print(f"Vendedor: {venda.vendedor}")
         print(f"Cliente: {nome_cliente}")
+        print(f"Subtotal: R$ {venda.subtotal:.2f} | Desconto: R$ {venda.desconto:.2f}")
         print(f"Total: R$ {venda.total:.2f} | Troco: R$ {venda.troco:.2f}")
         print(f"Pagamentos: {len(venda.pagamentos)} forma(s)")
         print(f"Itens: {len(venda.itens)} produto(s)")
@@ -68,6 +84,8 @@ async def finalizar_venda(venda: VendaRequestPayload):
             "mensagem": "Venda realizada com sucesso!",
             "venda_id": 1024
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Erro ao processar venda: {e}")
         raise HTTPException(status_code=400, detail=str(e))
